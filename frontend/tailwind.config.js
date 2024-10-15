@@ -1,7 +1,10 @@
+const {nextui} = require("@nextui-org/react");
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
+    "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
@@ -11,10 +14,10 @@ module.exports = {
         lightGreen: '#D7FFC2',
         whity: '#FFFEF0',
         beige: '#FDD6BA',
-        gray: '#D7FFC2'
+        grayish: '#757575'
       },
     },
   },
-  plugins: [],
+  plugins: [nextui()]
 }
 
