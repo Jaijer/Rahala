@@ -1,9 +1,13 @@
 import React from 'react'
 import SearchBar from '../../components/SearchBar'
+import ResultsSection from './components/ResultsSection'
 
 function Search() {
   return (
-    <SearchBar />
+    <div className="flex flex-col justify-center gap-6 py-5 px-5 lg:px-32">
+      <SearchBar />
+      <ResultsSection />
+    </div>
   )
 }
 
