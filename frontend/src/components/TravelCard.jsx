@@ -31,7 +31,7 @@ function TravelCard({ travel }) {
           <span>
             {travel.from}
           </span>
-          -
+          <span>-</span>
           <span>
             {travel.destination}
           </span>

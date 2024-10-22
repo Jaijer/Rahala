@@ -4,6 +4,7 @@ import Landing from './pages/Landing/Landing';
 import Search from './pages/Search/Search';
 import Navbar from './components/Navbar';
 import { NextUIProvider } from '@nextui-org/react';
+import AdminDashboard from './pages/AdminDashboard/AdminDashboard';
 
 function App() {
     return (
@@ -15,6 +16,7 @@ function App() {
                         {/* Here you can add routes (pages) */}
                         <Route path="/" element={<Landing />} />
                         <Route path="/search" element={<Search />} />
+                        <Route path="/admin" element={<AdminDashboard />} />
                     </Routes>
                 </div>
             </Router>
