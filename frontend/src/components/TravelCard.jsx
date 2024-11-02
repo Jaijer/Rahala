@@ -12,7 +12,7 @@ function TravelCard({ travel }) {
       <div className="w-full h-48 rounded-t-3xl overflow-hidden">
         <Image
           alt="صورة الاعلان"
-          src={travel.image_url}
+          src={travel.image}
           objectFit="cover"
           className="w-full h-full"
         />
@@ -22,12 +22,12 @@ function TravelCard({ travel }) {
       <div className="flex flex-col gap-2 px-4 pb-3">
         {/* Price */}
         <div className="px-4 py-1 flex gap-1 rounded-full bg-beige text-darkGreen w-fit">
-          <span>{travel.price}</span>
+          <span>{travel.packages[0].price}</span> 
           <span>ريال</span>
         </div>
 
         {/* Destination */}
-        <div className="flex gap-1 text-darkGreen text-lg lg:text-xl">
+        <div className="flex gap-1 text-darkGreen text-lg lg:text-xl flex-wrap">
           <span>
             {travel.from}
           </span>
@@ -38,16 +38,16 @@ function TravelCard({ travel }) {
         </div>
 
         {/* Agency */}
-        <span className="text-grayish">{travel.agency}</span>
+        <span className="text-grayish">{travel.agency?.name}</span>
 
         {/* Dates */}
         <div className="flex gap-1 text-grayish">
           <span>
-            {new Date(travel.departure_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+            {new Date(travel.dates[0].departure).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
           </span>
           -
           <span>
-            {new Date(travel.arrival_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+            {new Date(travel.dates[0].arrival).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
           </span>
         </div>
       </div>

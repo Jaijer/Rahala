@@ -13,10 +13,18 @@ app.use(express.json());
 connectDB();
 
 // Import routes
+const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const agencyRoutes = require('./routes/agencyRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const travelRoutes = require('./routes/travelRoutes');
 
 // Use routes
-app.use('/api', userRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/agencies', agencyRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/travels', travelRoutes);
 
 // Root route
 app.get('/', (req, res) => {

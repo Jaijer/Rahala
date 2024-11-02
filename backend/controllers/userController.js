@@ -1,12 +1,54 @@
 const User = require('../models/User');
 
-exports.createUser = async (req, res) => {
-  const { name, email } = req.body;
+// Get User by ID
+exports.getUserById = async (req, res) => {
   try {
-    const user = new User({ name, email });
-    await user.save();
-    res.status(201).json(user);
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
   } catch (err) {
-    res.status(500).json({ message: 'Error creating user' });
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Create User
+exports.createUser = async (req, res) => {
+  try {
+    const { email, name } = req.body;
+    const newUser = new User({ email, name });
+    await newUser.save();
+    res.status(201).json(newUser);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Delete a User by email
+exports.deleteUserByEmail = async (req, res) => {
+  try {
+    const { email } = req.params;
+    const deletedUser = await User.findOneAndDelete({ email });
+    if (!deletedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json({ message: 'User deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+exports.getUserByEmail = async (req, res) => {
+  try {
+    console.log("Fetching User by email:", req.params.email);
+
+      const { email } = req.params;
+      const user = await User.findOne({ email });
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+      res.json(user);
+  } catch (err) {
+      res.status(500).json({ message: 'Server error' });
   }
 };

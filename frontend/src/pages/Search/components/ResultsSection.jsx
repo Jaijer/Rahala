@@ -1,104 +1,41 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import SortByBtn from './SortByBtn';
 import TravelCard from '../../../components/TravelCard';
 import useSearchStore from '../../../stores/searchStore';
 
 function ResultsSection() {
-    const { sortBy } = useSearchStore(); // Access the sort option from the store
+    const { sortBy, departure, destination, date, alterSearch } = useSearchStore(); // Access search and sort options from the store
+    const [results, setResults] = useState([]); // State to store fetched travels
 
-    const results = [
-        {
-          destination: "المدينة المنورة",
-          from: "القطيف",
-          price: 900,
-          agency: "شركة النور",
-          departure_date: new Date('2024-11-10'),
-          arrival_date: new Date('2024-11-12'),
-          image_url: "https://i.ibb.co/DDn1SwT/hazeem.jpg"
-        },
-        {
-          destination: "أبها",
-          from: "صفوى",
-          price: 700,
-          agency: "حملة الريان",
-          departure_date: new Date('2024-12-05'),
-          arrival_date: new Date('2024-12-07'),
-          image_url: "https://i.ibb.co/DDn1SwT/hazeem.jpg"
-        },
-        {
-          destination: "الطايف",
-          from: "سيهات",
-          price: 600,
-          agency: "مكتب السلام",
-          departure_date: new Date('2024-10-22'),
-          arrival_date: new Date('2024-10-24'),
-          image_url: "https://i.ibb.co/6R1TnDL/Me-and-big-guy-velhiem.png"
-        },
-        {
-          destination: "حائل",
-          from: "المدينة المنورة",
-          price: 500,
-          agency: "شركة الطموح",
-          departure_date: new Date('2024-09-15'),
-          arrival_date: new Date('2024-09-16'),
-          image_url: "https://i.ibb.co/DDn1SwT/hazeem.jpg"
-        },
-        {
-          destination: "تبوك",
-          from: "الأحساء",
-          price: 800,
-          agency: "حملة الفارس",
-          departure_date: new Date('2024-08-25'),
-          arrival_date: new Date('2024-08-27'),
-          image_url: "https://i.ibb.co/6R1TnDL/Me-and-big-guy-velhiem.png"
-        },
-        {
-          destination: "تركيا",
-          from: "البحرين",
-          price: 3000,
-          agency: "مكتب البركة",
-          departure_date: new Date('2024-07-05'),
-          arrival_date: new Date('2024-07-10'),
-          image_url: "https://i.ibb.co/6R1TnDL/Me-and-big-guy-velhiem.png"
-        },
-        {
-          destination: "ماليزيا",
-          from: "الدمام",
-          price: 3500,
-          agency: "شركة النخبة",
-          departure_date: new Date('2024-06-10'),
-          arrival_date: new Date('2024-06-15'),
-          image_url: "https://i.ibb.co/DDn1SwT/hazeem.jpg"
-        },
-        {
-          destination: "اتلانتا",
-          from: "الخبر",
-          price: 4500,
-          agency: "شركة السراج",
-          departure_date: new Date('2024-05-20'),
-          arrival_date: new Date('2024-05-25'),
-          image_url: "https://i.ibb.co/DDn1SwT/hazeem.jpg"
-        },
-        {
-          destination: "شرم الشيخ",
-          from: "القطيف",
-          price: 2500,
-          agency: "حملة الجوهرة",
-          departure_date: new Date('2024-04-10'),
-          arrival_date: new Date('2024-04-15'),
-          image_url: "https://i.ibb.co/6R1TnDL/Me-and-big-guy-velhiem.png"
-        }
-      ];
-      
+    // Fetch travels from backend
+    useEffect(() => {
+        const fetchTravels = async () => {
+            try {
+                // Build query parameters
+                const params = {
+                    ...(departure && { departure }),
+                    ...(destination && { destination }),
+                    ...(date && { date })
+                };
+                
+                const response = await axios.get('/api/travels', { params }); // Adjust URL as needed
+                setResults(response.data);
+            } catch (error) {
+                console.error("Error fetching travels:", error);
+            }
+        };
+        fetchTravels();
+    }, [alterSearch]); // Add dependencies
 
     // Sorting logic
     const sortedResults = [...results].sort((a, b) => {
         if (sortBy === "الأقل سعراً") {
-            return a.price - b.price; // Sort by price (ascending)
+            return a.packages[0].price - b.packages[0].price; // Assuming first package price
         } else if (sortBy === "الأقرب") {
-            return new Date(a.departure_date) - new Date(b.departure_date); // Sort by date (ascending)
+            return new Date(a.dates[0].departure) - new Date(b.dates[0].departure); // Assuming first date
         } else {
-            return results; // Default or other sorting criteria (for "الأشهر")
+            return results;
         }
     });
 
