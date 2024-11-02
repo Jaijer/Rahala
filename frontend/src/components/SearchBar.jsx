@@ -10,7 +10,7 @@ import useSearchStore from '../stores/searchStore';
 import AutocompleteInput from './AutocompleteInput';
 
 const mockLocations = [
-  "القطيف", "صفوى", "سيهات", "المدينة", "أبها", "الطايف", "حائل", "تبوك", "تركيا", "ماليزيا", "اتلانتا", "شرم الشيخ", "الأحساء", "البحرين"
+  "القطيف", "الدمام", "سيهات", "فرنسا", "الهند", "باريس", "نيودلهي", "تبوك", "تركيا", "ماليزيا", "اتلانتا", "شرم الشيخ", "الأحساء", "البحرين"
 ];
 
 
@@ -29,7 +29,7 @@ const CustomDatePickerInput = React.forwardRef(({ value, onClick, placeholder },
 
 export default function SearchBar() {
   const navigate = useNavigate();
-  const { departure, destination, date, setDeparture, setDestination, setDate } = useSearchStore();
+  const { departure, destination, date, setDeparture, setDestination, setDate, setAlterSearch } = useSearchStore();
   const [selectedDate, setSelectedDate] = useState(date instanceof Date ? date : new Date());
   const datePickerRef = useRef(null);
 
@@ -76,7 +76,10 @@ export default function SearchBar() {
       </div>
       <button 
         className="bg-greeny rounded-2xl lg:rounded-full p-0.5 lg:p-2 text-darkGreen flex items-center justify-center"
-        onClick={() => navigate('/search')}
+        onClick={() => {
+          navigate('/search');
+          setAlterSearch(prev => !prev);
+        }}
       >
         <IoSearch className='w-9 h-9 lg:h-10 lg:w-10'/>
       </button>
