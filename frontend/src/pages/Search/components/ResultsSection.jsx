@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import SortByBtn from './SortByBtn';
 import TravelCard from '../../../components/TravelCard';
 import useSearchStore from '../../../stores/searchStore';
+import api from '../../../api/axios';
 
 function ResultsSection() {
     const { sortBy, departure, destination, date, alterSearch } = useSearchStore(); // Access search and sort options from the store
@@ -19,7 +19,7 @@ function ResultsSection() {
                     ...(date && { date })
                 };
                 
-                const response = await axios.get('/api/travels', { params }); // Adjust URL as needed
+                const response = await api.get('/api/travels', { params }); // Adjust URL as needed
                 setResults(response.data);
             } catch (error) {
                 console.error("Error fetching travels:", error);

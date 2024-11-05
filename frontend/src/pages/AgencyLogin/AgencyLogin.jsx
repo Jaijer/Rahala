@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword, deleteUser } from 'firebase/auth';
-import axios from 'axios';
 import { toast } from 'react-toastify';
 import SignUpForm from './components/SignUpForm';
 import { auth } from '../../firebase/firebase';
+import api from '../../api/axios';
 
 function AgencyLogin() {
     const [name, setName] = useState("");
@@ -43,7 +43,7 @@ function AgencyLogin() {
 
     const createAuthUser = async (email, userType) => {
         try {
-            const response = await axios.post('/api/auth', { email, userType });
+            const response = await api.post('/api/auth', { email, userType });
             console.log("AuthUser created:", response.data);
         } catch (error) {
             console.error("Error creating AuthUser:", error);
@@ -53,7 +53,7 @@ function AgencyLogin() {
 
     const createAgency = async (email, name, phone, address) => {
         try {
-            const response = await axios.post('/api/agencies', { email, name, phone, address });
+            const response = await api.post('/api/agencies', { email, name, phone, address });
             console.log("Agency created:", response.data);
         } catch (error) {
             console.error("Error creating Agency:", error);
@@ -63,7 +63,7 @@ function AgencyLogin() {
 
     const deleteAuthUser = async (email) => {
         try {
-            await axios.delete(`/api/auth/${email}`);
+            await api.delete(`/api/auth/${email}`);
             console.log("AuthUser deleted:", email);
         } catch (error) {
             console.error("Error deleting AuthUser:", error);
@@ -72,7 +72,7 @@ function AgencyLogin() {
 
     const deleteAgencyInDB = async (email) => {
         try {
-            await axios.delete(`/api/agencies/${email}`);
+            await api.delete(`/api/agencies/${email}`);
             console.log("Agency deleted:", email);
         } catch (error) {
             console.error("Error deleting Agency:", error);
