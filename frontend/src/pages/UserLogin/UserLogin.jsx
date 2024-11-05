@@ -3,9 +3,9 @@ import LoginForm from './components/LoginForm';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, deleteUser  } from 'firebase/auth';
 import { auth } from '../../firebase/firebase';
 import SignUpForm from './components/SignUpForm';
-import axios from 'axios';
 import { toast } from 'react-toastify'; // Import the toast function
 import { useNavigate } from 'react-router-dom';
+import api from '../../api/axios';
 
 function UserLogin() {
   const navigate = useNavigate();
@@ -26,13 +26,13 @@ function UserLogin() {
         const displayName = result.user.displayName;
         
         // Check if AuthUser and User already exist in the database
-        const authUserExists = await axios.get(`/api/auth/${email}`).then(res => !!res.data).catch(error => {
+        const authUserExists = await api.get(`/api/auth/${email}`).then(res => !!res.data).catch(error => {
             if (error.response && error.response.status === 404) return false;
             console.error("Error checking AuthUser:", error);
             throw new Error("Failed to check AuthUser in MongoDB");
         });
 
-        const userExists = await axios.get(`/api/users/email/${email}`).then(res => !!res.data).catch(error => {
+        const userExists = await api.get(`/api/users/email/${email}`).then(res => !!res.data).catch(error => {
             if (error.response && error.response.status === 404) return false;
             console.error("Error checking User:", error);
             throw new Error("Failed to check User in MongoDB");
@@ -111,7 +111,7 @@ function UserLogin() {
 // Function to create AuthUser in MongoDB
 async function createAuthUser(email, userType) {
     try {
-        const response = await axios.post('/api/auth', { email, userType });
+        const response = await api.post('/api/auth', { email, userType });
         console.log("AuthUser created:", response.data);
     } catch (error) {
         console.error("Error creating AuthUser:", error);
@@ -122,7 +122,7 @@ async function createAuthUser(email, userType) {
 // Function to create User in MongoDB
 async function createUser(email, name) {
     try {
-        const response = await axios.post('/api/users', { email, name });
+        const response = await api.post('/api/users', { email, name });
         console.log("User created:", response.data);
     } catch (error) {
         console.error("Error creating User:", error);
@@ -133,7 +133,7 @@ async function createUser(email, name) {
 // Function to delete AuthUser in MongoDB
 async function deleteAuthUser(email) {
     try {
-      await axios.delete(`/api/auth/${email}`);
+      await api.delete(`/api/auth/${email}`);
       console.log("AuthUser deleted from MongoDB");
     } catch (error) {
         console.error("Error deleting AuthUser:", error);
@@ -143,7 +143,7 @@ async function deleteAuthUser(email) {
 // Function to delete User in MongoDB
 async function deleteUserInDB(email) {
     try {
-      await axios.delete(`/api/users/${email}`);
+      await api.delete(`/api/users/${email}`);
       console.log("User deleted from MongoDB");
     } catch (error) {
         console.error("Error deleting User:", error);
