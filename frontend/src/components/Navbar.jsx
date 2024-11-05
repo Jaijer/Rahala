@@ -57,7 +57,7 @@ function Navbar() {
                             className={`${isDark ? "text-white" : "text-black"} bg-transparent rounded-full text-lg`}
                             onClick={() => navigate('/login-agency')}
                         >
-                            إنضم معنا
+                            سجل حملتك
                         </Button>
                         <Button
                             className="bg-greeny rounded-full text-lg"

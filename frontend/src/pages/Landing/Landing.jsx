@@ -31,13 +31,13 @@ function Landing() {
               break;
             
             case 'agency':
-              userData = await axios.get(`/api/agencies/${firebaseUser.email}`);
+              userData = await axios.get(`/api/agencies/email/${firebaseUser.email}`);
               setUserData(userData.data);
               navigate('/agency-dashboard');
               break;
             
             case 'admin':
-              userData = await axios.get(`/api/admin/${firebaseUser.email}`);
+              userData = await axios.get(`/api/admin/email/${firebaseUser.email}`);
               setUserData(userData.data);
               navigate('/admin-dashboard');
               break;
