@@ -7,7 +7,10 @@ const userSchema = new mongoose.Schema({
     {
       travel: { type: mongoose.Schema.Types.ObjectId, ref: 'Travel', required: true },
       package: { type: String, required: true },
-      date: { type: Date, required: true }
+      date: {
+        departure: { type: Date, required: true },
+        arrival: { type: Date, required: true }
+      }
     }
   ]
 });
