@@ -10,6 +10,10 @@ import AgencyLogin from './pages/AgencyLogin/AgencyLogin';
 import { ToastContainer } from 'react-toastify'; // Import ToastContainer
 import AgencyDashboard from './pages/AgencyDashboard/AgencyDashboard';
 import UserDashboard from './pages/UserDashboard/UserDashboard';
+import AccountSettingsPage from './pages/UserSettings/UserSettings';
+import NotificationsSettingsPage from './pages/UserSettings/notifications';
+import ResetPasswordPage from './pages/UserSettings/ResetPasswordPage';
+
 
 function App() {
     return (
@@ -26,6 +30,12 @@ function App() {
                         <Route path="/admin-dashboard" element={<AdminDashboard />} />
                         <Route path="/login" element={<UserLogin />} />
                         <Route path="/login-agency" element={<AgencyLogin />} />
+
+                        <Route path="/user-settings" element={<AccountSettingsPage />} />
+                        <Route path="/user-settings/notifications" element={<NotificationsSettingsPage />} />
+                        <Route path="/user-settings/reset-password" element={<ResetPasswordPage />} />
+
+
                     </Routes>
                 </div>
                 <ToastContainer />
