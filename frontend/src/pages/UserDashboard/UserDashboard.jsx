@@ -1,8 +1,9 @@
 import React from 'react'
+import TravelsSection from './components/TravelsSection'
 
 function UserDashboard() {
   return (
-    <div>UserDashboard</div>
+    <TravelsSection />
   )
 }
 

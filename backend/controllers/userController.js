@@ -43,12 +43,41 @@ exports.getUserByEmail = async (req, res) => {
     console.log("Fetching User by email:", req.params.email);
 
       const { email } = req.params;
-      const user = await User.findOne({ email });
+      const user = await User.findOne({ email }).populate('registeredTravels.travel');
       if (!user) {
           return res.status(404).json({ message: 'User not found' });
       }
       res.json(user);
   } catch (err) {
       res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Add a travel to a user
+exports.addTravelToUser = async (req, res) => {
+  const { userId } = req.params;
+  const { travelId, package, date } = req.body;
+
+  try {
+    // Find the user and update registeredTravels
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { 
+        $push: { 
+          registeredTravels: { 
+            travel: travelId, 
+            package, 
+            date 
+          } 
+        } 
+      },
+      { new: true } // Return the updated document
+    ).populate('registeredTravels.travel'); // Optionally populate travel details
+
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
   }
 };

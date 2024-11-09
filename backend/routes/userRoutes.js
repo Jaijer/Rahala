@@ -10,4 +10,7 @@ router.get('/:id', userController.getUserById);
 router.post('/', userController.createUser);
 router.delete('/:email', userController.deleteUserByEmail);
 
+// Add a travel to a user's registeredTravels
+router.post('/:userId/add-travel', userController.addTravelToUser);
+
 module.exports = router;
