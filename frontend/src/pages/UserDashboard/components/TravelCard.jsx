@@ -2,13 +2,14 @@ import React from 'react';
 import { Image } from '@nextui-org/image'; // Import Image component from NextUI
 
 function TravelCard({ travel }) {
+    console.log(travel)
   // Destructuring the props
   const { travelName, from, destination, image } = travel.travel;
   const { package: selectedPackage, date } = travel;
   
   // Extracting departure and arrival dates
-  const departureDate = date.departure.toLocaleDateString();
-  const arrivalDate = date.arrival.toLocaleDateString();
+  const departureDate = date.departure;
+  const arrivalDate = date.arrival;
 
   return (
     <div className="flex flex-col md:flex-row bg-white shadow-lg rounded-3xl w-full h-full transform transition-all duration-300 hover:shadow-2xl hover:cursor-pointer">
