@@ -40,7 +40,7 @@ function Footer() {
           <a href="#" className="text-black hover:underline">تواصل معنا</a>
           <a href="#" className="text-black hover:underline">من نحن</a>
           <a href="#" className="text-black hover:underline">الشروط و الأحكام</a>
-          <a href="#" className="text-black hover:underline col-span-2 lg:col-span-1">سياسة الخصوصية</a>
+          <a href="/privacy-policy" className="text-black hover:underline col-span-2 lg:col-span-1">سياسة الخصوصية</a>
         </div>
       </div>
 
