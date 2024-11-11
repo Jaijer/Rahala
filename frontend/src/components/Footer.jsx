@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { FaXTwitter } from "react-icons/fa6";
 import { FaInstagram } from "react-icons/fa";
 
@@ -21,14 +21,14 @@ function Footer() {
           <div className="lg:block hidden">
             <p className="mb-2">حساباتنا في مواقع التواصل الاجتماعي</p>
             <div className="flex gap-3 text-3xl">
-              <a href="#" className="block">
+              <Link to="#" className="block">
                 {/* <img src="/path-to-icon-x.png" alt="X logo" className="w-8 h-8"/> */}
                 <FaXTwitter />
-              </a>
-              <a href="#" className="block">
+              </Link>
+              <Link to="#" className="block">
                 {/* <img src="/path-to-icon-instagram.png" alt="Instagram logo" className="w-8 h-8"/> */}
                 <FaInstagram />
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -36,25 +36,25 @@ function Footer() {
         
         {/* Links Section */}
         <div className="grid grid-cols-2 gap-3 text-lg text-center lg:text-start items-center mb-8 lg:mb-0">
-          <a href="#" className="text-black hover:underline">اكتشف</a>
-          <a href="#" className="text-black hover:underline">تواصل معنا</a>
-          <a href="#" className="text-black hover:underline">من نحن</a>
-          <a href="#" className="text-black hover:underline">الشروط و الأحكام</a>
-          <a href="/privacy-policy" className="text-black hover:underline col-span-2 lg:col-span-1">سياسة الخصوصية</a>
+          <Link to="/search" className="text-black hover:underline">اكتشف</Link>
+          <Link to="/contact-us" className="text-black hover:underline">تواصل معنا</Link>
+          <Link to="/about-us" className="text-black hover:underline">من نحن</Link>
+          <Link to="/terms-of-service" className="text-black hover:underline">الشروط و الأحكام</Link>
+          <Link to="/privacy-policy" className="text-black hover:underline col-span-2 lg:col-span-1">سياسة الخصوصية</Link>
         </div>
       </div>
 
       {/* Social Section for laptop */}
       <div className="lg:hidden flex justify-center items-center ">
             <div className="flex gap-3 text-3xl">
-              <a href="#" className="block">
+              <Link to="#" className="block">
                 {/* <img src="/path-to-icon-x.png" alt="X logo" className="w-8 h-8"/> */}
                 <FaXTwitter />
-              </a>
-              <a href="#" className="block">
+              </Link>
+              <Link to="#" className="block">
                 {/* <img src="/path-to-icon-instagram.png" alt="Instagram logo" className="w-8 h-8"/> */}
                 <FaInstagram />
-              </a>
+              </Link>
             </div>
           </div>
     </footer>
