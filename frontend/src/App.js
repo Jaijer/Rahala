@@ -13,6 +13,7 @@ import UserDashboard from './pages/UserDashboard/UserDashboard';
 import AccountSettingsPage from './pages/UserSettings/UserSettings';
 import NotificationsSettingsPage from './pages/UserSettings/notifications';
 import ResetPasswordPage from './pages/UserSettings/ResetPasswordPage';
+import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy';
 
 
 function App() {
@@ -34,6 +35,8 @@ function App() {
                         <Route path="/user-settings" element={<AccountSettingsPage />} />
                         <Route path="/user-settings/notifications" element={<NotificationsSettingsPage />} />
                         <Route path="/user-settings/reset-password" element={<ResetPasswordPage />} />
+
+                        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
 
                     </Routes>
