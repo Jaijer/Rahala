@@ -1,13 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { User, Notification } from '@nextui-org/shared-icons';
+import { FiUser } from 'react-icons/fi';
 
 function Sidebar({ activeTab }) {
   return (
     <div className="h-full p-6 lg:p-8 bg-gray-100"> {/* Increased padding */}
       <div className="flex flex-col items-center mb-8">
         <div className="w-20 h-20 bg-teal-800 rounded-full flex items-center justify-center"> {/* Larger avatar */}
-          <User className="w-10 h-10 text-white" />
+          <FiUser className="w-10 h-10 text-white" />
         </div>
       </div>
       

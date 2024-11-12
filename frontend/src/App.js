@@ -13,7 +13,11 @@ import UserDashboard from './pages/UserDashboard/UserDashboard';
 import AccountSettingsPage from './pages/UserSettings/UserSettings';
 import NotificationsSettingsPage from './pages/UserSettings/notifications';
 import ResetPasswordPage from './pages/UserSettings/ResetPasswordPage';
-import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy';
+import PrivacyPolicy from './pages/FooterPages/PrivacyPolicy';
+import TermsOfService from './pages/FooterPages/TermsOfService';
+import AboutUs from './pages/FooterPages/AboutUs';
+import ContactUs from './pages/FooterPages/ContactUs';
+import ScrollToTop from './components/ScrollToTop';
 
 
 function App() {
@@ -21,6 +25,7 @@ function App() {
         <NextUIProvider> 
             <Router>
                 <div className='flex flex-col min-h-screen bg-whity'>
+                    <ScrollToTop /> {/*Scroll to the top of the page*/}
                     <Navbar /> {/* Navbar appearing in all pages */}
                     <Routes>
                         {/* Here you can add routes (pages) */}
@@ -37,6 +42,9 @@ function App() {
                         <Route path="/user-settings/reset-password" element={<ResetPasswordPage />} />
 
                         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                        <Route path="/terms-of-service" element={<TermsOfService />} />
+                        <Route path="/about-us" element={<AboutUs />} />
+                        <Route path="/contact-us" element={<ContactUs />} />
 
 
                     </Routes>
