@@ -18,6 +18,7 @@ import TermsOfService from './pages/FooterPages/TermsOfService';
 import AboutUs from './pages/FooterPages/AboutUs';
 import ContactUs from './pages/FooterPages/ContactUs';
 import ScrollToTop from './components/ScrollToTop';
+import BookingCheckout from './pages/BookingCheckout/BookingCheckout';
 
 
 function App() {
@@ -45,6 +46,8 @@ function App() {
                         <Route path="/terms-of-service" element={<TermsOfService />} />
                         <Route path="/about-us" element={<AboutUs />} />
                         <Route path="/contact-us" element={<ContactUs />} />
+
+                        <Route path="/booking-checkout" element={<BookingCheckout />} />
 
 
                     </Routes>
