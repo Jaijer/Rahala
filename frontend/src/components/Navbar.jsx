@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Button } from '@nextui-org/react';
+import { Button, Dropdown, Avatar, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from '../firebase/firebase';
 import { toast } from 'react-toastify';
+import { FiUser } from 'react-icons/fi';
 
 function Navbar() {
     const location = useLocation();
@@ -44,13 +45,22 @@ function Navbar() {
             {/* Login/Join Us or Logout Button based on authentication state */}
             <div className="flex items-center gap-1 lg:gap-4">
                 {isLoggedIn ? (
-                    <Button
-                        variant='bordered'
-                        className="rounded-full text-lg border-black bg-greeny hover:text-white hover:bg-red-500"
-                        onClick={handleLogout}
-                    >
-                        تسجيل الخروج
-                    </Button>
+                    <Dropdown placement="bottom-right">
+                    <DropdownTrigger>
+                        <Avatar
+                            icon={<FiUser />}
+                            className="cursor-pointer bg-teal-800 text-white"
+                        />
+                    </DropdownTrigger>
+                    <DropdownMenu aria-label="User Actions" color="secondary">
+                        <DropdownItem key="settings" onClick={() => navigate('/user-settings')}>
+                            اعدادات الحساب
+                        </DropdownItem>
+                        <DropdownItem key="logout" color="error" onClick={handleLogout}>
+                            تسجيل خروج
+                        </DropdownItem>
+                    </DropdownMenu>
+                </Dropdown>
                 ) : (
                     <>
                         <Button

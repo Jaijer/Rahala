@@ -26,8 +26,8 @@ function AboutUs() {
         <ul className="mb-8 list-disc list-inside space-y-3 text-xl">
           <li>أحمد حمادة</li>
           <li>عبد الله الجشي</li>
-          <li>علي آل سليبس</li>
-          <li>مرضى اليك</li>
+          <li>علي آل سليس</li>
+          <li>مرتضى البيك</li>
           <li>حسن آل ناصر</li>
         </ul>
 
