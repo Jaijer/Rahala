@@ -19,6 +19,7 @@ import AboutUs from './pages/FooterPages/AboutUs';
 import ContactUs from './pages/FooterPages/ContactUs';
 import ScrollToTop from './components/ScrollToTop';
 import BookingCheckout from './pages/BookingCheckout/BookingCheckout';
+import ViewTravels from './pages/ViewTravels/ViewTravels';
 
 
 function App() {
@@ -48,6 +49,7 @@ function App() {
                         <Route path="/contact-us" element={<ContactUs />} />
 
                         <Route path="/booking-checkout" element={<BookingCheckout />} />
+                        <Route path="/view-travels" element={<ViewTravels />} />
 
 
                     </Routes>
