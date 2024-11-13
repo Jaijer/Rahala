@@ -5,13 +5,16 @@ import PreviousTravels from './PreviousTravels';
 import api from '../../../api/axios';
 import useUserStore from '../../../stores/userDataStore';
 import { auth } from '../../../firebase/firebase';
+import useLoadingStore from '../../../stores/loadingStore';
 
 function TravelsSection() {
   const { userData, setUserData } = useUserStore();
   const [travels, setTravels] = useState(userData?.registeredTravels || []);
+  const {setIsLoading} = useLoadingStore();
 
   useEffect(() => {
     const fetchUserData = async (email) => {
+      setIsLoading(true);
       try {
         const response = await api.get(`/api/users/email/${email}`);
         setUserData(response.data);
@@ -19,6 +22,7 @@ function TravelsSection() {
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
+      setIsLoading(false);
     };
 
     // Set up the auth state listener

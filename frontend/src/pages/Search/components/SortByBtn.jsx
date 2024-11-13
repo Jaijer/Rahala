@@ -9,7 +9,7 @@ function SortByBtn() {
         <Dropdown>
             <DropdownTrigger>
                 <Button
-                    className="capitalize bg-beige border-2 border-darkGreen rounded-full font-semibold px-6 text-lg"
+                    className="capitalize bg-beige border-2 border-darkGreen rounded-full font-semibold px-6 text-lg z-0"
                 >
                     {sortBy}
                 </Button>

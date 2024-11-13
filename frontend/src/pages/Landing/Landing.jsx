@@ -7,14 +7,17 @@ import FAQsSection from './components/FAQsSection';
 import Footer from '../../components/Footer';
 import useUserStore from '../../stores/userDataStore';
 import api from '../../api/axios';
+import useLoadingStore from '../../stores/loadingStore';
 
 function Landing() {
   const navigate = useNavigate();
   const { setUserData, setUserType } = useUserStore();
+  const {setIsLoading} = useLoadingStore();
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
       if (firebaseUser) {
+        setIsLoading(true);
         try {
           // Get user type from AuthUser collection
           const authUserResponse = await api.get(`/api/auth/${firebaseUser.email}`);
@@ -51,6 +54,7 @@ function Landing() {
           console.error('Error fetching user data:', error);
           // Handle error appropriately (show toast, etc.)
         }
+        setIsLoading(false);
       }
     });
 

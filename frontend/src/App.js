@@ -1,13 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Spinner } from "@nextui-org/spinner";
+import { NextUIProvider } from '@nextui-org/react';
+import { ToastContainer } from 'react-toastify';
+import { auth } from './firebase/firebase';
+import { onAuthStateChanged } from "firebase/auth";
+import useLoadingStore from './stores/loadingStore'; // Import the loading store
 import Landing from './pages/Landing/Landing';
 import Search from './pages/Search/Search';
 import Navbar from './components/Navbar';
-import { NextUIProvider } from '@nextui-org/react';
 import AdminDashboard from './pages/AdminDashboard/AdminDashboard';
 import UserLogin from './pages/UserLogin/UserLogin';
 import AgencyLogin from './pages/AgencyLogin/AgencyLogin';
-import { ToastContainer } from 'react-toastify'; // Import ToastContainer
 import AgencyDashboard from './pages/AgencyDashboard/AgencyDashboard';
 import UserDashboard from './pages/UserDashboard/UserDashboard';
 import AccountSettingsPage from './pages/UserSettings/UserSettings';
@@ -20,16 +24,37 @@ import ContactUs from './pages/FooterPages/ContactUs';
 import ScrollToTop from './components/ScrollToTop';
 import BookingCheckout from './pages/BookingCheckout/BookingCheckout';
 
-
 function App() {
+    const { isLoading, setIsLoading } = useLoadingStore(); // Use loading store
+
+    useEffect(() => {
+        // Set loading to true before starting Firebase auth check
+        setIsLoading(true);
+        
+        // Check Firebase authentication state
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            setIsLoading(false); // Set to false once check is complete
+        });
+        
+        return () => unsubscribe(); // Cleanup on unmount
+    }, [setIsLoading]);
+
+    // Display loading spinner while loading
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-whity">
+                <Spinner />
+            </div>
+        );
+    }
+
     return (
-        <NextUIProvider> 
+        <NextUIProvider>
             <Router>
                 <div className='flex flex-col min-h-screen bg-whity'>
-                    <ScrollToTop /> {/*Scroll to the top of the page*/}
-                    <Navbar /> {/* Navbar appearing in all pages */}
+                    <ScrollToTop />
+                    <Navbar />
                     <Routes>
-                        {/* Here you can add routes (pages) */}
                         <Route path="/" element={<Landing />} />
                         <Route path="/search" element={<Search />} />
                         <Route path="/dashboard" element={<UserDashboard />} />
@@ -48,8 +73,6 @@ function App() {
                         <Route path="/contact-us" element={<ContactUs />} />
 
                         <Route path="/booking-checkout" element={<BookingCheckout />} />
-
-
                     </Routes>
                 </div>
                 <ToastContainer />
