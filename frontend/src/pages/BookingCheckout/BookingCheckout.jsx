@@ -249,12 +249,12 @@ const BookingCheckout = () => {
 
         <Footer>
           <Button data-text="دفع">دفع</Button>
-          <Link href="#">عودة</Link>
+          <Link href="javascript:history.back()">عودة</Link>
         </Footer>
 
         <Disclaimer>
           من خلال الضغط على "دفع" فإنك توافق على{" "}
-          <Link href="#">الشروط والأحكام</Link> الخاصة بمنصة رحلة
+          <Link href="terms-of-service">الشروط والأحكام</Link> الخاصة بمنصة رحلة
         </Disclaimer>
       </Card>
     </Container>
