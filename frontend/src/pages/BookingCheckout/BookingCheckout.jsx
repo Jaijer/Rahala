@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate hook
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -214,6 +215,13 @@ const Disclaimer = styled.p`
 
 // Main Component
 const BookingCheckout = () => {
+  const navigate = useNavigate(); // Initialize the useNavigate hook
+
+  // Navigate to /payment when the button is clicked
+  const handlePaymentClick = () => {
+    navigate("/payment");
+  };
+
   return (
     <Container>
       <Title>تأكيد الطلب والدفع</Title>
@@ -248,7 +256,7 @@ const BookingCheckout = () => {
         </OrderValue>
 
         <Footer>
-          <Button data-text="دفع">دفع</Button>
+          <Button onClick={handlePaymentClick} data-text="دفع">دفع</Button>
           <Link href="javascript:history.back()">عودة</Link>
         </Footer>
 
