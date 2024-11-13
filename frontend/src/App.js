@@ -23,6 +23,9 @@ import AboutUs from './pages/FooterPages/AboutUs';
 import ContactUs from './pages/FooterPages/ContactUs';
 import ScrollToTop from './components/ScrollToTop';
 import BookingCheckout from './pages/BookingCheckout/BookingCheckout';
+import ViewTravels from './pages/ViewTravels/ViewTravels';
+import BookTrip from './pages/BookTrip/BookTrip';
+import Payment from './pages/Payment/Payment';
 
 function App() {
     const { isLoading, setIsLoading } = useLoadingStore(); // Use loading store
@@ -72,7 +75,11 @@ function App() {
                         <Route path="/about-us" element={<AboutUs />} />
                         <Route path="/contact-us" element={<ContactUs />} />
 
-                        <Route path="/booking-checkout" element={<BookingCheckout />} />
+                        <Route path="/booking-checkout" element={<BookingCheckout />} />=======
+                        <Route path="/view-travels" element={<ViewTravels />} />
+                        <Route path="/book-trip" element={<BookTrip />} />
+                        <Route path="/payment" element={<Payment />} />
+                          
                     </Routes>
                 </div>
                 <ToastContainer />
