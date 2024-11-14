@@ -2,9 +2,17 @@ import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaXTwitter } from "react-icons/fa6";
 import { FaInstagram } from "react-icons/fa";
+import { ToastContainer, toast } from 'react-toastify';
 
 function Footer() {
     const navigate = useNavigate();
+
+    const socialMediaButtonHandler = () => {
+      toast.info("Social media accounts will be available after the offical release.", {
+        position: 'top-center',
+        hideProgressBar: true
+      })
+    }  
 
   return (
     <footer className="bg-lightGreen p-6">
@@ -21,11 +29,11 @@ function Footer() {
           <div className="lg:block hidden">
             <p className="mb-2">حساباتنا في مواقع التواصل الاجتماعي</p>
             <div className="flex gap-3 text-3xl">
-              <Link to="#" className="block">
+              <Link to="#" className="block" onClick={socialMediaButtonHandler}>
                 {/* <img src="/path-to-icon-x.png" alt="X logo" className="w-8 h-8"/> */}
                 <FaXTwitter />
               </Link>
-              <Link to="#" className="block">
+              <Link to="#" className="block" onClick={socialMediaButtonHandler}>
                 {/* <img src="/path-to-icon-instagram.png" alt="Instagram logo" className="w-8 h-8"/> */}
                 <FaInstagram />
               </Link>
@@ -47,11 +55,11 @@ function Footer() {
       {/* Social Section for laptop */}
       <div className="lg:hidden flex justify-center items-center ">
             <div className="flex gap-3 text-3xl">
-              <Link to="#" className="block">
+              <Link to="#" className="block" onClick={socialMediaButtonHandler}>
                 {/* <img src="/path-to-icon-x.png" alt="X logo" className="w-8 h-8"/> */}
                 <FaXTwitter />
               </Link>
-              <Link to="#" className="block">
+              <Link to="#" className="block" onClick={socialMediaButtonHandler}>
                 {/* <img src="/path-to-icon-instagram.png" alt="Instagram logo" className="w-8 h-8"/> */}
                 <FaInstagram />
               </Link>
