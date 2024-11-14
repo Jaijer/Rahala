@@ -50,11 +50,11 @@ function Payment() {
     };
 
     return (
-        <div className="flex justify-center items-center min-h-screen" style={{ backgroundColor: '#1B4348' }}>
-            <div className="w-[494px] h-[785px] rounded-3xl p-8 flex flex-col justify-between" style={{ backgroundColor: '#FFFEF0' }}>
-                <h2 className="text-center text-2xl font-bold mb-4 text-[#1B4348]">معلومات الدفع</h2>
+        <div className="flex justify-center items-center min-h-[88vh] px-4 py-12" style={{ backgroundColor: '#1B4348' }}>
+            <div className="rounded-3xl p-8 flex flex-col justify-between" style={{ backgroundColor: '#FFFEF0' }}>
+                <h2 className="text-center text-2xl font-bold mb-8 text-[#1B4348]">معلومات الدفع</h2>
                 
-                <div className="space-y-8"> {/* Increased spacing to 30px */}
+                <div className="space-y-6"> {/* Increased spacing to 30px */}
                     <div>
                         <Input
                             type="text"
@@ -124,8 +124,7 @@ function Payment() {
                 <Button
                     onClick={handleSubmit}
                     radius="full"
-                    className="bg-[#6961EF] text-white mt-4 text-lg py-2 mx-auto"
-                    style={{ width: '358px', height: '58px' }}
+                    className="bg-[#6961EF] text-white mt-4 text-lg py-6 w-full"
                 >
                     دفع
                 </Button>
