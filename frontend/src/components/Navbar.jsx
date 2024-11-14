@@ -8,7 +8,7 @@ import { FiUser } from 'react-icons/fi';
 
 function Navbar() {
     const location = useLocation();
-    const isDark = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/login-agency';
+    const isDark = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/login-agency' || location.pathname === '/payment';
     const navigate = useNavigate();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
