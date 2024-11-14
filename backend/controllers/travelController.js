@@ -20,7 +20,7 @@ exports.getAllTravels = async (req, res) => {
     const filters = {
       ...(departure && { from: departure }),
       ...(destination && { destination }),
-      ...(date && { 'dates.departure': new Date(date) })
+      ...(date && { 'dates': { $elemMatch: { departure: new Date(date) } } })
     };
 
     // Find travels matching the filters and populate the agency data

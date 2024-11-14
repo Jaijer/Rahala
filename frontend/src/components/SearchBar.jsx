@@ -68,14 +68,14 @@ export default function SearchBar() {
           onChange={handleDateChange}
           customInput={<CustomDatePickerInput placeholder="تاريخ الذهاب" />}
           dateFormat="dd/MM/yyyy"
-          minDate={new Date()}
+          // minDate={new Date()}
           showYearDropdown
           scrollableYearDropdown
           yearDropdownItemNumber={15}
         />
       </div>
       <button 
-        className="bg-greeny rounded-2xl lg:rounded-full p-0.5 lg:p-2 text-darkGreen flex items-center justify-center"
+        className="bg-greeny rounded-2xl lg:rounded-full p-0.5 lg:p-2 text-darkGreen flex items-center justify-center hover:bg-opacity-90"
         onClick={() => {
           navigate('/search');
           setAlterSearch(prev => !prev);
