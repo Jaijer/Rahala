@@ -67,26 +67,26 @@ function AgencyDashboard() {
   return (
     <div className="flex flex-col min-h-screen bg-whity">
       {/* Search Bar */}
-      <div className="m-8">
+      <div className="m-4">
         <SearchBar />
       </div>
 
       {/* Header with Sort and Results */}
-      <div className="flex justify-between items-center px-8 mb-4">
+      <div className="flex flex-wrap justify-between items-center px-4 sm:px-8 mb-4">
         {/* Results Count */}
-        <div className="text-lg font-bold text-grayish">
+        <div className="text-sm sm:text-lg font-bold text-grayish">
           النتائج ({travels.length})
         </div>
 
         {/* Sort Dropdown */}
-        <div className="flex items-center">
+        <div className="flex items-center mt-2 sm:mt-0">
           <label htmlFor="sort" className="text-grayish font-bold ml-2">
             ترتيب بحسب:
           </label>
           <select
             id="sort"
             onChange={(e) => handleSort(e.target.value)}
-            className="bg-white border border-grayish rounded-lg px-4 py-2 text-darkGreen"
+            className="bg-white border border-grayish rounded-lg px-2 py-1 sm:px-4 sm:py-2 text-darkGreen"
           >
             <option value="">اختار...</option>
             <option value="status">الحالة</option>
@@ -97,7 +97,7 @@ function AgencyDashboard() {
       </div>
 
       {/* Labels Above Travel List */}
-      <div className="grid grid-cols-8 px-8 mb-2 items-center text-grayish font-bold">
+      <div className="hidden sm:grid grid-cols-8 px-4 sm:px-8 mb-2 items-center text-grayish font-bold">
         <div className="flex justify-center">الحالة</div>
         <div>رقم الرحلة</div>
         <div>الوجهة</div>
@@ -108,37 +108,37 @@ function AgencyDashboard() {
       </div>
 
       {/* Travel Cards */}
-      <div className="flex flex-col flex-grow px-8">
+      <div className="flex flex-col px-4 sm:px-8">
         {travels.map((travel, index) => (
           <TravelCard key={index} travel={travel} />
         ))}
       </div>
 
       {/* Add Travel Button */}
-      <div className="flex items-center px-8 mt-6">
-        <span className="mr-8 text-darkGreen font-bold text-3xl ">اضف رحلة</span>
+      <div className="flex items-center px-4 sm:px-8 mt-6">
+        <span className="mr-4 text-darkGreen font-bold text-lg sm:text-3xl">اضف رحلة</span>
         <AddTravel travels={travels} setTravels={setTravels} />
       </div>
 
       {/* Statistics Section */}
-      <div className="mr-8 mt-6 text-4xl font-bold text-darkGreen">
-        <span>الاحصائيات</span>
+      <div className="mr-4 sm:mr-8 mt-6 text-lg sm:text-4xl font-bold text-darkGreen">
+        الاحصائيات
       </div>
-      <div className="grid grid-cols-3 gap-4 px-8 mt-6 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 px-4 sm:px-8 mt-6 mb-6">
         <div className="bg-white p-4 rounded shadow">
-          <h3 className="text-lg font-bold text-darkGreen">مجموع الارباح</h3>
-          <p className="text-2xl font-semibold text-grayish">{totalRevenue} ر.س</p>
+          <h3 className="text-sm sm:text-lg font-bold text-darkGreen">مجموع الارباح</h3>
+          <p className="text-xl sm:text-2xl font-semibold text-grayish">{totalRevenue} ر.س</p>
         </div>
         <div className="bg-white p-4 rounded shadow">
-          <h3 className="text-lg font-bold text-darkGreen">الرحلات النشطة</h3>
-          <p className="text-2xl font-semibold text-grayish">{activeTravels}</p>
+          <h3 className="text-sm sm:text-lg font-bold text-darkGreen">الرحلات النشطة</h3>
+          <p className="text-xl sm:text-2xl font-semibold text-grayish">{activeTravels}</p>
         </div>
         <div className="bg-white p-4 rounded shadow">
-          <h3 className="text-lg font-bold text-darkGreen">مجموع الحجوزات</h3>
-          <p className="text-2xl font-semibold text-grayish">{totalBookedSeats}</p>
+          <h3 className="text-sm sm:text-lg font-bold text-darkGreen">مجموع الحجوزات</h3>
+          <p className="text-xl sm:text-2xl font-semibold text-grayish">{totalBookedSeats}</p>
         </div>
       </div>
-
+      
       {/* Footer */}
       <Footer />
     </div>

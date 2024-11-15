@@ -63,14 +63,14 @@ const AddTravel = ({ travels, setTravels }) => {
 
   return (
     <>
-      <div className="flex justify-end px-8">
+      <div className="flex justify-end px-4">
         <button
           onClick={() => setAddModalOpen(true)}
-          className="flex items-center justify-center p-1.5 w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 shadow-md"
+          className="flex items-center justify-center rounded-full"
         >
           <svg
-            width="24"
-            height="24"
+            width="30"
+            height="30"
             viewBox="0 0 50 50"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
