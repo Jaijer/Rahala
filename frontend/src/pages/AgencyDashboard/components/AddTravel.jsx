@@ -9,7 +9,6 @@ const AddTravel = ({ travels, setTravels }) => {
     startDate: '',
     endDate: '',
     seats: '',
-    revenue: '',
     seatsLeft: '',
     image: '',
     description: '',
@@ -40,6 +39,17 @@ const AddTravel = ({ travels, setTravels }) => {
     setNewTravel({ ...newTravel, [name]: value });
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setNewTravel({ ...newTravel, image: event.target.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleAddTravel = () => {
     const updatedTravels = [
       ...travels,
@@ -54,7 +64,6 @@ const AddTravel = ({ travels, setTravels }) => {
       startDate: '',
       endDate: '',
       seats: '',
-      revenue: '',
       seatsLeft: '',
       image: '',
       description: '',
@@ -93,7 +102,18 @@ const AddTravel = ({ travels, setTravels }) => {
       {/* Add Travel Modal */}
       {addModalOpen && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center w-full h-full bg-black bg-opacity-50">
-          <div ref={addModalRef} className="bg-white p-6 rounded-lg shadow-lg max-w-lg">
+          <div
+            ref={addModalRef}
+            className="bg-white p-6 rounded-lg shadow-lg max-w-md w-80 sm:w-full max-h-[80vh] overflow-y-auto"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            <style>
+              {`
+                ::-webkit-scrollbar {
+                  display: none;
+                }
+              `}
+            </style>
             <h3 className="text-lg font-bold">اضافة رحلة جديدة</h3>
             <form className="mt-4 space-y-4">
               <div>
@@ -147,24 +167,25 @@ const AddTravel = ({ travels, setTravels }) => {
                 />
               </div>
               <div>
-                <label>المقاعد</label>
-                <input
-                  type="number"
-                  name="seats"
-                  value={newTravel.seats}
+                <label>الوصف</label>
+                <textarea
+                  name="description"
+                  value={newTravel.description}
                   onChange={handleInputChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded"
-                />
+                  rows="3"
+                ></textarea>
               </div>
               <div>
-                <label>الربح</label>
-                <input
-                  type="number"
-                  name="revenue"
-                  value={newTravel.revenue}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded"
-                />
+                <label>الصورة</label>
+                <input type="file" onChange={handleImageChange} className="w-full" />
+                {newTravel.image && (
+                  <img
+                    src={newTravel.image}
+                    alt="Preview"
+                    className="mt-2 w-full h-40 object-cover rounded"
+                  />
+                )}
               </div>
               <div className="flex justify-end gap-2">
                 <button

@@ -113,13 +113,33 @@ const TravelCard = ({ travel }) => {
       {/* Delete Modal */}
       {deleteModalOpen && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center w-full h-full bg-black bg-opacity-50">
-          <div ref={deleteModalRef} className="bg-white p-6 rounded-lg shadow-lg">
-            <div className='flex justify-center mb-2'>
-            <svg width="50" height="50" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M75 0C116.423 0 150 33.5775 150 75C150 116.423 116.423 150 75 150C33.5775 150 0 116.423 0 75C0 33.5775 33.5775 0 75 0ZM75 15C59.087 15 43.8258 21.3214 32.5736 32.5736C21.3214 43.8258 15 59.087 15 75C15 90.913 21.3214 106.174 32.5736 117.426C43.8258 128.679 59.087 135 75 135C90.913 135 106.174 128.679 117.426 117.426C128.679 106.174 135 90.913 135 75C135 59.087 128.679 43.8258 117.426 32.5736C106.174 21.3214 90.913 15 75 15ZM75 97.5C76.9891 97.5 78.8968 98.2902 80.3033 99.6967C81.7098 101.103 82.5 103.011 82.5 105C82.5 106.989 81.7098 108.897 80.3033 110.303C78.8968 111.71 76.9891 112.5 75 112.5C73.0109 112.5 71.1032 111.71 69.6967 110.303C68.2902 108.897 67.5 106.989 67.5 105C67.5 103.011 68.2902 101.103 69.6967 99.6967C71.1032 98.2902 73.0109 97.5 75 97.5ZM75 30C76.9891 30 78.8968 30.7902 80.3033 32.1967C81.7098 33.6032 82.5 35.5109 82.5 37.5V82.5C82.5 84.4891 81.7098 86.3968 80.3033 87.8033C78.8968 89.2098 76.9891 90 75 90C73.0109 90 71.1032 89.2098 69.6967 87.8033C68.2902 86.3968 67.5 84.4891 67.5 82.5V37.5C67.5 35.5109 68.2902 33.6032 69.6967 32.1967C71.1032 30.7902 73.0109 30 75 30Z" fill="#E33629"/>
-            </svg>
+          <div
+            ref={deleteModalRef}
+            className="bg-white p-6 rounded-lg shadow-lg max-w-md w-80 sm:w-full max-h-[80vh] overflow-y-auto"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            <style>
+              {`
+                ::-webkit-scrollbar {
+                  display: none;
+                }
+              `}
+            </style>
+            <div className="flex justify-center mb-2">
+              <svg
+                width="50"
+                height="50"
+                viewBox="0 0 150 150"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M75 0C116.423 0 150 33.5775 150 75C150 116.423 116.423 150 75 150C33.5775 150 0 116.423 0 75C0 33.5775 33.5775 0 75 0ZM75 15C59.087 15 43.8258 21.3214 32.5736 32.5736C21.3214 43.8258 15 59.087 15 75C15 90.913 21.3214 106.174 32.5736 117.426C43.8258 128.679 59.087 135 75 135C90.913 135 106.174 128.679 117.426 117.426C128.679 106.174 135 90.913 135 75C135 59.087 128.679 43.8258 117.426 32.5736C106.174 21.3214 90.913 15 75 15Z"
+                  fill="#E33629"
+                />
+              </svg>
             </div>
-            <p className='font-bold text-xl'>هل انت متأكد من حذف هذه الرحلة؟</p>
+            <p className="font-bold text-xl text-center">هل انت متأكد من حذف هذه الرحلة؟</p>
             <div className="mt-4 flex justify-center gap-6">
               <button
                 onClick={() => setDeleteModalOpen(false)}
@@ -144,7 +164,18 @@ const TravelCard = ({ travel }) => {
       {/* Edit Modal */}
       {editModalOpen && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center w-full h-full bg-black bg-opacity-50">
-          <div ref={editModalRef} className="bg-white p-6 rounded-lg shadow-lg max-w-lg">
+          <div
+            ref={editModalRef}
+            className="bg-white p-6 rounded-lg shadow-lg max-w-md w-80 sm:w-full max-h-[80vh] overflow-y-auto"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            <style>
+              {`
+                ::-webkit-scrollbar {
+                  display: none;
+                }
+              `}
+            </style>
             <h3 className="text-lg font-bold">تعديل بيانات الرحلة</h3>
             <form className="mt-4 space-y-4">
               <div>
@@ -200,7 +231,11 @@ const TravelCard = ({ travel }) => {
                 <label>الصورة</label>
                 <input type="file" onChange={handleImageChange} className="w-full" />
                 {image && (
-                  <img src={image} alt="Preview" className="mt-2 w-full h-40 object-cover rounded" />
+                  <img
+                    src={image}
+                    alt="Preview"
+                    className="mt-2 w-full h-40 object-cover rounded"
+                  />
                 )}
               </div>
               <div className="flex justify-end gap-2">
