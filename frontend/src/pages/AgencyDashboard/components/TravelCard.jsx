@@ -50,32 +50,32 @@ const TravelCard = ({ travel }) => {
 
   return (
     <>
-      <Card shadow className="mb-4 p-4 grid grid-cols-8 gap-4 items-center text-darkGreen">
+      <Card shadow className="mb-4 p-4 grid sm:grid-cols-8 gap-4 items-center text-darkGreen">
         {/* Status Indicator */}
-        <div className="flex justify-center">
+        <div className="sm:flex sm:justify-center hidden">
           <div className={`w-4 h-4 rounded-full ${statusColor}`}></div>
         </div>
 
         {/* Flight Number */}
-        <div>{flightNumber}</div>
+        <div className='hidden sm:block font-bold'>{flightNumber}</div>
 
         {/* From - To */}
-        <div>{`${from} - ${to}`}</div>
+        <div className='hidden sm:block'>{`${from} - ${to}`}</div>
 
         {/* Start Date */}
-        <div>{startDate}</div>
+        <div className='hidden sm:block'>{startDate}</div>
 
         {/* End Date */}
-        <div>{endDate}</div>
+        <div className='hidden sm:block'>{endDate}</div>
 
         {/* Seats Left */}
-        <div>{`${seatsLeft}/${seats}`}</div>
+        <div className='hidden sm:block'>{`${seatsLeft}/${seats}`}</div>
 
         {/* Revenue */}
-        <div>{revenue} ر.س</div>
+        <div className='hidden sm:block'>{revenue} ر.س</div>
 
         {/* Action Buttons */}
-        <div className="flex gap-2 justify-end">
+        <div className="sm:flex sm:gap-2 sm:justify-end hidden sm:block">
           {/* Edit Button */}
           <button onClick={() => setEditModalOpen(true)} className="p-2">
             <svg
@@ -107,6 +107,70 @@ const TravelCard = ({ travel }) => {
               />
             </svg>
           </button>
+        </div>
+        {/* Mobile Layout: Three Columns */}
+        <div className="grid grid-cols-3 gap-4 sm:hidden">
+          {/* Column 1 */}
+          <div>
+            <div className="flex items-center gap-2">
+              <div className={`w-4 h-4 rounded-full ${statusColor}`}></div>
+              <span className='font-bold'>{flightNumber}</span>
+            </div>
+            <div className="mt-2">
+              <span className="block font-bold">تاريخ المغادرة:</span>
+              <span>{startDate}</span>
+            </div>
+            <div className="mt-2">
+              <span className="block font-bold">تاريخ العودة:</span>
+              <span>{endDate}</span>
+            </div>
+          </div>
+          {/* Column 2 */}
+          <div>
+            <div>
+              <span className="block font-bold">الوجهة:</span>
+              <span>{`${from} - ${to}`}</span>
+            </div>
+            <div className="mt-2">
+              <span className="block font-bold">المقاعد:</span>
+              <span>{`${seatsLeft}/${seats}`}</span>
+            </div>
+            <div className="mt-2">
+              <span className="block font-bold">الربح:</span>
+              <span>{revenue} ر.س</span>
+            </div>
+          </div>
+          {/* Column 3 */}
+          <div className="flex gap-2 justify-end">
+            <button onClick={() => setEditModalOpen(true)} className="p-2">
+              <svg
+                width="34"
+                height="34"
+                viewBox="0 0 34 34"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M4.25 24.4375V29.75H9.5625L25.2308 14.0817L19.9183 8.76916L4.25 24.4375ZM30.3308 8.98166L25.0183 3.66916L21.4342 7.26749L26.7467 12.58L30.3308 8.98166Z"
+                  fill="#1B4348"
+                />
+              </svg>
+            </button>
+            <button onClick={() => setDeleteModalOpen(true)} className="p-2">
+              <svg
+                width="38"
+                height="38"
+                viewBox="0 0 38 38"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M9.50033 30.0833C9.50033 31.825 10.9253 33.25 12.667 33.25H25.3337C27.0753 33.25 28.50033 31.825 28.50033 30.0833V11.0833H9.50033V30.0833ZM30.0837 6.33333H24.542L22.9587 4.75H15.042L13.4587 6.33333H7.91699V9.5H30.0837V6.33333Z"
+                  fill="#1B4348"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
       </Card>
 
