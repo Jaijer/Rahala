@@ -50,7 +50,7 @@ function AgencyDashboard() {
   const handleSort = (criteria) => {
     const sortedTravels = [...travels];
     if (criteria === 'status') {
-      sortedTravels.sort((a, b) => b.isActive - a.isActive);
+      sortedTravels.sort((a, b) => a.isActive - b.isActive);
     } else if (criteria === 'nearest') {
       sortedTravels.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
     } else if (criteria === 'seats') {
