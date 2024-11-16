@@ -50,32 +50,32 @@ const TravelCard = ({ travel }) => {
 
   return (
     <>
-      <Card shadow className="mb-4 p-4 grid grid-cols-8 gap-4 items-center text-darkGreen">
+      <Card shadow className="mb-4 p-4 grid sm:grid-cols-8 gap-4 items-center text-darkGreen">
         {/* Status Indicator */}
-        <div className="flex justify-center">
+        <div className="sm:flex sm:justify-center hidden">
           <div className={`w-4 h-4 rounded-full ${statusColor}`}></div>
         </div>
 
         {/* Flight Number */}
-        <div>{flightNumber}</div>
+        <div className='hidden sm:block font-bold'>{flightNumber}</div>
 
         {/* From - To */}
-        <div>{`${from} - ${to}`}</div>
+        <div className='hidden sm:block'>{`${from} - ${to}`}</div>
 
         {/* Start Date */}
-        <div>{startDate}</div>
+        <div className='hidden sm:block'>{startDate}</div>
 
         {/* End Date */}
-        <div>{endDate}</div>
+        <div className='hidden sm:block'>{endDate}</div>
 
         {/* Seats Left */}
-        <div>{`${seatsLeft}/${seats}`}</div>
+        <div className='hidden sm:block'>{`${seatsLeft}/${seats}`}</div>
 
         {/* Revenue */}
-        <div>{revenue} ر.س</div>
+        <div className='hidden sm:block'>{revenue} ر.س</div>
 
         {/* Action Buttons */}
-        <div className="flex gap-2 justify-end">
+        <div className="sm:flex sm:gap-2 sm:justify-end hidden sm:block">
           {/* Edit Button */}
           <button onClick={() => setEditModalOpen(true)} className="p-2">
             <svg
@@ -108,18 +108,102 @@ const TravelCard = ({ travel }) => {
             </svg>
           </button>
         </div>
+        {/* Mobile Layout: Three Columns */}
+        <div className="grid grid-cols-3 gap-4 sm:hidden">
+          {/* Column 1 */}
+          <div>
+            <div className="flex items-center gap-2">
+              <div className={`w-4 h-4 rounded-full ${statusColor}`}></div>
+              <span className='font-bold'>{flightNumber}</span>
+            </div>
+            <div className="mt-2">
+              <span className="block font-bold">تاريخ المغادرة:</span>
+              <span>{startDate}</span>
+            </div>
+            <div className="mt-2">
+              <span className="block font-bold">تاريخ العودة:</span>
+              <span>{endDate}</span>
+            </div>
+          </div>
+          {/* Column 2 */}
+          <div>
+            <div>
+              <span className="block font-bold">الوجهة:</span>
+              <span>{`${from} - ${to}`}</span>
+            </div>
+            <div className="mt-2">
+              <span className="block font-bold">المقاعد:</span>
+              <span>{`${seatsLeft}/${seats}`}</span>
+            </div>
+            <div className="mt-2">
+              <span className="block font-bold">الربح:</span>
+              <span>{revenue} ر.س</span>
+            </div>
+          </div>
+          {/* Column 3 */}
+          <div className="flex gap-2 justify-end">
+            <button onClick={() => setEditModalOpen(true)} className="p-2">
+              <svg
+                width="34"
+                height="34"
+                viewBox="0 0 34 34"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M4.25 24.4375V29.75H9.5625L25.2308 14.0817L19.9183 8.76916L4.25 24.4375ZM30.3308 8.98166L25.0183 3.66916L21.4342 7.26749L26.7467 12.58L30.3308 8.98166Z"
+                  fill="#1B4348"
+                />
+              </svg>
+            </button>
+            <button onClick={() => setDeleteModalOpen(true)} className="p-2">
+              <svg
+                width="38"
+                height="38"
+                viewBox="0 0 38 38"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M9.50033 30.0833C9.50033 31.825 10.9253 33.25 12.667 33.25H25.3337C27.0753 33.25 28.50033 31.825 28.50033 30.0833V11.0833H9.50033V30.0833ZM30.0837 6.33333H24.542L22.9587 4.75H15.042L13.4587 6.33333H7.91699V9.5H30.0837V6.33333Z"
+                  fill="#1B4348"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
       </Card>
 
       {/* Delete Modal */}
       {deleteModalOpen && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center w-full h-full bg-black bg-opacity-50">
-          <div ref={deleteModalRef} className="bg-white p-6 rounded-lg shadow-lg">
-            <div className='flex justify-center mb-2'>
-            <svg width="50" height="50" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M75 0C116.423 0 150 33.5775 150 75C150 116.423 116.423 150 75 150C33.5775 150 0 116.423 0 75C0 33.5775 33.5775 0 75 0ZM75 15C59.087 15 43.8258 21.3214 32.5736 32.5736C21.3214 43.8258 15 59.087 15 75C15 90.913 21.3214 106.174 32.5736 117.426C43.8258 128.679 59.087 135 75 135C90.913 135 106.174 128.679 117.426 117.426C128.679 106.174 135 90.913 135 75C135 59.087 128.679 43.8258 117.426 32.5736C106.174 21.3214 90.913 15 75 15ZM75 97.5C76.9891 97.5 78.8968 98.2902 80.3033 99.6967C81.7098 101.103 82.5 103.011 82.5 105C82.5 106.989 81.7098 108.897 80.3033 110.303C78.8968 111.71 76.9891 112.5 75 112.5C73.0109 112.5 71.1032 111.71 69.6967 110.303C68.2902 108.897 67.5 106.989 67.5 105C67.5 103.011 68.2902 101.103 69.6967 99.6967C71.1032 98.2902 73.0109 97.5 75 97.5ZM75 30C76.9891 30 78.8968 30.7902 80.3033 32.1967C81.7098 33.6032 82.5 35.5109 82.5 37.5V82.5C82.5 84.4891 81.7098 86.3968 80.3033 87.8033C78.8968 89.2098 76.9891 90 75 90C73.0109 90 71.1032 89.2098 69.6967 87.8033C68.2902 86.3968 67.5 84.4891 67.5 82.5V37.5C67.5 35.5109 68.2902 33.6032 69.6967 32.1967C71.1032 30.7902 73.0109 30 75 30Z" fill="#E33629"/>
-            </svg>
+          <div
+            ref={deleteModalRef}
+            className="bg-white p-6 rounded-lg shadow-lg max-w-md w-80 sm:w-full max-h-[80vh] overflow-y-auto"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            <style>
+              {`
+                ::-webkit-scrollbar {
+                  display: none;
+                }
+              `}
+            </style>
+            <div className="flex justify-center mb-2">
+              <svg
+                width="50"
+                height="50"
+                viewBox="0 0 150 150"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M75 0C116.423 0 150 33.5775 150 75C150 116.423 116.423 150 75 150C33.5775 150 0 116.423 0 75C0 33.5775 33.5775 0 75 0ZM75 15C59.087 15 43.8258 21.3214 32.5736 32.5736C21.3214 43.8258 15 59.087 15 75C15 90.913 21.3214 106.174 32.5736 117.426C43.8258 128.679 59.087 135 75 135C90.913 135 106.174 128.679 117.426 117.426C128.679 106.174 135 90.913 135 75C135 59.087 128.679 43.8258 117.426 32.5736C106.174 21.3214 90.913 15 75 15Z"
+                  fill="#E33629"
+                />
+              </svg>
             </div>
-            <p className='font-bold text-xl'>هل انت متأكد من حذف هذه الرحلة؟</p>
+            <p className="font-bold text-xl text-center">هل انت متأكد من حذف هذه الرحلة؟</p>
             <div className="mt-4 flex justify-center gap-6">
               <button
                 onClick={() => setDeleteModalOpen(false)}
@@ -144,7 +228,18 @@ const TravelCard = ({ travel }) => {
       {/* Edit Modal */}
       {editModalOpen && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center w-full h-full bg-black bg-opacity-50">
-          <div ref={editModalRef} className="bg-white p-6 rounded-lg shadow-lg max-w-lg">
+          <div
+            ref={editModalRef}
+            className="bg-white p-6 rounded-lg shadow-lg max-w-md w-80 sm:w-full max-h-[80vh] overflow-y-auto"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            <style>
+              {`
+                ::-webkit-scrollbar {
+                  display: none;
+                }
+              `}
+            </style>
             <h3 className="text-lg font-bold">تعديل بيانات الرحلة</h3>
             <form className="mt-4 space-y-4">
               <div>
@@ -200,7 +295,11 @@ const TravelCard = ({ travel }) => {
                 <label>الصورة</label>
                 <input type="file" onChange={handleImageChange} className="w-full" />
                 {image && (
-                  <img src={image} alt="Preview" className="mt-2 w-full h-40 object-cover rounded" />
+                  <img
+                    src={image}
+                    alt="Preview"
+                    className="mt-2 w-full h-40 object-cover rounded"
+                  />
                 )}
               </div>
               <div className="flex justify-end gap-2">

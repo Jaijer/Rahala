@@ -50,7 +50,7 @@ function AgencyDashboard() {
   const handleSort = (criteria) => {
     const sortedTravels = [...travels];
     if (criteria === 'status') {
-      sortedTravels.sort((a, b) => b.isActive - a.isActive);
+      sortedTravels.sort((a, b) => a.isActive - b.isActive);
     } else if (criteria === 'nearest') {
       sortedTravels.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
     } else if (criteria === 'seats') {
@@ -115,13 +115,13 @@ function AgencyDashboard() {
       </div>
 
       {/* Add Travel Button */}
-      <div className="flex items-center px-4 sm:px-8 mt-6">
-        <span className="mr-4 text-darkGreen font-bold text-lg sm:text-3xl">اضف رحلة</span>
+      <div className="flex items-center px-4 sm:px-8 mt-6 ">
+        <span className="mr-4 text-darkGreen font-bold text-2xl sm:text-4xl">اضف رحلة</span>
         <AddTravel travels={travels} setTravels={setTravels} />
       </div>
 
       {/* Statistics Section */}
-      <div className="mr-4 sm:mr-8 mt-6 text-lg sm:text-4xl font-bold text-darkGreen">
+      <div className="mr-4 sm:mr-8 mt-6 text-2xl sm:text-4xl font-bold text-darkGreen">
         الاحصائيات
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 px-4 sm:px-8 mt-6 mb-6">
