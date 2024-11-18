@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button, Dropdown, Avatar, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from '../firebase/firebase';
 import { toast } from 'react-toastify';
 import { FiUser } from 'react-icons/fi';
+import useUserStore from '../stores/userDataStore';
 
 function Navbar() {
     const location = useLocation();
@@ -27,6 +28,7 @@ function Navbar() {
         try {
             await signOut(auth);
             setIsLoggedIn(false);
+            useUserStore.getState().clearUser();
             toast.success("تم تسجيل الخروج بنجاح")
             navigate('/');
         } catch (error) {
@@ -41,6 +43,23 @@ function Navbar() {
                 <span className="text-xl lg:text-2xl font-bold">رحالة</span>
                 <img src="/logo.png" alt="Rahala Logo" className="h-14 w-14" />
             </div>
+
+            {isLoggedIn ? (
+                <div className='flex lg:gap-16 gap-4 items-center'>
+                    <a
+                        className={`${isDark ? "text-white" : "text-black"} bg-transparent rounded-full text-lg hover:cursor-pointer hover:opacity-75 transition-all`}
+                        onClick={() => navigate('/')}
+                    >
+                            لوحة التحكم
+                    </a>
+                    <a
+                        className={`${isDark ? "text-white" : "text-black"} bg-transparent rounded-full text-lg hover:cursor-pointer hover:opacity-75 transition-all`}
+                        onClick={() => navigate('/search')}
+                    >
+                            الحملات
+                    </a>
+                </div>
+            ): null}
 
             {/* Login/Join Us or Logout Button based on authentication state */}
             <div className="flex items-center gap-1 lg:gap-4">

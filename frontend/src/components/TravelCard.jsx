@@ -7,7 +7,8 @@ function TravelCard({ travel }) {
 
   return (
     <div className="flex flex-col gap-3 bg-white rounded-3xl w-full h-full shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:cursor-pointer"
-    onClick={()=> navigate('/view-travels')}>
+    onClick={() => navigate(`/view-travels/${travel._id}`)}
+>
       {/* Image at the top */}
       <div className="w-full h-48 rounded-t-3xl overflow-hidden">
         <Image

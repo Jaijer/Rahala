@@ -75,8 +75,8 @@ function App() {
                         <Route path="/about-us" element={<AboutUs />} />
                         <Route path="/contact-us" element={<ContactUs />} />
 
-                        <Route path="/booking-checkout" element={<BookingCheckout />} />=======
-                        <Route path="/view-travels" element={<ViewTravels />} />
+                        <Route path="/booking-checkout" element={<BookingCheckout />} />
+                        <Route path="/view-travels/:id" element={<ViewTravels />} />
                         <Route path="/book-trip" element={<BookTrip />} />
                         <Route path="/payment" element={<Payment />} />
                           
