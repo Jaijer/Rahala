@@ -46,7 +46,7 @@ const BookingCheckout = () => {
         `/api/users/${userData._id}/add-travel`, 
         {
           travelId: travel._id,
-          package: selectedPackage,
+          package: selectedPackage.title,
           date: selectedDate,
         }
       );

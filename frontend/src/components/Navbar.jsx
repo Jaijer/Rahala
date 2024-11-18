@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Button, Dropdown, Avatar, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from '../firebase/firebase';
