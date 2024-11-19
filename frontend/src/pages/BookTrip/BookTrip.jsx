@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
-import { Button, Input, RadioGroup, useRadio, VisuallyHidden, cn } from '@nextui-org/react';
+import React, { useEffect, useState } from 'react';
+import { Button, Input, RadioGroup, useRadio, VisuallyHidden, cn } from "@nextui-org/react";
 import { useNavigate } from 'react-router-dom';
+import useTravelStore from '../../stores/travelStore';
 
-// CustomRadio Component
 const CustomRadio = (props) => {
   const {
     Component,
     children,
-    isSelected,
     description,
     getBaseProps,
     getWrapperProps,
@@ -23,7 +22,7 @@ const CustomRadio = (props) => {
       className={cn(
         "group inline-flex items-center hover:opacity-70 active:opacity-50 justify-between flex-row-reverse tap-highlight-transparent",
         "max-w-[300px] cursor-pointer border-2 border-default rounded-lg gap-4 p-4",
-        "bg-white", // Set background color to white
+        "bg-white",
         "data-[selected=true]:border-primary"
       )}
     >
@@ -43,47 +42,66 @@ const CustomRadio = (props) => {
   );
 };
 
-function BookTrip() {
-  const [selectedOption, setSelectedOption] = useState('');
+const BookTrip = () => {
+  const navigate = useNavigate();
+  const { travel, selectedPackage, selectedDate, setSelectedPackage, setSelectedDate } = useTravelStore();
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [isRadioGroupValid, setIsRadioGroupValid] = useState(true);
+  const [isDateValid, setIsDateValid] = useState(true);
   const [isContactInfoValid, setIsContactInfoValid] = useState(true);
-  const navigate = useNavigate();
 
-  const handleOptionChange = (value) => {
-    setSelectedOption(value);
-    setIsRadioGroupValid(true); // Reset validation on selection
+  const handlePackageChange = (pkg) => {
+    setSelectedPackage(pkg); // Now passing the entire package object
+    setIsRadioGroupValid(true); // Reset validation
+  };
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date); // Now passing the entire date object
+    setIsDateValid(true); // Reset validation
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    // Validate radio group and contact fields
-    const isValidRadio = !!selectedOption;
+    // Validate inputs
+    const isValidRadio = !!selectedPackage;
+    const isValidDate = !!selectedDate;
     const isValidContact = email !== '' && phone !== '';
     setIsRadioGroupValid(isValidRadio);
+    setIsDateValid(isValidDate);
     setIsContactInfoValid(isValidContact);
 
-    // Navigate if all validations pass
-    if (isValidRadio && isValidContact) {
-      navigate("/booking-checkout");
+    if (isValidRadio && isValidDate && isValidContact) {
+      navigate('/booking-checkout');
     }
   };
+
+  useEffect(() => {
+    if (!travel) {
+      // Delay before going back
+      const timeout = setTimeout(() => {
+        window.history.back();
+      }, 500); // 500ms delay
+
+      return () => clearTimeout(timeout); // Cleanup the timeout on component unmount
+    }
+  }, [travel, navigate]);
+
+  if (!travel) return null;
 
   return (
     <div className="p-8 font-inter">
       <div className="text-right space-y-6">
-        {/* Travel Information */}
-        <p className="text-lg text-[#757575]">
-          رحلة ذهاب وإياب . تاريخ السفر يبدأ من 25 سبتمبر وينتهي في 29 سبتمبر
-        </p>
-        <p className="text-2xl text-[#1B4348] font-bold">
-          من الظهران إلى المدينة المنورة
-        </p>
-        <p className="text-xl text-[#1B4348] font-bold">
-          عدد المقاعد المتاحة: 10
-        </p>
+        {/* Travel Details */}
+        <div className='space-y-3'>
+          <p className="text-2xl text-[#1B4348] font-bold">
+            من {travel.from} إلى {travel.destination}
+          </p>
+          <p className="text-xl text-[#1B4348] font-bold">
+            عدد المقاعد المتاحة: {travel.capacity}
+          </p>
+        </div>
 
         {/* Travel Packages */}
         <div className="space-y-4">
@@ -92,23 +110,33 @@ function BookTrip() {
             {!isRadioGroupValid && <span className="text-red-500"> - هذه الخانة مطلوبة</span>}
           </p>
           <p className="text-lg text-[#757575]">اختر البطاقة التي تناسب احتياجك</p>
-          <RadioGroup
-            orientation="horizontal"
-            value={selectedOption}
-            onValueChange={handleOptionChange}
-          >
-            {[
-              { label: 'باقة رباعية', description: 'السعر: 625 ريال', value: 'باقة رباعية' },
-              { label: 'باقة ثلاثية', description: 'السعر: 700 ريال', value: 'باقة ثلاثية' },
-              { label: 'باقة ثنائية', description: 'السعر: 900 ريال', value: 'باقة ثنائية' },
-              { label: 'باقة فردية', description: 'السعر: 1000 ريال', value: 'باقة فردية' }
-            ].map((option) => (
+          <RadioGroup orientation="horizontal" onValueChange={(value) => handlePackageChange(value)}>
+            {travel.packages.map((pkg) => (
               <CustomRadio
-                key={option.value}
-                value={option.value}
-                description={option.description}
+                key={pkg.title}
+                value={pkg} // Pass the entire package object
+                description={`السعر: ${pkg.price} ريال`}
               >
-                {option.label}
+                {pkg.title}
+              </CustomRadio>
+            ))}
+          </RadioGroup>
+        </div>
+
+        {/* Travel Dates */}
+        <div className="space-y-4">
+          <p className="text-2xl font-semibold text-black">
+            تواريخ الرحلة
+            {!isDateValid && <span className="text-red-500"> - هذه الخانة مطلوبة</span>}
+          </p>
+          <RadioGroup orientation="vertical" onValueChange={(value) => handleDateChange(value)}>
+            {travel.dates.map((date) => (
+              <CustomRadio
+                key={date.departure}
+                value={date} // Pass the entire date object
+                description={`من ${new Date(date.departure).toLocaleDateString()} إلى ${new Date(date.arrival).toLocaleDateString()}`}
+              >
+                {`${new Date(date.departure).toLocaleDateString()} - ${new Date(date.arrival).toLocaleDateString()}`}
               </CustomRadio>
             ))}
           </RadioGroup>
@@ -127,31 +155,25 @@ function BookTrip() {
               label="البريد الإلكتروني"
               placeholder="example@gmail.com"
               value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                setIsContactInfoValid(true); // Reset validation on input
-              }}
+              onChange={(e) => setEmail(e.target.value)}
               required
-              className="bg-white" // Set background color to white
-              variant='bordered'
+              className="bg-white"
+              variant="bordered"
             />
             <Input
               fullWidth
               label="رقم الهاتف"
               placeholder="05xxxxxxxx"
               value={phone}
-              onChange={(e) => {
-                setPhone(e.target.value);
-                setIsContactInfoValid(true); // Reset validation on input
-              }}
+              onChange={(e) => setPhone(e.target.value)}
               required
-              className="bg-white" // Set background color to white
-              variant='bordered'
+              className="bg-white"
+              variant="bordered"
             />
           </div>
         </div>
 
-        {/* Submit Button and Link */}
+        {/* Submit Button */}
         <div className="flex justify-center gap-6 pt-8">
           <Button
             className="font-bold text-lg px-8 bg-greeny"
@@ -176,6 +198,6 @@ function BookTrip() {
       </div>
     </div>
   );
-}
+};
 
 export default BookTrip;
