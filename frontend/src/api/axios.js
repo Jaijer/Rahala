@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: "https://rahala.onrender.com", // The backend server url
+    baseURL: "http://localhost:5000", // The backend server url https://rahala.onrender.com
     headers: {
         'Content-Type': 'application/json'
     }

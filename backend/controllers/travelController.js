@@ -1,3 +1,4 @@
+const Agency = require('../models/Agency');
 const Travel = require('../models/Travel');
 
 // Get a single travel by ID
@@ -31,7 +32,7 @@ exports.getAllTravels = async (req, res) => {
   }
 };
 
-// Create a new travel
+// Create a new travel and add it to the agency's travels array
 exports.createTravel = async (req, res) => {
   try {
     const travelData = req.body;
@@ -40,8 +41,18 @@ exports.createTravel = async (req, res) => {
     const travel = new Travel(travelData);
     await travel.save();
 
+    // Update the Agency's travels array with the new travel ID
+    const agency = await Agency.findById(travelData.agency);
+    if (!agency) {
+      return res.status(404).json({ message: 'Agency not found' });
+    }
+
+    agency.travels.push(travel._id);
+    await agency.save();
+
     res.status(201).json(travel);
   } catch (err) {
+    console.error('Error creating travel:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };

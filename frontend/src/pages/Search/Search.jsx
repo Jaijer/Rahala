@@ -4,7 +4,7 @@ import ResultsSection from './components/ResultsSection'
 
 function Search() {
   return (
-    <div className="flex flex-col justify-center gap-6 py-5 px-5 lg:px-32">
+    <div className="flex flex-col justify-center gap-6 py-5 px-5 lg:px-24">
       <SearchBar />
       <ResultsSection />
     </div>

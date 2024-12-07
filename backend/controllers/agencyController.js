@@ -51,12 +51,13 @@ exports.getAgencyByEmail = async (req, res) => {
     console.log("Fetching Agency by email:", req.params.email);
     
     const { email } = req.params;
-    const agency = await Agency.findOne({ email });
+    const agency = await Agency.findOne({ email }).populate('travels');
     if (!agency) {
       return res.status(404).json({ message: 'Agency not found' });
     }
     res.json(agency);
   } catch (err) {
+    console.error("Error fetching agency:", err);
     res.status(500).json({ message: 'Server error' });
   }
 };

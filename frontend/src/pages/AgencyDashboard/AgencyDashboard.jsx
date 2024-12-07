@@ -1,51 +1,35 @@
-import React, { useState } from 'react';
-import SearchBar from '../../components/SearchBar';
+import React, { useEffect, useState } from 'react';
 import Footer from '../../components/Footer';
-import TravelCard from './components/TravelCard';
-import AddTravel from './components/AddTravel';
+import useUserStore from '../../stores/userDataStore';
+import api from '../../api/axios';
+import TravelCard from '../../components/TravelCard';
+import { IoMdAddCircle } from "react-icons/io";
+import { useDisclosure } from "@nextui-org/react";
+import AddTravelModal from './components/AddTravelModal';
 
 function AgencyDashboard() {
-  const [travels, setTravels] = useState([
-    {
-      flightNumber: 'AF123',
-      from: 'الدمام',
-      to: 'ايطاليا',
-      startDate: '2023-12-01',
-      endDate: '2023-12-07',
-      seats: 30,
-      seatsLeft: 23,
-      revenue: 12000,
-      isActive: true,
-      image: '',
-      description: 'رحلة ممتعة الى ايطاليا.',
-    },
-    {
-      flightNumber: 'BA456',
-      from: 'لندن',
-      to: 'طويو',
-      startDate: '2023-11-10',
-      endDate: '2023-11-15',
-      seats: 40,
-      seatsLeft: 0,
-      revenue: 20000,
-      isActive: true,
-      image: '',
-      description: 'رحبة ممتعة الى طوكيو.',
-    },
-    {
-      flightNumber: 'QR789',
-      from: 'الدوجة',
-      to: 'سيدني',
-      startDate: '2023-10-01',
-      endDate: '2023-10-10',
-      seats: 50,
-      seatsLeft: 10,
-      revenue: 30000,
-      isActive: false,
-      image: '',
-      description: 'رحلة ممتعة الى سيدني.',
-    },
-  ]);
+  const { userData } = useUserStore();
+  const [agencyData, setAgencyData] = useState(null);
+  const { isOpen, onOpen, onOpenChange } = useDisclosure(); // Modal control
+
+  useEffect(() => {
+    const fetchAgencyData = async () => {
+      if (!userData || !userData.email) return;
+
+      try {
+        const response = await api.get(`/api/agencies/email/${userData.email}`);
+        setAgencyData(response.data); // Assuming the API response contains all agency data
+        console.log(response.data);
+      } catch (error) {
+        console.error("Error fetching agency data:", error);
+      }
+    };
+
+    fetchAgencyData();
+  }, [userData]);
+
+  // Fallback for travels if agencyData is not loaded
+  const travels = agencyData?.travels || [];
 
   const handleSort = (criteria) => {
     const sortedTravels = [...travels];
@@ -56,91 +40,41 @@ function AgencyDashboard() {
     } else if (criteria === 'seats') {
       sortedTravels.sort((a, b) => b.seatsLeft - a.seatsLeft);
     }
-    setTravels(sortedTravels);
+    setAgencyData({ ...agencyData, travels: sortedTravels });
   };
 
-  // Calculate Statistics
-  const totalRevenue = travels.reduce((acc, travel) => acc + travel.revenue, 0);
-  const activeTravels = travels.filter((travel) => travel.isActive).length;
-  const totalBookedSeats = travels.reduce((acc, travel) => acc + (travel.seats - travel.seatsLeft), 0);
-
   return (
-    <div className="flex flex-col min-h-screen bg-whity">
-      {/* Search Bar */}
-      <div className="m-4">
-        <SearchBar />
-      </div>
-
+    <div className="flex flex-col py-5 px-5 lg:px-24">
       {/* Header with Sort and Results */}
-      <div className="flex flex-wrap justify-between items-center px-4 sm:px-8 mb-4">
+      <div className="flex flex-wrap justify-between items-center mb-4">
         {/* Results Count */}
+        {travels.length?
         <div className="text-sm sm:text-lg font-bold text-grayish">
-          النتائج ({travels.length})
-        </div>
-
-        {/* Sort Dropdown */}
-        <div className="flex items-center mt-2 sm:mt-0">
-          <label htmlFor="sort" className="text-grayish font-bold ml-2">
-            ترتيب بحسب:
-          </label>
-          <select
-            id="sort"
-            onChange={(e) => handleSort(e.target.value)}
-            className="bg-white border border-grayish rounded-lg px-2 py-1 sm:px-4 sm:py-2 text-darkGreen"
-          >
-            <option value="">اختار...</option>
-            <option value="status">الحالة</option>
-            <option value="nearest">الأقرب تاريخا</option>
-            <option value="seats">المقاعد المتاحة</option>
-          </select>
-        </div>
+        رحلاتي ({travels.length})
+      </div>:null}
       </div>
 
-      {/* Labels Above Travel List */}
-      <div className="hidden sm:grid grid-cols-8 px-4 sm:px-8 mb-2 items-center text-grayish font-bold">
-        <div className="flex justify-center">الحالة</div>
-        <div>رقم الرحلة</div>
-        <div>الوجهة</div>
-        <div>تاريخ المغادرة</div>
-        <div>تاريخ العودة</div>
-        <div>المقاعد</div>
-        <div>الربح</div>
-      </div>
-
-      {/* Travel Cards */}
-      <div className="flex flex-col px-4 sm:px-8">
-        {travels.map((travel, index) => (
-          <TravelCard key={index} travel={travel} />
-        ))}
+      <div className="flex flex-col gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 gap-y-6 lg:gap-y-8">
+          {travels.map((result, index) => (
+            <TravelCard key={index} travel={result} />
+          ))}
+        </div>
       </div>
 
       {/* Add Travel Button */}
-      <div className="flex items-center px-4 sm:px-8 mt-6 ">
-        <span className="mr-4 text-darkGreen font-bold text-2xl sm:text-4xl">اضف رحلة</span>
-        <AddTravel travels={travels} setTravels={setTravels} />
+      <div>
+        <button
+          className="flex items-center text-darkGreen gap-2 font-bold text-2xl sm:text-4xl hover cursor-pointer hover:opacity-90 transition-all"
+          onClick={onOpen}
+        >
+          <span>أضف رحلة</span>
+          <IoMdAddCircle />
+        </button>
       </div>
 
-      {/* Statistics Section */}
-      <div className="mr-4 sm:mr-8 mt-6 text-2xl sm:text-4xl font-bold text-darkGreen">
-        الاحصائيات
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 px-4 sm:px-8 mt-6 mb-6">
-        <div className="bg-white p-4 rounded shadow">
-          <h3 className="text-sm sm:text-lg font-bold text-darkGreen">مجموع الارباح</h3>
-          <p className="text-xl sm:text-2xl font-semibold text-grayish">{totalRevenue} ر.س</p>
-        </div>
-        <div className="bg-white p-4 rounded shadow">
-          <h3 className="text-sm sm:text-lg font-bold text-darkGreen">الرحلات النشطة</h3>
-          <p className="text-xl sm:text-2xl font-semibold text-grayish">{activeTravels}</p>
-        </div>
-        <div className="bg-white p-4 rounded shadow">
-          <h3 className="text-sm sm:text-lg font-bold text-darkGreen">مجموع الحجوزات</h3>
-          <p className="text-xl sm:text-2xl font-semibold text-grayish">{totalBookedSeats}</p>
-        </div>
-      </div>
-      
-      {/* Footer */}
-      <Footer />
+      {/* Add Travel Modal */}
+      <AddTravelModal isOpen={isOpen} onClose={onOpenChange} />
     </div>
   );
 }
