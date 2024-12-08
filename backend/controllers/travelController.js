@@ -56,3 +56,40 @@ exports.createTravel = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+// Update an existing travel by ID
+exports.updateTravel = async (req, res) => {
+  try {
+    const travelId = req.params.id;
+    const updatedData = req.body;
+
+    const travel = await Travel.findByIdAndUpdate(travelId, updatedData, { new: true });
+    if (!travel) return res.status(404).json({ message: 'Travel not found' });
+
+    res.json(travel);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Delete a travel by ID
+exports.deleteTravel = async (req, res) => {
+  try {
+    const travelId = req.params.id;
+
+    // Find and delete the travel
+    const travel = await Travel.findByIdAndDelete(travelId);
+    if (!travel) return res.status(404).json({ message: 'Travel not found' });
+
+    // Remove the travel ID from the associated agency's travels array
+    const agency = await Agency.findById(travel.agency);
+    if (agency) {
+      agency.travels = agency.travels.filter(id => id.toString() !== travelId);
+      await agency.save();
+    }
+
+    res.status(200).json({ message: 'Travel deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};

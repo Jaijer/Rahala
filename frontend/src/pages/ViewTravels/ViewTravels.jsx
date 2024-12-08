@@ -1,21 +1,36 @@
-import React, { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Image, Button, Spinner } from "@nextui-org/react";
-import api from '../../api/axios';
-import useTravelStore from '../../stores/travelStore';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { 
+  Image, 
+  Button, 
+  Spinner, 
+  Modal, 
+  ModalContent, 
+  ModalHeader, 
+  ModalBody, 
+  ModalFooter 
+} from "@nextui-org/react";
+import api from "../../api/axios";
+import useTravelStore from "../../stores/travelStore";
+import useUserStore from "../../stores/userDataStore";
+import AddTravelModal from "../AgencyDashboard/components/AddTravelModal";
 
 const ViewTravels = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { travel, setTravel } = useTravelStore();
-
-  const [loading, setLoading] = React.useState(true);
+  const { userData } = useUserStore();
+  const [loading, setLoading] = useState(true);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isTravelOwner, setIsTravelOwner] = useState(false);
 
   useEffect(() => {
     const fetchTravel = async () => {
       try {
         const response = await api.get(`api/travels/${id}`);
         setTravel(response.data); // Store travel data in Zustand
+        setIsTravelOwner(response.data.agency?._id === userData?._id);
       } catch (error) {
         console.error(error);
       } finally {
@@ -23,16 +38,33 @@ const ViewTravels = () => {
       }
     };
     fetchTravel();
-  }, [id, setTravel]);
+  }, [id, setTravel, userData]);
+
+  const handleDeleteTravel = async () => {
+    try {
+      await api.delete(`/api/travels/${id}`);
+      window.history.back();
+    } catch (error) {
+      console.error("Error deleting travel:", error);
+    } finally {
+      setIsDeleteModalOpen(false);
+    }
+  };
 
   if (loading) {
-    return <div className="flex justify-center items-center h-full flex-grow">
-      <Spinner />
-    </div>;
+    return (
+      <div className="flex justify-center items-center h-full flex-grow">
+        <Spinner />
+      </div>
+    );
   }
 
   if (!travel) {
-    return <div className="text-center flex justify-center items-center h-full flex-grow">لم يتم العثور على الرحلة</div>;
+    return (
+      <div className="text-center flex justify-center items-center h-full flex-grow">
+        لم يتم العثور على الرحلة
+      </div>
+    );
   }
 
   return (
@@ -72,9 +104,9 @@ const ViewTravels = () => {
               <ul className="text-lg lg:text-xl text-[#757575]">
                 {travel.dates.map((date) => (
                   <li key={date._id}>
-                    {new Date(date.departure).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                    {new Date(date.departure).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
                     -
-                    {new Date(date.arrival).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                    {new Date(date.arrival).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
                   </li>
                 ))}
               </ul>
@@ -84,9 +116,18 @@ const ViewTravels = () => {
             <div className="space-y-4">
               <h2 className="text-2xl lg:text-3xl font-bold text-[#1B4348]">سعر الرحلة للفرد</h2>
               <div className="flex flex-col lg:flex-row lg:items-center gap-2">
-                <p className="text-lg lg:text-xl text-[#757575]">
-                  يبدأ من <span className='text-[#1B4348] font-semibold'>{travel.packages[0]?.price} ريال</span>
-                </p>
+                {!isTravelOwner? <p className="text-lg lg:text-xl text-[#757575]">
+                  يبدأ من <span className="text-[#1B4348] font-semibold">{travel.packages[0]?.price} ريال</span>
+                </p>:
+                <div className="flex flex-col gap-2 text-lg lg:text-xl text-[#757575]">
+                  {travel.packages.map((pack)=><div className="flex gap-2">
+                    <div>{pack.title}</div>
+                    -
+                    <div className="text-[#1B4348] font-semibold">{pack.price} ريال</div>
+                  </div>)}
+                </div>
+
+                }
               </div>
             </div>
           </div>
@@ -100,7 +141,7 @@ const ViewTravels = () => {
                 alt="Travel Image"
                 classNames={{
                   wrapper: "flex items-center justify-center",
-                  img: "object-cover"
+                  img: "object-cover",
                 }}
                 radius="lg"
               />
@@ -110,16 +151,44 @@ const ViewTravels = () => {
 
         {/* Buttons Container */}
         <div className="pt-12 flex justify-center items-center gap-6">
+          {!isTravelOwner && (
+            <Button
+              className="font-bold text-lg px-8 bg-greeny"
+              variant="solid"
+              radius="full"
+              size="lg"
+              onClick={() => navigate("/book-trip")}
+            >
+              حجز
+            </Button>
+          )}
+
+          {isTravelOwner && (
+            <>
+              <Button
+                className="font-bold text-lg"
+                variant="light"
+                color="primary"
+                radius="full"
+                size="lg"
+                onClick={() => setIsEditModalOpen(true)}
+              >
+                تعديل
+              </Button>
+              <Button
+                className="font-bold text-lg"
+                variant="light"
+                color="danger"
+                radius="full"
+                size="lg"
+                onClick={() => setIsDeleteModalOpen(true)}
+              >
+                حذف
+              </Button>
+            </>
+          )}
+
           <Button
-            className="font-bold text-lg px-8 bg-greeny"
-            variant="solid"
-            radius="full"
-            size="lg"
-            onClick={() => navigate('/book-trip')}
-          >
-            حجز
-          </Button>
-          <Button 
             className="font-bold text-lg"
             variant="light"
             color="primary"
@@ -130,6 +199,50 @@ const ViewTravels = () => {
             عودة&gt;
           </Button>
         </div>
+
+        {/* Edit Travel Modal */}
+        {isEditModalOpen && (
+          <AddTravelModal
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+            travel={travel}
+          />
+        )}
+
+        {/* Delete Confirmation Modal */}
+        <Modal 
+          isOpen={isDeleteModalOpen} 
+          onClose={() => setIsDeleteModalOpen(false)}
+          placement="center"
+        >
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className="flex flex-col gap-1">تأكيد الحذف</ModalHeader>
+                <ModalBody>
+                  <p>
+                    هل أنت متأكد أنك تريد حذف هذه الرحلة؟ لا يمكن التراجع عن هذه العملية.
+                  </p>
+                </ModalBody>
+                <ModalFooter>
+                  <Button 
+                    color="default" 
+                    variant="light" 
+                    onPress={onClose}
+                  >
+                    إلغاء
+                  </Button>
+                  <Button 
+                    color="danger" 
+                    onPress={handleDeleteTravel}
+                  >
+                    حذف
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
       </div>
     </div>
   );
