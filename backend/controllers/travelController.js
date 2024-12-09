@@ -12,6 +12,23 @@ exports.getTravelById = async (req, res) => {
   }
 };
 
+// Get a single travel by ID
+exports.getTravelById = async (req, res) => {
+  try {
+    const travel = await Travel.findById(req.params.id)
+      .populate('agency')  // Populate the agency details
+      .populate('travellers.user');  // Populate the user details inside travellers array
+
+    if (!travel) return res.status(404).json({ message: 'Travel not found' });
+
+    res.json(travel);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
 // Get all travels with optional search filters
 exports.getAllTravels = async (req, res) => {
   try {

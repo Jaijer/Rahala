@@ -57,7 +57,7 @@ const BookingCheckout = () => {
       navigate("/");
     } catch (err) {
       console.error("Error adding travel:", err);
-      alert("Failed to add travel. Please try again.");
+      toast.error("فشل الحجز، حاول مرة أخرى");
     }
   };
 

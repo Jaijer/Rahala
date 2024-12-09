@@ -13,4 +13,7 @@ router.delete('/:email', userController.deleteUserByEmail);
 // Add a travel to a user's registeredTravels
 router.post('/:userId/add-travel', userController.addTravelToUser);
 
+// A route to delete a traveler by ID
+router.delete('/travelers/:id', userController.deleteTraveler);
+
 module.exports = router;
