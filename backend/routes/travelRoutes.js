@@ -11,4 +11,10 @@ router.get('/', travelController.getAllTravels);
 // Create a new travel
 router.post('/', travelController.createTravel);
 
+// Update a travel by ID
+router.put('/:id', travelController.updateTravel);
+
+// Delete a travel by ID
+router.delete('/:id', travelController.deleteTravel);
+
 module.exports = router;

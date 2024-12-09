@@ -13,7 +13,7 @@ import axios from 'axios';
 import useUserStore from "../../../stores/userDataStore";
 import api from "../../../api/axios";
 
-const AddTravelModal = ({ isOpen, onClose }) => {
+const AddTravelModal = ({ isOpen, onClose, travel }) => {
     const {userData} = useUserStore();
     const [travelName, setTravelName] = useState("");
     const [capacity, setCapacity] = useState("");
@@ -25,6 +25,7 @@ const AddTravelModal = ({ isOpen, onClose }) => {
     const [image, setImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
+    const isEdit = travel?._id; // if we have a travel, then this is an edit modal
 
     // Validation states (same as previous code)
     const [validations, setValidations] = useState({
@@ -166,11 +167,20 @@ const AddTravelModal = ({ isOpen, onClose }) => {
       }));
     };
 
+    const isoToDateFormat = (isoDate) => {
+      const date = new Date(isoDate);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0"); // Add leading zero if needed
+      const day = String(date.getDate()).padStart(2, "0"); // Add leading zero if needed
+      return `${year}-${month}-${day}`;
+    };
+
     const handleDateChange = (index, field, value) => {
       const updatedDates = dates.map((date, i) => 
           i === index ? { ...date, [field]: value } : date
       );
       setDates(updatedDates);
+      console.log(updatedDates)
       setValidations(prev => ({
           ...prev,
           dates: validateDates(updatedDates)
@@ -273,6 +283,39 @@ const AddTravelModal = ({ isOpen, onClose }) => {
         }
     };
 
+    useEffect(() => {
+      if (isEdit && travel) {
+          setTravelName(travel.travelName || "");
+          setCapacity(travel.capacity?.toString() || "");
+          setFrom(travel.from || "");
+          setDestination(travel.destination || "");
+          setDescription(travel.description || "");
+          setDates(
+            travel.dates
+              ? travel.dates.map(date => ({
+                  departure: isoToDateFormat(date.departure),
+                  arrival: isoToDateFormat(date.arrival)
+                }))
+              : [{ departure: "", arrival: "" }]
+          );
+          setPackages(travel.packages || [{ title: "", price: "" }]);
+          setImage(travel.image || null);
+          setImagePreview(travel.image || null);
+      } else {
+          // Reset fields when modal closes or for a new travel
+          setTravelName("");
+          setCapacity("");
+          setFrom("");
+          setDestination("");
+          setDescription("");
+          setDates([{ departure: "", arrival: "" }]);
+          setPackages([{ title: "", price: "" }]);
+          setImage(null);
+          setImagePreview(null);
+      }
+  }, [isEdit, travel, isOpen]);
+  
+
     const handleSubmit = async () => {
         // Validate all fields including image
         const newValidations = {
@@ -316,8 +359,15 @@ const AddTravelModal = ({ isOpen, onClose }) => {
                     image: imageUrl // Add image URL to travel data
                 };
     
-                const response = await api.post('/api/travels', travelData);
-                console.log("Travel added successfully:", response.data);
+                if (isEdit) {
+                  // Update travel
+                  const response = await api.put(`/api/travels/${travel._id}`, travelData);
+                  console.log("Travel updated successfully:", response.data);
+                } else {
+                    // Create new travel
+                    const response = await api.post('/api/travels', travelData);
+                    console.log("Travel added successfully:", response.data);
+                }
                 window.location.reload();
                 onClose();
             } catch (error) {
@@ -526,7 +576,7 @@ const AddTravelModal = ({ isOpen, onClose }) => {
                     onPress={handleSubmit} 
                     isDisabled={isUploading}
                 >
-                    {isUploading ? 'جاري النشر...' : 'نشر'}
+                    {isUploading ? 'جاري النشر...' : (isEdit?'تعديل':'نشر')}
                 </Button>
             </ModalFooter>
             </>
