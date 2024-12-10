@@ -84,7 +84,7 @@ const BookingCheckout = () => {
           <div className="flex gap-1 text-lg text-[#6c757d]">
             <p>
               {selectedDate
-                ? new Date(selectedDate.departure).toLocaleDateString("ar-SA", {
+                ? new Date(selectedDate.departure).toLocaleDateString("ar-GB", {
                     day: "numeric",
                     month: "long",
                   })
@@ -93,7 +93,7 @@ const BookingCheckout = () => {
             -
             <p>
               {selectedDate
-                ? new Date(selectedDate.arrival).toLocaleDateString("ar-SA", {
+                ? new Date(selectedDate.arrival).toLocaleDateString("ar-GB", {
                     day: "numeric",
                     month: "long",
                   })

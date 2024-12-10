@@ -134,9 +134,8 @@ const BookTrip = () => {
               <CustomRadio
                 key={date.departure}
                 value={date} // Pass the entire date object
-                description={`من ${new Date(date.departure).toLocaleDateString()} إلى ${new Date(date.arrival).toLocaleDateString()}`}
               >
-                {`${new Date(date.departure).toLocaleDateString()} - ${new Date(date.arrival).toLocaleDateString()}`}
+                {`${new Date(date.departure).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })} - ${new Date(date.arrival).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })}`}
               </CustomRadio>
             ))}
           </RadioGroup>

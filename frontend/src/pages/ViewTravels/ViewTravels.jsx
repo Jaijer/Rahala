@@ -25,6 +25,8 @@ const ViewTravels = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isTravelOwner, setIsTravelOwner] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
   useEffect(() => {
     const fetchTravel = async () => {
       try {
@@ -43,13 +45,16 @@ const ViewTravels = () => {
     fetchTravel();
   }, [id, setTravel, userData]);
 
+  
   const handleDeleteTravel = async () => {
+    setDeleteLoading(true); // Start loading
     try {
       await api.delete(`/api/travels/${id}`);
-      window.history.back();
+      window.history.back(); // Navigate back after successful deletion
     } catch (error) {
       console.error("Error deleting travel:", error);
     } finally {
+      setDeleteLoading(false); // Stop loading
       setIsDeleteModalOpen(false);
     }
   };
@@ -232,8 +237,12 @@ const ViewTravels = () => {
                   <Button color="default" variant="light" onPress={onClose}>
                     إلغاء
                   </Button>
-                  <Button color="danger" onPress={handleDeleteTravel}>
-                    حذف
+                  <Button
+                    color="danger"
+                    onPress={handleDeleteTravel}
+                    isDisabled={deleteLoading} // Disable the button while loading
+                  >
+                    {deleteLoading ? <Spinner size="sm" /> : "حذف"} {/* Show spinner or text */}
                   </Button>
                 </ModalFooter>
               </>

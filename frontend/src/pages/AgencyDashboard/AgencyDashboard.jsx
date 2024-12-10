@@ -6,22 +6,30 @@ import TravelCard from '../../components/TravelCard';
 import { IoMdAddCircle } from "react-icons/io";
 import { useDisclosure } from "@nextui-org/react";
 import AddTravelModal from './components/AddTravelModal';
+import { Spinner } from "@nextui-org/react"; // Import Next UI Spinner
 
 function AgencyDashboard() {
   const { userData } = useUserStore();
   const [agencyData, setAgencyData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true); // Add loading state
   const { isOpen, onOpen, onOpenChange } = useDisclosure(); // Modal control
 
   useEffect(() => {
     const fetchAgencyData = async () => {
-      if (!userData || !userData.email) return;
+      if (!userData || !userData.email) {
+        setIsLoading(false); // Stop loading if no user data
+        return;
+      }
 
+      setIsLoading(true); // Start loading
       try {
         const response = await api.get(`/api/agencies/email/${userData.email}`);
-        setAgencyData(response.data); // Assuming the API response contains all agency data
+        setAgencyData(response.data); // Store the fetched agency data
         console.log(response.data);
       } catch (error) {
         console.error("Error fetching agency data:", error);
+      } finally {
+        setIsLoading(false); // Stop loading
       }
     };
 
@@ -43,15 +51,24 @@ function AgencyDashboard() {
     setAgencyData({ ...agencyData, travels: sortedTravels });
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[88vh] bg-whity">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col py-5 px-5 lg:px-24">
       {/* Header with Sort and Results */}
       <div className="flex flex-wrap justify-between items-center mb-4">
         {/* Results Count */}
-        {travels.length?
-        <div className="text-sm sm:text-lg font-bold text-grayish">
-        رحلاتي ({travels.length})
-      </div>:null}
+        {travels.length ? (
+          <div className="text-sm sm:text-lg font-bold text-grayish">
+            رحلاتي ({travels.length})
+          </div>
+        ) : null}
       </div>
 
       <div className="flex flex-col gap-4 mb-8">
