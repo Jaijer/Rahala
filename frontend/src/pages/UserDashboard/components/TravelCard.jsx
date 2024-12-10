@@ -2,7 +2,6 @@ import React from 'react';
 import { Image } from '@nextui-org/image'; // Import Image component from NextUI
 
 function TravelCard({ travel }) {
-    console.log(travel)
   // Destructuring the props
   const { travelName, from, destination, image } = travel.travel;
   const { package: selectedPackage, date } = travel;
@@ -31,7 +30,7 @@ function TravelCard({ travel }) {
         {/* Destination */}
         <div className="text-lg text-darkGreen flex gap-1 flex-wrap">
           <span>{from}</span>
-          <span>-</span>
+          <span>←</span>
           <span>{destination}</span>
         </div>
 
@@ -40,11 +39,11 @@ function TravelCard({ travel }) {
           <span className='text-lg font-medium'>التاريخ:</span>
           <span className='flex gap-2 text-md font-medium text-gray-600 mt-2'>
             <span>
-                {new Date(departureDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                {new Date(departureDate).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })}
             </span>
             -
             <span>
-                {new Date(arrivalDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                {new Date(arrivalDate).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })}
             </span>
           </span>
         </div>

@@ -1,5 +1,6 @@
 const Agency = require('../models/Agency');
 const Travel = require('../models/Travel');
+const User = require('../models/User');
 
 // Get a single travel by ID
 exports.getTravelById = async (req, res) => {
@@ -29,22 +30,49 @@ exports.getTravelById = async (req, res) => {
 };
 
 
-// Get all travels with optional search filters
 exports.getAllTravels = async (req, res) => {
   try {
     const { departure, destination, date } = req.query;
 
     // Build query filters based on search parameters
-    const filters = {
-      ...(departure && { from: departure }),
-      ...(destination && { destination }),
-      ...(date && { 'dates': { $elemMatch: { departure: new Date(date) } } })
-    };
+    const filters = {};
+
+    // Implement case-insensitive partial matching for departure and destination
+    if (departure) {
+      filters.from = { $regex: departure, $options: 'i' };
+    }
+
+    if (destination) {
+      filters.destination = { $regex: destination, $options: 'i' };
+    }
+
+    // Improve date filtering
+    if (date) {
+      const inputDate = new Date(date);
+      
+      // Set the date range to cover the entire day
+      const startOfDay = new Date(inputDate);
+      startOfDay.setHours(0, 0, 0, 0);
+      
+      const endOfDay = new Date(inputDate);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      filters['dates'] = { 
+        $elemMatch: { 
+          departure: { 
+            $gte: startOfDay, 
+            $lte: endOfDay 
+          } 
+        } 
+      };
+    }
 
     // Find travels matching the filters and populate the agency data
     const travels = await Travel.find(filters).populate('agency');
+    
     res.json(travels);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -105,8 +133,19 @@ exports.deleteTravel = async (req, res) => {
       await agency.save();
     }
 
-    res.status(200).json({ message: 'Travel deleted successfully' });
+    // Remove the travel ID from all users' registeredTravels array
+    const users = await User.updateMany(
+      { "registeredTravels.travel": travelId },
+      { $pull: { registeredTravels: { travel: travelId } } }
+    );
+
+    res.status(200).json({ 
+      message: 'Travel deleted successfully', 
+      agencyUpdated: Boolean(agency),
+      usersUpdated: users.modifiedCount // Number of users updated
+    });
   } catch (err) {
+    console.error('Error deleting travel:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };

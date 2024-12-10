@@ -80,10 +80,10 @@ function SignUpForm({ name, email, password, phoneNumber, setName, setEmail, set
         const value = e.target.value;
         // Allow only one '+' at the start and numbers
         const cleaned = value.replace(/\+/g, '').replace(/[^\d]/g, '');
-        setPhoneNumber(cleaned ? `+${cleaned}` : cleaned);
+        setPhoneNumber(cleaned ? `${cleaned}` : cleaned);
         setErrors(prev => ({
             ...prev,
-            phoneNumber: validatePhoneNumber(cleaned ? `+${cleaned}` : cleaned)
+            phoneNumber: validatePhoneNumber(cleaned ? `${cleaned}` : cleaned)
         }));
     };
 
@@ -164,15 +164,15 @@ function SignUpForm({ name, email, password, phoneNumber, setName, setEmail, set
                 {/* Phone number input */}
                 <div className="flex flex-col gap-1">
                     <Input
-                        type="tel"
+                        type="text"
                         variant="bordered"
                         label="رقم الجوال"
-                        placeholder="+966500000000"
+                        placeholder="05XXXXXXXX"
                         value={phoneNumber}
                         onChange={handlePhoneNumberChange}
                         className='bg-white border-black text-right'
                         isInvalid={!!errors.phoneNumber} // Check if there's an error
-                        maxLength={12}
+                        maxLength={10}
                     />
                     {errors.phoneNumber && <span className="text-red-500 text-sm">{errors.phoneNumber}</span>}
                 </div>

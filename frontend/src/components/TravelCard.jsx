@@ -32,7 +32,7 @@ function TravelCard({ travel }) {
           <span>
             {travel.from}
           </span>
-          <span>-</span>
+          <span>←</span>
           <span>
             {travel.destination}
           </span>
@@ -44,11 +44,11 @@ function TravelCard({ travel }) {
         {/* Dates */}
         <div className="flex gap-1 text-grayish">
           <span>
-            {new Date(travel.dates[0].departure).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+            {new Date(travel.dates[0].departure).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })}
           </span>
           -
           <span>
-            {new Date(travel.dates[0].arrival).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+            {new Date(travel.dates[0].arrival).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })}
           </span>
         </div>
       </div>
