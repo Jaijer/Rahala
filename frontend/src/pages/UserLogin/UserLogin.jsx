@@ -12,6 +12,7 @@ function UserLogin() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [form, setForm] = useState("login");
 
   // Google sign-in
@@ -79,7 +80,7 @@ function UserLogin() {
         // Create AuthUser in MongoDB
         await createAuthUser(userCredential.user.email, "user");
         // Create User in MongoDB
-        await createUser(userCredential.user.email, name);
+        await createUser(userCredential.user.email, name, phoneNumber);
 
         toast.success("تم إنشاء الحساب بنجاح"); // Show success toast
         navigate('/');
@@ -120,9 +121,9 @@ async function createAuthUser(email, userType) {
 }
 
 // Function to create User in MongoDB
-async function createUser(email, name) {
+async function createUser(email, name, phoneNumber) {
     try {
-        const response = await api.post('/api/users', { email, name });
+        const response = await api.post('/api/users', { email, name, phoneNumber });
         console.log("User created:", response.data);
     } catch (error) {
         console.error("Error creating User:", error);
@@ -167,9 +168,11 @@ async function deleteUserInDB(email) {
           name={name}
           email={email}
           password={password}
+          phoneNumber={phoneNumber}
           setName={setName}
           setEmail={setEmail}
           setPassword={setPassword}
+          setPhoneNumber={setPhoneNumber}
           onGoogleClick={onGoogleClick}
           onSignUp={onSignUp}
           setForm={setForm}
