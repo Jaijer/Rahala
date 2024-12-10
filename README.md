@@ -38,7 +38,7 @@ The primary motivation for Rahala is to bridge the gap between travelers seeking
 
 ### **Clone the Repository**
 ```bash
-git clone https://github.com/your-repo-url/rahala.git
+git clone git@github.com:Jaijer/Rahala.git
 cd rahala
 ```
 
