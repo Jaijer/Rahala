@@ -7,9 +7,7 @@ function AccountForm() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("+966000000");
   const [isModified, setIsModified] = useState({
-    firstName: false,
-    lastName: false,
-    country: false,
+    name: false,
     phone: false
   });
 
@@ -36,48 +34,22 @@ function AccountForm() {
     <form onSubmit={handleSubmit} className="space-y-12">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Input
-          label="الاسم الأول"
+          label="الأول"
           defaultValue="محمد"
           variant="bordered"
           labelPlacement="outside"
-          className={isModified.firstName ? highlightClass : ""}
-          onInput={handleInputChange('firstName')}
+          className={isModified.name ? highlightClass : ""}
+          onInput={handleInputChange('name')}
           classNames={{
             label: "text-lg mb-3",
             input: "text-lg py-2",
             base: "mb-6",
           }}
         />
-        <Input
-          label="الاسم الأخير"
-          defaultValue="شعبان"
-          variant="bordered"
-          labelPlacement="outside"
-          className={isModified.lastName ? highlightClass : ""}
-          onInput={handleInputChange('lastName')}
-          classNames={{
-            label: "text-lg mb-3",
-            input: "text-lg py-2",
-            base: "mb-6",
-          }}
-        />
+
       </div>
       
       <div className="space-y-12">
-        <Input
-          label="الدولة"
-          defaultValue="السعودية"
-          variant="bordered"
-          labelPlacement="outside"
-          className={isModified.country ? highlightClass : ""}
-          onInput={handleInputChange('country')}
-          classNames={{
-            label: "text-lg mb-3",
-            input: "text-lg py-2",
-            base: "mb-6",
-          }}
-        />
-        
         {/* Password field with hold-to-show functionality */}
         <div className="relative">
           <Input

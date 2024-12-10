@@ -15,8 +15,8 @@ exports.getUserById = async (req, res) => {
 // Create User
 exports.createUser = async (req, res) => {
   try {
-    const { email, name } = req.body;
-    const newUser = new User({ email, name });
+    const { email, name, phoneNumber } = req.body;
+    const newUser = new User({ email, name, phoneNumber });
     await newUser.save();
     res.status(201).json(newUser);
   } catch (err) {
