@@ -16,4 +16,8 @@ router.post('/:userId/add-travel', userController.addTravelToUser);
 // A route to delete a traveler by ID
 router.delete('/travelers/:id', userController.deleteTraveler);
 
+// A route to update user settings
+router.put('/user-settings/:id', userController.updateSettings);
+router.put('/user-settings/notifications/:id', userController.updateNotificationSettings);
+
 module.exports = router;

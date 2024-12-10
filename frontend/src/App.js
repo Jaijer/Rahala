@@ -66,7 +66,7 @@ function App() {
                         <Route path="/login" element={<UserLogin />} />
                         <Route path="/login-agency" element={<AgencyLogin />} />
 
-                        <Route path="/user-settings" element={<AccountSettingsPage />} />
+                        <Route path="/user-settings/" element={<AccountSettingsPage />} />
                         <Route path="/user-settings/notifications" element={<NotificationsSettingsPage />} />
                         <Route path="/user-settings/reset-password" element={<ResetPasswordPage />} />
 
