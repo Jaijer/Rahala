@@ -143,3 +143,36 @@ exports.deleteTraveler = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+// Update User Settings
+exports.updateSettings = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, phoneNumber } = req.body;
+
+    const user = await User.findByIdAndUpdate(id, { name, phoneNumber }, { new: true });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ message: 'Settings updated successfully', user });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
+
+exports.updateNotificationSettings = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { advNotifications, tripNotifications } = req.body;
+
+    const user = await User.findByIdAndUpdate(id, { advNotifications, tripNotifications }, { new: true });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ message: 'Notifcation Settings updated successfully', user });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};

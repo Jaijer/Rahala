@@ -172,7 +172,8 @@ function SignUpForm({ name, email, password, phoneNumber, setName, setEmail, set
                         onChange={handlePhoneNumberChange}
                         className='bg-white border-black text-right'
                         isInvalid={!!errors.phoneNumber} // Check if there's an error
-                        maxLength={10}
+                        maxLength={13}
+                        minLength={13}
                     />
                     {errors.phoneNumber && <span className="text-red-500 text-sm">{errors.phoneNumber}</span>}
                 </div>
