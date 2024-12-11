@@ -9,6 +9,7 @@ import useLoadingStore from './stores/loadingStore'; // Import the loading store
 import Landing from './pages/Landing/Landing';
 import Search from './pages/Search/Search';
 import Navbar from './components/Navbar';
+import ChatBot from './components/Chatbot';
 import AdminDashboard from './pages/AdminDashboard/AdminDashboard';
 import UserLogin from './pages/UserLogin/UserLogin';
 import AgencyLogin from './pages/AgencyLogin/AgencyLogin';
@@ -79,8 +80,9 @@ function App() {
                         <Route path="/view-travels/:id" element={<ViewTravels />} />
                         <Route path="/book-trip" element={<BookTrip />} />
                         <Route path="/payment" element={<Payment />} />
-                          
+                        
                     </Routes>
+                    <ChatBot />
                 </div>
                 <ToastContainer />
             </Router>

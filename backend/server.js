@@ -18,6 +18,7 @@ const userRoutes = require('./routes/userRoutes');
 const agencyRoutes = require('./routes/agencyRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const travelRoutes = require('./routes/travelRoutes');
+const chatbotRoutes = require('./routes/chatbotRoutes');
 
 // Use routes
 app.use('/api/auth', authRoutes);
@@ -25,6 +26,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/agencies', agencyRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/travels', travelRoutes);
+app.use('/api/chatbot', chatbotRoutes);
 
 // Root route
 app.get('/', (req, res) => {
