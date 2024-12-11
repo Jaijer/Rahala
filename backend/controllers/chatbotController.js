@@ -290,22 +290,45 @@ class ChatbotController {
   }
 
   async generateResponse(text, searchResults, isArabic, conversationHistory) {
+    // Format search results in the same way as the ChatBot component
+    const formatSearchResults = (results) => {
+      if (!results?.length) return '';
+
+      const resultsText = results.map((result, index) => {
+        const packagesInfo = result.packages.map(pkg => 
+          `   • ${pkg.title} (${pkg.category}): ${pkg.price} ريال`
+        ).join('\n');
+
+        return `
+${index + 1}. ${result.travelName}
+   من: ${result.from}
+   إلى: ${result.destination}
+   
+   الباقات:
+${packagesInfo}`.trim();
+      }).join('\n\n');
+
+      return `الرحلات المتوفرة:\n${resultsText}`;
+    };
+
+    const formattedResults = formatSearchResults(searchResults);
+
     const messages = [
       {
         role: "system",
         content: isArabic ?
           `أنت مساعد سفر محترف. اتبع هذه التعليمات:
           1. قدم إجابات باللغة العربية فقط
-          2. اشرح الخيارات المتاحة بوضوح
-          3. اذكر الأسعار والتفاصيل المهمة
+          2. استخدم البيانات المتوفرة لتقديم رد مباشر وواضح
+          3. استخدم المعلومات الموجودة في قائمة الرحلات المتوفرة
           4. كن ودوداً ومهنياً
-          5. حافظ على سياق المحادثة` :
-          `You are a travel assistant. Follow these guidelines:
+          5. حافظ على إيجاز وتركيز الرد` :
+          `You are a professional travel assistant. Follow these guidelines:
           1. Provide responses in English only
-          2. Explain available options clearly
-          3. Mention prices and important details
+          2. Use available data to provide a direct and clear response
+          3. Use the information provided in the available trips list
           4. Be friendly and professional
-          5. Maintain conversation context`
+          5. Keep responses concise and focused`
       },
       ...conversationHistory.map(msg => ({
         role: msg.type === 'user' ? 'user' : 'assistant',
@@ -313,18 +336,18 @@ class ChatbotController {
       })),
       {
         role: "user",
-        content: `User query: ${text}\nAvailable options: ${JSON.stringify(searchResults)}`
+        content: `استفسار المستخدم: ${text}\n\n${formattedResults}`
       }
     ];
 
-    const response = await this.openai.chat.completions.create({
+    const completion = await this.openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: messages,
       temperature: 0.7
     });
 
-    return response.choices[0].message.content;
-  }
+    return completion.choices[0].message.content;
+}
 }
 
 module.exports = new ChatbotController();

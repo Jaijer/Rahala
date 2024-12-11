@@ -6,20 +6,22 @@ function RegisteredItem({ name, id, onDelete }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const handleDelete = () => {
-    onDelete(); // Call the delete handler
-    onOpenChange(false);
+    if (id) {
+      onDelete(id); // Call the delete handler with the correct ID
+      onOpenChange(false);
+    } else {
+      console.error("ID is undefined. Cannot delete agency.");
+    }
   };
 
   return (
-    <div className="flex justify-between items-center flex-grow">
+    <div className="flex justify-between items-center">
       <span>{name}</span>
 
-      <div className="flex gap-2 items-center">
-        <MdCancel
-          className='text-4xl text-[#E33629] hover:cursor-pointer hover:opacity-85'
-          onClick={onOpen}
-        />
-      </div>
+      <MdCancel 
+        className='text-4xl text-[#E33629] cursor-pointer' 
+        onClick={onOpen} 
+      />
 
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
         <ModalContent>

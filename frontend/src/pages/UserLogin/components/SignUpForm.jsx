@@ -3,14 +3,15 @@ import { Input, Button } from '@nextui-org/react';
 import { FcGoogle } from 'react-icons/fc';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 
-function SignUpForm({ name, email, password, setName, setEmail, setPassword, onGoogleClick, onSignUp, setForm }) {
+function SignUpForm({ name, email, password, phoneNumber, setName, setEmail, setPassword, setPhoneNumber, onGoogleClick, onSignUp, setForm }) {
     const [showPassword, setShowPassword] = useState(false);
 
     // Validation state
     const [errors, setErrors] = useState({
         name: '',
         email: '',
-        password: ''
+        password: '',
+        phoneNumber: ''
     });
 
     const togglePasswordVisibility = () => {
@@ -41,6 +42,13 @@ function SignUpForm({ name, email, password, setName, setEmail, setPassword, onG
         return '';
     };
 
+    const validatePhoneNumber = (inputPhoneNumber) => {
+        if (!inputPhoneNumber) return 'رقم الهاتف مطلوب';
+        const phoneRegex = /^\+?[0-9]{10,15}$/;
+        if (!phoneRegex.test(inputPhoneNumber)) return 'برجاء إدخال رقم هاتف صحيح';
+        return '';
+    };
+
     const handleNameChange = (e) => {
         const inputName = e.target.value;
         setName(inputName);
@@ -68,20 +76,33 @@ function SignUpForm({ name, email, password, setName, setEmail, setPassword, onG
         }));
     };
 
+    const handlePhoneNumberChange = (e) => {
+        const value = e.target.value;
+        // Allow only one '+' at the start and numbers
+        const cleaned = value.replace(/\+/g, '').replace(/[^\d]/g, '');
+        setPhoneNumber(cleaned ? `${cleaned}` : cleaned);
+        setErrors(prev => ({
+            ...prev,
+            phoneNumber: validatePhoneNumber(cleaned ? `${cleaned}` : cleaned)
+        }));
+    };
+
     const handleSignUp = () => {
         // Validate all fields before signing up
         const nameError = validateName(name);
         const emailError = validateEmail(email);
         const passwordError = validatePassword(password);
+        const phoneNumberError = validatePhoneNumber(phoneNumber);
 
         setErrors({
             name: nameError,
             email: emailError,
-            password: passwordError
+            password: passwordError,
+            phoneNumber: phoneNumberError
         });
 
         // Only proceed with sign up if no errors
-        if (!nameError && !emailError && !passwordError) {
+        if (!nameError && !emailError && !passwordError && !phoneNumberError) {
             onSignUp();
         }
     };
@@ -138,6 +159,23 @@ function SignUpForm({ name, email, password, setName, setEmail, setPassword, onG
                         isInvalid={!!errors.email} // Check if there's an error
                     />
                     {errors.email && <span className="text-red-500 text-sm">{errors.email}</span>}
+                </div>
+
+                {/* Phone number input */}
+                <div className="flex flex-col gap-1">
+                    <Input
+                        type="text"
+                        variant="bordered"
+                        label="رقم الجوال"
+                        placeholder="05XXXXXXXX"
+                        value={phoneNumber}
+                        onChange={handlePhoneNumberChange}
+                        className='bg-white border-black text-right'
+                        isInvalid={!!errors.phoneNumber} // Check if there's an error
+                        maxLength={13}
+                        minLength={13}
+                    />
+                    {errors.phoneNumber && <span className="text-red-500 text-sm">{errors.phoneNumber}</span>}
                 </div>
 
                 {/* Password input */}

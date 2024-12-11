@@ -1,26 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input, Button } from '@nextui-org/react';
 import { EditIcon } from '@nextui-org/shared-icons';
 import { Link } from 'react-router-dom';
+import api from '../../../api/axios';
+import { ToastContainer, toast } from 'react-toastify';
+import useUserStore from '../../../stores/userDataStore';
 
 function AccountForm() {
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState("+966000000");
-  const [isModified, setIsModified] = useState({
-    firstName: false,
-    lastName: false,
-    country: false,
-    phone: false
-  });
+  const { userData } = useUserStore();
+  const userId = userData?._id; // Access user ID from store
+
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
 
   function handleSubmit(e) {
     e.preventDefault();
-  }
-
-  function handleInputChange(field) {
-    return () => {
-      setIsModified(prev => ({...prev, [field]: true}));
+    const updateUserInfo = async () => {
+      try {
+        await api.put(`/api/users/user-settings/${userId}`, {
+          name,
+          phoneNumber
+        });
+        toast.success("User info updated successfully");
+      } catch (error) {
+        toast.error("Error updating user info");
+        console.error("Error updating user info:", error);
+      }
     };
+
+    updateUserInfo();
   }
 
   function handlePhoneChange(e) {
@@ -30,73 +39,34 @@ function AccountForm() {
     setPhoneNumber(cleaned ? `+${cleaned}` : cleaned);
   }
 
-  const highlightClass = "bg-blue-50";
+  useEffect(() => {
+    if (!userId) return;
+    const fetchUserInfo = async () => {
+      try {
+        const response = await api.get(`/api/users/${userId}`);
+        const userData = response.data;
+        setName(userData.name);
+        setPhoneNumber(userData.phoneNumber);
+        setEmail(userData.email);
+      } catch (error) {
+        console.error("Error fetching user info:", error);
+      }
+    };
+
+    fetchUserInfo();
+  }, [userId]);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-12">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <Input
-          label="الاسم الأول"
-          defaultValue="محمد"
-          variant="bordered"
-          labelPlacement="outside"
-          className={isModified.firstName ? highlightClass : ""}
-          onInput={handleInputChange('firstName')}
-          classNames={{
-            label: "text-lg mb-3",
-            input: "text-lg py-2",
-            base: "mb-6",
-          }}
-        />
-        <Input
-          label="الاسم الأخير"
-          defaultValue="شعبان"
-          variant="bordered"
-          labelPlacement="outside"
-          className={isModified.lastName ? highlightClass : ""}
-          onInput={handleInputChange('lastName')}
-          classNames={{
-            label: "text-lg mb-3",
-            input: "text-lg py-2",
-            base: "mb-6",
-          }}
-        />
-      </div>
-      
-      <div className="space-y-12">
-        <Input
-          label="الدولة"
-          defaultValue="السعودية"
-          variant="bordered"
-          labelPlacement="outside"
-          className={isModified.country ? highlightClass : ""}
-          onInput={handleInputChange('country')}
-          classNames={{
-            label: "text-lg mb-3",
-            input: "text-lg py-2",
-            base: "mb-6",
-          }}
-        />
-        
-        {/* Password field with hold-to-show functionality */}
-        <div className="relative">
+    <>
+      <ToastContainer />
+      <form onSubmit={handleSubmit} className="space-y-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <Input
-            label="كلمة المرور"
-            type={isPasswordVisible ? "text" : "password"}
-            defaultValue="SWE363.com"
+            label="الاسم"
+            value={name}
             variant="bordered"
             labelPlacement="outside"
-            isReadOnly
-            onMouseDown={() => setIsPasswordVisible(true)}
-            onMouseUp={() => setIsPasswordVisible(false)}
-            onMouseLeave={() => setIsPasswordVisible(false)}
-            onTouchStart={() => setIsPasswordVisible(true)}
-            onTouchEnd={() => setIsPasswordVisible(false)}
-            endContent={
-              <Link to="/user-settings/reset-password">
-                <EditIcon className="w-6 h-6 text-blue-500 hover:text-blue-600" />
-              </Link>
-            }
+            onChange={(e) => setName(e.target.value)}
             classNames={{
               label: "text-lg mb-3",
               input: "text-lg py-2",
@@ -104,50 +74,67 @@ function AccountForm() {
             }}
           />
         </div>
-        
-        {/* Read-only email field */}
-        <Input
-          label="البريد الإلكتروني"
-          defaultValue="example@gmail.com"
-          variant="bordered"
-          labelPlacement="outside"
-          isReadOnly
-          isDisabled
-          classNames={{
-            label: "text-lg mb-3",
-            input: "text-lg py-2 bg-gray-100",
-            base: "mb-6",
-          }}
-        />
-        
-        {/* Phone field with single '+' */}
-        <Input
-          label="الجوال"
-          value={phoneNumber}
-          variant="bordered"
-          labelPlacement="outside"
-          type="tel"
-          className={isModified.phone ? highlightClass : ""}
-          onChange={handlePhoneChange}
-          onInput={handleInputChange('phone')}
-          classNames={{
-            label: "text-lg mb-3",
-            input: "text-lg py-2",
-            base: "mb-6",
-          }}
-        />
-      </div>
-      
-      <div className="flex justify-center pt-6">
-        <Button 
-          color="primary" 
-          type="submit" 
-          className="w-40 h-14 text-lg"
-        >
-          حفظ
-        </Button>
-      </div>
-    </form>
+        <div className="space-y-12">
+          <div className="relative">
+            <Input
+              label="كلمة المرور"
+              type={"password"}
+              defaultValue="SWE363.com"
+              variant="bordered"
+              labelPlacement="outside"
+              isReadOnly
+              endContent={
+                <Link to="/user-settings/reset-password">
+                  <EditIcon className="w-6 h-6 text-blue-500 hover:text-blue-600" />
+                </Link>
+              }
+              classNames={{
+                label: "text-lg mb-3",
+                input: "text-lg py-2",
+                base: "mb-6",
+              }}
+            />
+          </div>
+          <Input
+            label="البريد الإلكتروني"
+            value={email}
+            variant="bordered"
+            labelPlacement="outside"
+            isReadOnly
+            isDisabled
+            classNames={{
+              label: "text-lg mb-3",
+              input: "text-lg py-2 bg-gray-100",
+              base: "mb-6",
+            }}
+          />
+          <Input
+            label="الجوال"
+            value={phoneNumber}
+            maxLength={13}
+            minLength={13}
+            variant="bordered"
+            labelPlacement="outside"
+            type="tel"
+            onChange={handlePhoneChange}
+            classNames={{
+              label: "text-lg mb-3",
+              input: "text-lg py-2",
+              base: "mb-6",
+            }}
+          />
+        </div>
+        <div className="flex justify-center pt-6">
+          <Button 
+            color="primary" 
+            type="submit" 
+            className="w-40 h-14 text-lg"
+          >
+            حفظ
+          </Button>
+        </div>
+      </form>
+    </>
   );
 }
 

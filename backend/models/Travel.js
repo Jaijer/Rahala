@@ -8,8 +8,8 @@ const travelSchema = new mongoose.Schema({
   destination: { type: String, required: true },
   dates: [{
     departure: { type: Date, required: true },
-    arrival: { type: Date, required: true }
-  }],
+    arrival: { type: Date, required: true },
+  },],
   description: { type: String },
   image: { type: String },
   packages: [{
@@ -22,23 +22,17 @@ const travelSchema = new mongoose.Schema({
     }
   }],
   isAvailable: { type: Boolean, default: true },
-  agency: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Agency', 
-    required: true 
-  },
-  rating: { 
-    type: Number, 
-    min: 1, 
-    max: 5, 
-  }
-}, {
-  timestamps: true
+  agency: { type: mongoose.Schema.Types.ObjectId, ref: 'Agency', required: true },
+  travellers: [
+    {
+      user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      package: { type: String, required: true },
+      date: {
+        departure: { type: Date, required: true },
+        arrival: { type: Date, required: true }
+      }
+    }
+  ],
 });
-
-// Add indexes for efficient searching
-travelSchema.index({ 'from.ar': 1, 'from.en': 1 });
-travelSchema.index({ 'destination.ar': 1, 'destination.en': 1 });
-travelSchema.index({ 'packages.category': 1 });
 
 module.exports = mongoose.model('Travel', travelSchema);

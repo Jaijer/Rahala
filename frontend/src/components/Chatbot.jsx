@@ -1,4 +1,3 @@
-// frontend/src/components/Chatbot.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Input } from '@nextui-org/react';
 
@@ -155,14 +154,17 @@ const ChatBot = () => {
     if (!searchResults?.length) return content;
 
     const resultsText = searchResults.map((result, index) => {
-      const minPrice = Math.min(...result.packages.map(p => p.price));
+      const packagesInfo = result.packages.map(pkg => 
+        `   • ${pkg.title} (${pkg.category}): ${pkg.price} ريال`
+      ).join('\n');
+
       return `
 ${index + 1}. ${result.travelName}
    من: ${result.from}
    إلى: ${result.destination}
-   السعر يبدأ من: ${minPrice} ريال
-   ${result.packages.length > 1 ? `عدد الباقات المتوفرة: ${result.packages.length}` : ''}
-      `.trim();
+   
+   الباقات:
+${packagesInfo}`.trim();
     }).join('\n\n');
 
     return `${content}\n\nالرحلات المتوفرة:\n${resultsText}`;
@@ -173,10 +175,10 @@ ${index + 1}. ${result.travelName}
       {!isOpen && (
         <Button
           isIconOnly
-          color="primary"
+          color="success"
           size="lg"
           radius="full"
-          className="w-14 h-14 shadow-lg"
+          className="w-14 h-14 shadow-lg bg-emerald-600 hover:bg-emerald-700"
           onClick={() => setIsOpen(true)}
         >
           <svg 
@@ -213,7 +215,7 @@ ${index + 1}. ${result.travelName}
                 size="sm"
                 variant="light"
                 onClick={clearConversation}
-                className="text-sm"
+                className="text-sm text-emerald-600 hover:text-emerald-700"
               >
                 مسح المحادثة
               </Button>
@@ -222,6 +224,7 @@ ${index + 1}. ${result.travelName}
                 size="sm"
                 variant="light"
                 onClick={handleClose}
+                className="text-emerald-600 hover:text-emerald-700"
               >
                 <svg 
                   xmlns="http://www.w3.org/2000/svg" 
@@ -255,16 +258,84 @@ ${index + 1}. ${result.travelName}
                 key={index}
                 className={`mb-4 ${
                   msg.type === 'user' 
-                    ? 'mr-auto ml-4 bg-blue-100' 
+                    ? 'mr-auto ml-4 bg-emerald-100' 
                     : 'ml-auto mr-4 bg-white'
                 } p-3 rounded-lg shadow-sm max-w-[80%]`}
               >
-                <p className="text-gray-700 whitespace-pre-line">
-                  {msg.type === 'bot' 
-                    ? formatBotMessage(msg.content, msg.searchResults) 
-                    : msg.content
-                  }
-                </p>
+                {msg.type === 'bot' && msg.searchResults ? (
+                  <div className="space-y-4">
+                    <p className="text-gray-700 whitespace-pre-line mb-4">
+                      {msg.content}
+                    </p>
+                    <div className="border-t pt-4">
+                      <h3 className="font-semibold text-emerald-800 mb-3">الرحلات المتوفرة:</h3>
+                      <div className="space-y-6">
+                        {msg.searchResults.map((result, idx) => (
+                          <a 
+                            href={`/view-travels/${result._id}`}
+                            key={idx} 
+                            className="block bg-white rounded-lg p-4 shadow-sm border border-emerald-100 transition-all duration-200 hover:shadow-md hover:border-emerald-300 cursor-pointer"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <div className="flex justify-between items-start mb-3">
+                              <h4 className="font-bold text-lg text-emerald-700">
+                                {idx + 1}. {result.travelName}
+                              </h4>
+                              <svg 
+                                xmlns="http://www.w3.org/2000/svg" 
+                                className="h-5 w-5 text-emerald-600" 
+                                fill="none" 
+                                viewBox="0 0 24 24" 
+                                stroke="currentColor"
+                              >
+                                <path 
+                                  strokeLinecap="round" 
+                                  strokeLinejoin="round" 
+                                  strokeWidth={2} 
+                                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" 
+                                />
+                              </svg>
+                            </div>
+                            <div className="flex gap-4 text-gray-600 mb-4">
+                              <div className="flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                </svg>
+                                <span>{result.from}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                </svg>
+                                <span>{result.destination}</span>
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              {result.packages.map((pkg, pIdx) => (
+                                <div key={pIdx} className="flex justify-between items-center py-2 px-3 bg-emerald-50 rounded">
+                                  <span className="font-medium">{pkg.title}</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm text-emerald-600 bg-emerald-100 px-2 py-1 rounded">
+                                      {pkg.category}
+                                    </span>
+                                    <span className="font-bold text-emerald-700">
+                                      {pkg.price} ريال
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-gray-700 whitespace-pre-line">
+                    {msg.content}
+                  </p>
+                )}
               </div>
             ))}
             <div ref={messagesEndRef} />
@@ -292,9 +363,10 @@ ${index + 1}. ${result.travelName}
               />
               <Button
                 type="submit"
-                color="primary"
+                color="success"
                 isLoading={loading}
                 isIconOnly
+                className="bg-emerald-600 hover:bg-emerald-700"
               >
                 {!loading && (
                   <svg 
