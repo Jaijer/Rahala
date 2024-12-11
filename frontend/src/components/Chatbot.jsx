@@ -110,7 +110,7 @@ const ChatBot = () => {
       // Get the last 6 messages for context (excluding the just-added user message)
       const conversationHistory = messages.slice(-6);
       
-      const res = await fetch('http://localhost:5000/api/chatbot/process', {
+      const res = await fetch('https://rahala.onrender.com/api/chatbot/process', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
