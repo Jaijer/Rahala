@@ -1,3 +1,4 @@
+// frontend/src/components/Chatbot.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Input } from '@nextui-org/react';
 
@@ -29,9 +30,11 @@ const ChatBot = () => {
     }
   }, [isOpen, messages.length]);
 
-  // Save messages to localStorage
+  // Save messages to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('chatMessages', JSON.stringify(messages));
+    if (messages.length > 0) {
+      localStorage.setItem('chatMessages', JSON.stringify(messages));
+    }
   }, [messages]);
 
   // Scroll to bottom when messages change
@@ -74,34 +77,95 @@ const ChatBot = () => {
     setIsResizing(true);
   };
 
+  // Clear conversation handler
+  const clearConversation = () => {
+    setMessages([{
+      type: 'bot',
+      content: 'مرحباً! أنا رحال، مساعدك الشخصي. كيف يمكنني مساعدتك اليوم؟'
+    }]);
+    localStorage.removeItem('chatMessages');
+  };
+
+  // Close handler
+  const handleClose = () => {
+    setIsOpen(false);
+    if (messages.length > 20) { // Optional: Clear if conversation is too long
+      clearConversation();
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!message.trim()) return;
 
+    // Add user message immediately
     const userMessage = { type: 'user', content: message };
     setMessages(prev => [...prev, userMessage]);
-    setLoading(true);
     
+    // Clear input and set loading
+    const currentMessage = message;
+    setMessage('');
+    setLoading(true);
+
     try {
-      const res = await fetch('http://localhost:3000/api/process', {
+      // Get the last 6 messages for context (excluding the just-added user message)
+      const conversationHistory = messages.slice(-6);
+      
+      const res = await fetch('http://localhost:5000/api/chatbot/process', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text: message }),
+        body: JSON.stringify({ 
+          text: currentMessage,
+          conversationHistory: conversationHistory
+        }),
       });
-      
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
       const data = await res.json();
-      setMessages(prev => [...prev, { type: 'bot', content: data.output }]);
-    } catch (error) {
+      console.log('Received response:', data);
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      // Format and add bot response
       setMessages(prev => [...prev, {
         type: 'bot',
-        content: 'عذراً، حدث خطأ. الرجاء المحاولة مرة أخرى.'
+        content: data.output,
+        searchResults: data.searchResults
+      }]);
+
+    } catch (error) {
+      console.error('Error in chat:', error);
+      setMessages(prev => [...prev, {
+        type: 'bot',
+        content: 'عذراً، حدث خطأ في الاتصال. الرجاء المحاولة مرة أخرى.'
       }]);
     } finally {
       setLoading(false);
-      setMessage('');
     }
+  };
+
+  const formatBotMessage = (content, searchResults) => {
+    if (!searchResults?.length) return content;
+
+    const resultsText = searchResults.map((result, index) => {
+      const minPrice = Math.min(...result.packages.map(p => p.price));
+      return `
+${index + 1}. ${result.travelName}
+   من: ${result.from}
+   إلى: ${result.destination}
+   السعر يبدأ من: ${minPrice} ريال
+   ${result.packages.length > 1 ? `عدد الباقات المتوفرة: ${result.packages.length}` : ''}
+      `.trim();
+    }).join('\n\n');
+
+    return `${content}\n\nالرحلات المتوفرة:\n${resultsText}`;
   };
 
   return (
@@ -144,29 +208,37 @@ const ChatBot = () => {
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b">
             <h3 className="font-semibold text-gray-700 font-arabic">رحال</h3>
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              onClick={() => {
-                setIsOpen(false);
-              }}
-            >
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                className="w-5 h-5"
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="light"
+                onClick={clearConversation}
+                className="text-sm"
               >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </Button>
+                مسح المحادثة
+              </Button>
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                onClick={handleClose}
+              >
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  className="w-5 h-5"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </Button>
+            </div>
           </div>
 
           {/* Chat area */}
@@ -187,7 +259,12 @@ const ChatBot = () => {
                     : 'ml-auto mr-4 bg-white'
                 } p-3 rounded-lg shadow-sm max-w-[80%]`}
               >
-                <p className="text-gray-700">{msg.content}</p>
+                <p className="text-gray-700 whitespace-pre-line">
+                  {msg.type === 'bot' 
+                    ? formatBotMessage(msg.content, msg.searchResults) 
+                    : msg.content
+                  }
+                </p>
               </div>
             ))}
             <div ref={messagesEndRef} />
