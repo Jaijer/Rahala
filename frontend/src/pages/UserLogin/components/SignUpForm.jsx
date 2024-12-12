@@ -5,6 +5,7 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 
 function SignUpForm({ name, email, password, phoneNumber, setName, setEmail, setPassword, setPhoneNumber, onGoogleClick, onSignUp, setForm }) {
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false); // Loading state
 
     // Validation state
     const [errors, setErrors] = useState({
@@ -44,8 +45,12 @@ function SignUpForm({ name, email, password, phoneNumber, setName, setEmail, set
 
     const validatePhoneNumber = (inputPhoneNumber) => {
         if (!inputPhoneNumber) return 'رقم الهاتف مطلوب';
-        const phoneRegex = /^\+?[0-9]{10,15}$/;
-        if (!phoneRegex.test(inputPhoneNumber)) return 'برجاء إدخال رقم هاتف صحيح';
+    
+        // Regex to match numbers starting with "05" followed by 8 digits
+        const saudiPhoneRegex = /^05\d{8}$/;
+    
+        if (!saudiPhoneRegex.test(inputPhoneNumber)) return 'برجاء إدخال رقم هاتف سعودي صحيح بصيغة 05XXXXXXXX';
+    
         return '';
     };
 
@@ -87,7 +92,7 @@ function SignUpForm({ name, email, password, phoneNumber, setName, setEmail, set
         }));
     };
 
-    const handleSignUp = () => {
+    const handleSignUp = async () => {
         // Validate all fields before signing up
         const nameError = validateName(name);
         const emailError = validateEmail(email);
@@ -103,12 +108,20 @@ function SignUpForm({ name, email, password, phoneNumber, setName, setEmail, set
 
         // Only proceed with sign up if no errors
         if (!nameError && !emailError && !passwordError && !phoneNumberError) {
-            onSignUp();
+            setLoading(true); // Show loading state
+            await onSignUp(); // Wait for sign-up action to complete
+            setLoading(false); // Reset loading state
+        }
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleSignUp();
         }
     };
 
     return (
-        <div className='bg-whity rounded-3xl flex flex-col p-12 gap-8 items-center justify-center md:min-w-[500px] w-full mx-4 md:w-auto md:mx-0'>
+        <div className='bg-whity rounded-3xl flex flex-col p-12 gap-8 items-center justify-center md:min-w-[500px] w-full mx-4 md:w-auto md:mx-0' onKeyPress={handleKeyPress}>
             <div className="flex gap-2 items-center">
                 <h3 className="lg:text-3xl text-2xl font-bold">رحالة</h3>
                 <img src="/logo.png" alt="Rahala Logo" className="h-20 w-20" />
@@ -172,8 +185,7 @@ function SignUpForm({ name, email, password, phoneNumber, setName, setEmail, set
                         onChange={handlePhoneNumberChange}
                         className='bg-white border-black text-right'
                         isInvalid={!!errors.phoneNumber} // Check if there's an error
-                        maxLength={13}
-                        minLength={13}
+                        maxLength={10}
                     />
                     {errors.phoneNumber && <span className="text-red-500 text-sm">{errors.phoneNumber}</span>}
                 </div>
@@ -211,6 +223,7 @@ function SignUpForm({ name, email, password, phoneNumber, setName, setEmail, set
                     onClick={handleSignUp}
                     radius="full"
                     className='bg-[#6961EF] text-white mt-4 text-lg py-6'
+                    isLoading={loading} // Button loading state
                 >
                     إنشاء حساب جديد
                 </Button>

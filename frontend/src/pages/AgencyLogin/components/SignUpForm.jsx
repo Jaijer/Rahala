@@ -4,6 +4,7 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 
 function AgencySignUpForm({ name, email, password, phone, address, setName, setEmail, setPassword, setPhone, setAddress, onSignUp }) {
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false); // Loading state
     const [errors, setErrors] = useState({
         name: '',
         email: '',
@@ -37,8 +38,10 @@ function AgencySignUpForm({ name, email, password, phone, address, setName, setE
         return '';
     };
 
-    const validatePhone = (inputPhone) => {
-        if (!inputPhone) return 'رقم الهاتف مطلوب';
+    const validatePhone = (inputPhoneNumber) => {
+        if (!inputPhoneNumber) return 'رقم الهاتف مطلوب';
+        const saudiPhoneRegex = /^05\d{8}$/;
+        if (!saudiPhoneRegex.test(inputPhoneNumber)) return 'برجاء إدخال رقم هاتف سعودي صحيح بصيغة 05XXXXXXXX';
         return '';
     };
 
@@ -53,7 +56,7 @@ function AgencySignUpForm({ name, email, password, phone, address, setName, setE
         setErrors(prev => ({ ...prev, [field]: validator(value) }));
     };
 
-    const handleSignUp = () => {
+    const handleSignUp = async () => {
         const newErrors = {
             name: validateName(name),
             email: validateEmail(email),
@@ -64,12 +67,23 @@ function AgencySignUpForm({ name, email, password, phone, address, setName, setE
         setErrors(newErrors);
 
         if (!Object.values(newErrors).some(Boolean)) {
-            onSignUp();
+            setLoading(true); // Start loading
+            try {
+                await onSignUp(); // Ensure onSignUp is an async function
+            } finally {
+                setLoading(false); // End loading
+            }
+        }
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            handleSignUp();
         }
     };
 
     return (
-        <div className='bg-whity rounded-3xl flex flex-col p-12 gap-8 items-center justify-center md:min-w-[500px] w-full mx-4 md:w-auto md:mx-0'>
+        <div onKeyDown={handleKeyDown} className='bg-whity rounded-3xl flex flex-col p-12 gap-8 items-center justify-center md:min-w-[500px] w-full mx-4 md:w-auto md:mx-0'>
             <div className="flex gap-2 items-center">
                 <h3 className="lg:text-3xl text-2xl font-bold">رحالة</h3>
                 <img src="/logo.png" alt="Rahala Logo" className="h-20 w-20" />
@@ -141,11 +155,12 @@ function AgencySignUpForm({ name, email, password, phone, address, setName, setE
                         type="text"
                         variant="bordered"
                         label="رقم الهاتف"
-                        placeholder="أدخل رقم الهاتف"
+                        placeholder="05XXXXXXXX"
                         value={phone}
                         onChange={handleInputChange(setPhone, validatePhone, 'phone')}
                         className='bg-white border-black'
                         isInvalid={!!errors.phone}
+                        maxLength={10}
                     />
                     {errors.phone && <span className="text-red-500 text-sm">{errors.phone}</span>}
                 </div>
@@ -169,6 +184,8 @@ function AgencySignUpForm({ name, email, password, phone, address, setName, setE
                     onClick={handleSignUp}
                     radius="full"
                     className='bg-[#6961EF] text-white mt-4 text-lg py-6'
+                    disabled={loading} // Disable while loading
+                    isLoading={loading} // Show loading state if available in Next UI
                 >
                     إنشاء حساب جديد
                 </Button>

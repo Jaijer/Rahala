@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Input, Button } from '@nextui-org/react';
+import { Input, Button } from '@nextui-org/react'; // Add Spinner if available in Next UI
 import { FcGoogle } from 'react-icons/fc'; // For Google Icon
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 
 const LoginForm = ({ email, password, setEmail, setPassword, onGoogleClick, onLogin, setForm }) => {
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false); // Loading state
     const [errors, setErrors] = useState({
         email: '',
         password: ''
@@ -31,7 +32,7 @@ const LoginForm = ({ email, password, setEmail, setPassword, onGoogleClick, onLo
     const handleEmailChange = (e) => {
         const inputEmail = e.target.value;
         setEmail(inputEmail);
-        setErrors(prev => ({
+        setErrors((prev) => ({
             ...prev,
             email: validateEmail(inputEmail)
         }));
@@ -40,13 +41,13 @@ const LoginForm = ({ email, password, setEmail, setPassword, onGoogleClick, onLo
     const handlePasswordChange = (e) => {
         const inputPassword = e.target.value;
         setPassword(inputPassword);
-        setErrors(prev => ({
+        setErrors((prev) => ({
             ...prev,
             password: validatePassword(inputPassword)
         }));
     };
 
-    const handleLogin = () => {
+    const handleLogin = async () => {
         const emailError = validateEmail(email);
         const passwordError = validatePassword(password);
 
@@ -56,12 +57,23 @@ const LoginForm = ({ email, password, setEmail, setPassword, onGoogleClick, onLo
         });
 
         if (!emailError && !passwordError) {
-            onLogin();
+            setLoading(true); // Start loading
+            try {
+                await onLogin(); // Ensure onLogin is an async function if you have network calls
+            } finally {
+                setLoading(false); // End loading
+            }
+        }
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            handleLogin();
         }
     };
 
     return (
-        <div className='bg-whity rounded-3xl flex flex-col p-12 gap-8 items-center justify-center md:min-w-[500px] w-full mx-4 md:w-auto md:mx-0'>
+        <div onKeyDown={handleKeyDown} className="bg-whity rounded-3xl flex flex-col p-12 gap-8 items-center justify-center md:min-w-[500px] w-full mx-4 md:w-auto md:mx-0">
             <div className="flex gap-2 items-center">
                 <h3 className="lg:text-3xl text-2xl font-bold">رحالة</h3>
                 <img src="/logo.png" alt="Rahala Logo" className="h-20 w-20" />
@@ -71,11 +83,11 @@ const LoginForm = ({ email, password, setEmail, setPassword, onGoogleClick, onLo
                 <Button
                     onClick={onGoogleClick}
                     radius="full"
-                    variant='bordered'
-                    className='text-lg py-6 flex items-center gap-3 outline-black border-none'
+                    variant="bordered"
+                    className="text-lg py-6 flex items-center gap-3 outline-black border-none"
                 >
                     <span>سجل بإسخدام قوقل</span>
-                    <FcGoogle className='text-2xl' />
+                    <FcGoogle className="text-2xl" />
                 </Button>
 
                 <div className="flex items-center my-4 text-black">
@@ -93,8 +105,8 @@ const LoginForm = ({ email, password, setEmail, setPassword, onGoogleClick, onLo
                         placeholder="أدخل الإيميل"
                         value={email}
                         onChange={handleEmailChange}
-                        className='bg-white border-black'
-                        isInvalid={!!errors.email} // Check if there's an error
+                        className="bg-white border-black"
+                        isInvalid={!!errors.email}
                     />
                     {errors.email && <span className="text-red-500 text-sm">{errors.email}</span>}
                 </div>
@@ -121,9 +133,9 @@ const LoginForm = ({ email, password, setEmail, setPassword, onGoogleClick, onLo
                                 )}
                             </button>
                         }
-                        type={showPassword ? "text" : "password"}
+                        type={showPassword ? 'text' : 'password'}
                         className="bg-white border-black"
-                        isInvalid={!!errors.password} // Check if there's an error
+                        isInvalid={!!errors.password}
                     />
                     {errors.password && <span className="text-red-500 text-sm">{errors.password}</span>}
                 </div>
@@ -131,14 +143,18 @@ const LoginForm = ({ email, password, setEmail, setPassword, onGoogleClick, onLo
                 <Button
                     onClick={handleLogin}
                     radius="full"
-                    className='bg-[#6961EF] text-white mt-4 text-lg py-6'
+                    className="bg-[#6961EF] text-white mt-4 text-lg py-6"
+                    disabled={loading} // Disable while loading
+                    isLoading={loading}
                 >
-                    سجل دخول
+                    {'سجل دخول'}
                 </Button>
 
                 <div className="flex gap-2 justify-center items-center mt-2">
                     <span>ماعندك حساب؟</span>
-                    <a onClick={() => setForm("signUp")} className='text-[#6961EF] hover:cursor-pointer'>سجل حساب جديد</a>
+                    <a onClick={() => setForm('signUp')} className="text-[#6961EF] hover:cursor-pointer">
+                        سجل حساب جديد
+                    </a>
                 </div>
             </div>
         </div>
