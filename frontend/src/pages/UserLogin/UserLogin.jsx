@@ -3,6 +3,7 @@ import LoginForm from './components/LoginForm';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, deleteUser  } from 'firebase/auth';
 import { auth } from '../../firebase/firebase';
 import SignUpForm from './components/SignUpForm';
+import ResetPasswordForm from './components/ResetPasswordForm';
 import { toast } from 'react-toastify'; // Import the toast function
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
@@ -163,7 +164,16 @@ async function deleteUserInDB(email) {
           onLogin={onLogin}
           setForm={setForm}
         />
-      ) : (
+      ) : form === "reset" ? (
+        <ResetPasswordForm 
+          email={email}
+          setEmail={setEmail}
+          setForm={setForm}
+        />
+      ) : 
+      
+      (
+
         <SignUpForm 
           name={name}
           email={email}

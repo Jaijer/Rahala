@@ -1,9 +1,11 @@
 // pages/UserSettings/ResetPasswordPage.jsx
 import React, { useState } from 'react';
 import { Input, Button } from '@nextui-org/react';
+import { getAuth, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
 
 function ResetPasswordPage() {
   const [password, setPassword] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
   const [validationState, setValidationState] = useState({
     hasLowerCase: false,
     hasUpperCase: false,
@@ -11,6 +13,7 @@ function ResetPasswordPage() {
     hasSpecialChar: false,
     isLongEnough: false
   });
+  const [message, setMessage] = useState('');
 
   function handlePasswordChange(e) {
     const newPassword = e.target.value;
@@ -33,8 +36,25 @@ function ResetPasswordPage() {
     const isValid = Object.values(validationState).every(value => value);
     
     if (isValid) {
-      // Proceed with password reset
-      console.log('Password reset request submitted');
+      const auth = getAuth();
+      const user = auth.currentUser;
+
+      if (user) {
+        const credential = EmailAuthProvider.credential(user.email, currentPassword);
+        reauthenticateWithCredential(user, credential).then(() => {
+          updatePassword(user, password).then(() => {
+            setMessage(<span className="text-green-500">تم تحديث كلمة المرور بنجاح</span>);
+          }).catch((error) => {
+            console.error('خطأ أثناء تحديث كلمة المرور:', error);
+            setMessage(<span className="text-red-500">حدث خطأ أثناء تحديث كلمة المرور</span>);
+          });
+        }).catch((error) => {
+          console.error('خطأ أثناء تحديث كلمة المرور:', error);
+          setMessage(<span className="text-red-500">كلمة المرور الحالية غير صحيحة.</span>);
+        });
+      } else {
+        console.error('No user is currently signed in.');
+      }
     } else {
       console.log('Please meet all password requirements');
     }
@@ -54,22 +74,25 @@ function ResetPasswordPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8" dir="rtl">
+
           <Input
-            label="البريد الإلكتروني"
-            defaultValue="Example@gmail.com"
-            isDisabled
+            label="كلمة المرور الحالية"
+            type="password"
+            placeholder="أدخل كلمة المرور الحالية"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
             variant="bordered"
             labelPlacement="outside"
             classNames={{
               label: "text-lg mb-2",
-              input: "text-lg py-2 bg-gray-100",
+              input: "text-lg py-2",
             }}
           />
 
           <Input
-            label="كلمة المرور"
+            label="كلمة المرور الجديدة"
             type="password"
-            placeholder="أدخل كلمة المرور"
+            placeholder="أدخل كلمة المرور الجديدة"
             value={password}
             onChange={handlePasswordChange}
             variant="bordered"
@@ -79,6 +102,7 @@ function ResetPasswordPage() {
               input: "text-lg py-2",
             }}
           />
+          {message && <p>{message}</p>}
 
           <div className="text-sm space-y-2">
             <p className="text-gray-600">• يجب أن تحتوي كلمة المرور الخاصة بك على:</p>
