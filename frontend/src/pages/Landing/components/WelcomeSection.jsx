@@ -14,7 +14,7 @@ function WelcomeSection() {
                         داخ راسك وأنت تدور حملات
                     </h2>
                     <h3 className="text-xl lg:text-2xl">
-                        يَا بُنَيَّ ارْكَب مَّعَنَا وَلَا تَكُن مَّعَ الْكَافِرِينَ
+                        تعال شوف حملاتنا الفخمة
                     </h3>
                     <div>
                         <Button className='bg-greeny rounded-full mt-4 text-xl lg:text-2xl px-8 py-6' onClick={()=>navigate('/search')}>
