@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 function TravelCard({ travel }) {
   const navigate = useNavigate();
+  const sortedDates = travel.dates.slice().sort((a, b) => new Date(a.departure) - new Date(b.departure));
 
   return (
     <div className="flex flex-col gap-3 bg-white rounded-3xl w-full h-full shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:cursor-pointer"
@@ -42,14 +43,18 @@ function TravelCard({ travel }) {
         <span className="text-grayish">{travel.agency?.name}</span>
 
         {/* Dates */}
-        <div className="flex gap-1 text-grayish">
-          <span>
-            {new Date(travel.dates[0].departure).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })}
-          </span>
-          -
-          <span>
-            {new Date(travel.dates[0].arrival).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })}
-          </span>
+        <div className="flex flex-col gap-0.5">
+          {sortedDates.map((date) => {
+            return <div className="flex gap-1 text-grayish">
+            <span>
+              {new Date(date.departure).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })}
+            </span>
+            -
+            <span>
+              {new Date(date.arrival).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })}
+            </span>
+          </div>
+          })}
         </div>
       </div>
     </div>
