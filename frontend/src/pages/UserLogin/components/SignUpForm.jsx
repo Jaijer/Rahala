@@ -15,6 +15,14 @@ function SignUpForm({ name, email, password, phoneNumber, setName, setEmail, set
         phoneNumber: ''
     });
 
+    const [passwordValidation, setPasswordValidation] = useState({
+        hasLowerCase: false,
+        hasUpperCase: false,
+        hasNumber: false,
+        hasSpecialChar: false,
+        isLongEnough: false
+    });
+
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
     };
@@ -38,18 +46,22 @@ function SignUpForm({ name, email, password, phoneNumber, setName, setEmail, set
     };
 
     const validatePassword = (inputPassword) => {
-        if (!inputPassword) return 'كلمة المرور مطلوبة';
-        if (inputPassword.length < 8) return 'يجب أن تكون كلمة المرور 8 أحرف على الأقل';
-        return '';
+        return (
+            /[a-z]/.test(inputPassword) &&
+            /[A-Z]/.test(inputPassword) &&
+            /[0-9]/.test(inputPassword) &&
+            /[*&^%$#@!]/.test(inputPassword) &&
+            inputPassword.length >= 8
+        ) ? '' : 'كلمة المرور غير صالحة';
     };
 
     const validatePhoneNumber = (inputPhoneNumber) => {
         if (!inputPhoneNumber) return 'رقم الهاتف مطلوب';
     
-        // Regex to match numbers starting with "05" followed by 8 digits
-        const saudiPhoneRegex = /^05\d{8}$/;
+        // Regex to match numbers starting with "+9665" followed by 8 digits
+        const saudiPhoneRegex = /^\+9665\d{8}$/;
     
-        if (!saudiPhoneRegex.test(inputPhoneNumber)) return 'برجاء إدخال رقم هاتف سعودي صحيح بصيغة 05XXXXXXXX';
+        if (!saudiPhoneRegex.test(inputPhoneNumber)) return 'يرجى التأكد من صحة تطابق رقم الهاتف مع الصيغة المطلوبة';
     
         return '';
     };
@@ -79,16 +91,23 @@ function SignUpForm({ name, email, password, phoneNumber, setName, setEmail, set
             ...prev,
             password: validatePassword(inputPassword)
         }));
+
+        setPasswordValidation({
+            hasLowerCase: /[a-z]/.test(inputPassword),
+            hasUpperCase: /[A-Z]/.test(inputPassword),
+            hasNumber: /[0-9]/.test(inputPassword),
+            hasSpecialChar: /[*&^%$#@!]/.test(inputPassword),
+            isLongEnough: inputPassword.length >= 8
+        });
     };
 
     const handlePhoneNumberChange = (e) => {
         const value = e.target.value;
-        // Allow only one '+' at the start and numbers
         const cleaned = value.replace(/\+/g, '').replace(/[^\d]/g, '');
-        setPhoneNumber(cleaned ? `${cleaned}` : cleaned);
+        setPhoneNumber(cleaned ? `+${cleaned}` : cleaned);
         setErrors(prev => ({
             ...prev,
-            phoneNumber: validatePhoneNumber(cleaned ? `${cleaned}` : cleaned)
+            phoneNumber: validatePhoneNumber(cleaned ? `+${cleaned}` : cleaned)
         }));
     };
 
@@ -177,15 +196,15 @@ function SignUpForm({ name, email, password, phoneNumber, setName, setEmail, set
                 {/* Phone number input */}
                 <div className="flex flex-col gap-1">
                     <Input
-                        type="text"
+                        type="tel"
                         variant="bordered"
                         label="رقم الجوال"
-                        placeholder="05XXXXXXXX"
+                        placeholder="+9665XXXXXXXX"
                         value={phoneNumber}
                         onChange={handlePhoneNumberChange}
                         className='bg-white border-black text-right'
                         isInvalid={!!errors.phoneNumber} // Check if there's an error
-                        maxLength={10}
+                        maxLength={13}
                     />
                     {errors.phoneNumber && <span className="text-red-500 text-sm">{errors.phoneNumber}</span>}
                 </div>
@@ -217,6 +236,17 @@ function SignUpForm({ name, email, password, phoneNumber, setName, setEmail, set
                         isInvalid={!!errors.password} // Check if there's an error
                     />
                     {errors.password && <span className="text-red-500 text-sm">{errors.password}</span>}
+                    <div className="text-sm space-y-2">
+                        <p className="text-gray-600">• يجب أن تحتوي كلمة المرور الخاصة بك على:</p>
+                        <p className={`text-sm ${passwordValidation.isLongEnough ? 'text-green-500' : 'text-gray-600'}`}>• 8 أحرف على الأقل</p>
+                        <p className="text-gray-600">• على الأقل من العناصر التالية:</p>
+                        <ul className="list-disc list-inside pr-4 space-y-1">
+                            <li className={`${passwordValidation.hasLowerCase ? 'text-green-500' : 'text-gray-600'}`}>أحرف صغيرة (a-z)</li>
+                            <li className={`${passwordValidation.hasUpperCase ? 'text-green-500' : 'text-gray-600'}`}>أحرف كبيرة (A-Z)</li>
+                            <li className={`${passwordValidation.hasNumber ? 'text-green-500' : 'text-gray-600'}`}>أرقام (0-9)</li>
+                            <li className={`${passwordValidation.hasSpecialChar ? 'text-green-500' : 'text-gray-600'}`}>أحرف خاصة (مثل *&^%$#@!)</li>
+                        </ul>
+                    </div>
                 </div>
 
                 <Button

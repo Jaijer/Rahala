@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Input, Button } from '@nextui-org/react'; // Add Spinner if available in Next UI
 import { FcGoogle } from 'react-icons/fc'; // For Google Icon
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
+import ResetPasswordForm from './ResetPasswordForm';
 
 const LoginForm = ({ email, password, setEmail, setPassword, onGoogleClick, onLogin, setForm }) => {
     const [showPassword, setShowPassword] = useState(false);
@@ -65,6 +66,7 @@ const LoginForm = ({ email, password, setEmail, setPassword, onGoogleClick, onLo
             }
         }
     };
+
 
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
@@ -154,6 +156,12 @@ const LoginForm = ({ email, password, setEmail, setPassword, onGoogleClick, onLo
                     <span>ماعندك حساب؟</span>
                     <a onClick={() => setForm('signUp')} className="text-[#6961EF] hover:cursor-pointer">
                         سجل حساب جديد
+                    </a>
+                </div>
+                <div className="flex gap-2 justify-center items-center mt-2">
+                    {/* <span>نسيت كلمة السر؟</span> */}
+                    <a onClick={() => setForm('reset')} className="text-[#6961EF] hover:cursor-pointer">
+                    نسيت كلمة السر
                     </a>
                 </div>
             </div>
