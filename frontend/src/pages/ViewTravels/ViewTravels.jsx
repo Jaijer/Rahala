@@ -26,12 +26,14 @@ const ViewTravels = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isTravelOwner, setIsTravelOwner] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [sortedDates, setSortedDates] = useState();
 
   useEffect(() => {
     const fetchTravel = async () => {
       try {
         const response = await api.get(`api/travels/${id}`);
         setTravel(response.data); // Store travel data in Zustand
+        setSortedDates(response.data.dates.slice().sort((a, b) => new Date(a.departure) - new Date(b.departure)));
         setIsTravelOwner(
           response.data.agency?._id === userData?._id &&
             response.data.agency?._id
@@ -83,10 +85,10 @@ const ViewTravels = () => {
           <div className="lg:col-span-8 space-y-6">
             {/* Agency Info */}
             <div className="space-y-4">
-              <h2 className="text-xl lg:text-2xl font-bold text-[#1B4348]">
-                عدد المقاعد: {travel.capacity}
+              <h2 className="text-2xl lg:text-3xl font-bold text-[#1B4348]">
+                {travel.travelName}
               </h2>
-              <h2 className="text-xl lg:text-2xl font-bold text-[#1B4348]">
+              <h2 className="text-xl lg:text-2xl font-bold text-[#757575]">
                 {travel.agency?.name}
               </h2>
             </div>
@@ -114,7 +116,7 @@ const ViewTravels = () => {
                 تواريخ الرحلة
               </h2>
               <ul className="text-lg lg:text-xl text-[#757575]">
-                {travel.dates.map((date) => (
+                {sortedDates.map((date) => (
                   <li key={date._id} className="flex gap-2">
                     <span>
                       {new Date(date.departure).toLocaleDateString("ar-GB", {

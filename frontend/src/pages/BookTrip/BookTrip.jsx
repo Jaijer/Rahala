@@ -23,11 +23,12 @@ const CustomRadio = (props) => {
         "group inline-flex items-center hover:opacity-70 active:opacity-50 justify-between flex-row-reverse tap-highlight-transparent",
         "max-w-[300px] cursor-pointer border-2 border-default rounded-lg gap-4 p-4",
         "bg-white",
-        "data-[selected=true]:border-primary"
+        "data-[selected=true]:border-primary",
+        props.disabled && "opacity-50 cursor-not-allowed"
       )}
     >
       <VisuallyHidden>
-        <input {...getInputProps()} />
+        <input {...getInputProps()} disabled={props.disabled} />
       </VisuallyHidden>
       <span {...getWrapperProps()}>
         <span {...getControlProps()} />
@@ -45,65 +46,66 @@ const CustomRadio = (props) => {
 const BookTrip = () => {
   const navigate = useNavigate();
   const { travel, selectedPackage, selectedDate, setSelectedPackage, setSelectedDate } = useTravelStore();
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
   const [isRadioGroupValid, setIsRadioGroupValid] = useState(true);
   const [isDateValid, setIsDateValid] = useState(true);
-  const [isContactInfoValid, setIsContactInfoValid] = useState(true);
 
   const handlePackageChange = (pkg) => {
-    setSelectedPackage(pkg); // Now passing the entire package object
-    setIsRadioGroupValid(true); // Reset validation
+    setSelectedPackage(pkg);
+    setIsRadioGroupValid(true);
   };
 
   const handleDateChange = (date) => {
-    setSelectedDate(date); // Now passing the entire date object
-    setIsDateValid(true); // Reset validation
+    setSelectedDate(date);
+    setIsDateValid(true);
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    // Validate inputs
     const isValidRadio = !!selectedPackage;
     const isValidDate = !!selectedDate;
-    const isValidContact = email !== '' && phone !== '';
     setIsRadioGroupValid(isValidRadio);
     setIsDateValid(isValidDate);
-    setIsContactInfoValid(isValidContact);
 
-    if (isValidRadio && isValidDate && isValidContact) {
+    if (isValidRadio && isValidDate) {
       navigate('/booking-checkout');
     }
   };
 
   useEffect(() => {
     if (!travel) {
-      // Delay before going back
       const timeout = setTimeout(() => {
         window.history.back();
-      }, 500); // 500ms delay
+      }, 500);
 
-      return () => clearTimeout(timeout); // Cleanup the timeout on component unmount
+      return () => clearTimeout(timeout);
     }
   }, [travel, navigate]);
 
   if (!travel) return null;
 
-  return (
-    <div className="p-8 font-inter">
-      <div className="text-right space-y-6">
-        {/* Travel Details */}
-        <div className='space-y-3'>
-          <p className="text-2xl text-[#1B4348] font-bold">
-            من {travel.from} إلى {travel.destination}
-          </p>
-          <p className="text-xl text-[#1B4348] font-bold">
-            عدد المقاعد المتاحة: {travel.capacity}
-          </p>
-        </div>
+  // Sort dates and disable past dates
+  const sortedDates = travel.dates.slice().sort((a, b) => new Date(a.departure) - new Date(b.departure));
+  const currentDate = new Date();
 
-        {/* Travel Packages */}
+  return (
+    <div className="py-8 px-12 font-inter">
+      <div className="text-right space-y-6">
+        <div className="space-y-4">
+              <h2 className="text-2xl lg:text-3xl font-bold text-[#1B4348]">
+                {travel.travelName}
+              </h2>
+              <h2 className="text-xl lg:text-2xl font-bold text-[#757575]">
+                {travel.agency?.name}
+              </h2>
+            </div>
+
+        <div className="flex items-center gap-4 text-2xl lg:text-3xl font-bold text-[#1B4348] py-2">
+              <span>{travel.from}</span>
+              <span className="text-[#757575]">←</span>
+              <span>{travel.destination}</span>
+            </div>
+
         <div className="space-y-4">
           <p className="text-2xl font-semibold text-black">
             باقات السفر
@@ -114,7 +116,7 @@ const BookTrip = () => {
             {travel.packages.map((pkg) => (
               <CustomRadio
                 key={pkg.title}
-                value={pkg} // Pass the entire package object
+                value={pkg}
                 description={`السعر: ${pkg.price} ريال`}
               >
                 {pkg.title}
@@ -123,57 +125,28 @@ const BookTrip = () => {
           </RadioGroup>
         </div>
 
-        {/* Travel Dates */}
         <div className="space-y-4">
           <p className="text-2xl font-semibold text-black">
             تواريخ الرحلة
             {!isDateValid && <span className="text-red-500"> - هذه الخانة مطلوبة</span>}
           </p>
           <RadioGroup orientation="vertical" onValueChange={(value) => handleDateChange(value)}>
-            {travel.dates.map((date) => (
-              <CustomRadio
-                key={date.departure}
-                value={date} // Pass the entire date object
-              >
-                {`${new Date(date.departure).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })} - ${new Date(date.arrival).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })}`}
-              </CustomRadio>
-            ))}
+            {sortedDates.map((date) => {
+              const isPastDate = new Date(date.departure) < currentDate;
+              return (
+                <CustomRadio
+                  key={date.departure}
+                  value={date}
+                  disabled={isPastDate}
+                >
+                  {`${new Date(date.departure).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })} - ${new Date(date.arrival).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })}`}
+                </CustomRadio>
+              );
+            })}
           </RadioGroup>
         </div>
 
-        {/* Contact Information */}
-        <div className="space-y-4">
-          <p className="text-2xl font-semibold text-black">
-            معلومات التواصل
-            {!isContactInfoValid && <span className="text-red-500"> - هذه الخانة مطلوبة</span>}
-          </p>
-          <div className="flex flex-col lg:flex-row gap-4">
-            <Input
-              fullWidth
-              type="email"
-              label="البريد الإلكتروني"
-              placeholder="example@gmail.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="bg-white"
-              variant="bordered"
-            />
-            <Input
-              fullWidth
-              label="رقم الهاتف"
-              placeholder="05xxxxxxxx"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              required
-              className="bg-white"
-              variant="bordered"
-            />
-          </div>
-        </div>
-
-        {/* Submit Button */}
-        <div className="flex justify-center gap-6 pt-8">
+        <div className="flex justify-center gap-6 pt-16">
           <Button
             className="font-bold text-lg px-8 bg-greeny"
             variant="solid"
