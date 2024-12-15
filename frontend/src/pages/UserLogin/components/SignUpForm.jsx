@@ -58,13 +58,16 @@ function SignUpForm({ name, email, password, phoneNumber, setName, setEmail, set
     const validatePhoneNumber = (inputPhoneNumber) => {
         if (!inputPhoneNumber) return 'رقم الهاتف مطلوب';
     
-        // Regex to match numbers starting with "+9665" followed by 8 digits
-        const saudiPhoneRegex = /^\+9665\d{8}$/;
+        // Regex to match numbers starting with "05" followed by 8 digits
+        const saudiPhoneRegex = /^05\d{8}$/;
     
-        if (!saudiPhoneRegex.test(inputPhoneNumber)) return 'يرجى التأكد من صحة تطابق رقم الهاتف مع الصيغة المطلوبة';
+        if (!saudiPhoneRegex.test(inputPhoneNumber)) {
+            return 'يرجى التأكد من صحة تطابق رقم الهاتف مع الصيغة المطلوبة';
+        }
     
         return '';
     };
+    
 
     const handleNameChange = (e) => {
         const inputName = e.target.value;
@@ -103,11 +106,13 @@ function SignUpForm({ name, email, password, phoneNumber, setName, setEmail, set
 
     const handlePhoneNumberChange = (e) => {
         const value = e.target.value;
-        const cleaned = value.replace(/\+/g, '').replace(/[^\d]/g, '');
-        setPhoneNumber(cleaned ? `+${cleaned}` : cleaned);
+        // Remove all non-digit characters
+        const cleaned = value.replace(/[^\d]/g, '');
+        
+        setPhoneNumber(cleaned);
         setErrors(prev => ({
             ...prev,
-            phoneNumber: validatePhoneNumber(cleaned ? `+${cleaned}` : cleaned)
+            phoneNumber: validatePhoneNumber(cleaned)
         }));
     };
 
@@ -199,12 +204,12 @@ function SignUpForm({ name, email, password, phoneNumber, setName, setEmail, set
                         type="tel"
                         variant="bordered"
                         label="رقم الجوال"
-                        placeholder="+9665XXXXXXXX"
+                        placeholder="05XXXXXXXX"
                         value={phoneNumber}
                         onChange={handlePhoneNumberChange}
                         className='bg-white border-black text-right'
                         isInvalid={!!errors.phoneNumber} // Check if there's an error
-                        maxLength={13}
+                        maxLength={10}
                     />
                     {errors.phoneNumber && <span className="text-red-500 text-sm">{errors.phoneNumber}</span>}
                 </div>
