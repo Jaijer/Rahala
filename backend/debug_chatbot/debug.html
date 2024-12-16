@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Chatbot Debug Interface</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+        .debug-font {
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .loading {
+            position: relative;
+            color: #666;
+        }
+
+        .loading::after {
+            content: "...";
+            position: absolute;
+            width: 24px;
+            text-align: left;
+            animation: dots 1s steps(5, end) infinite;
+        }
+
+        @keyframes dots {
+
+            0%,
+            20% {
+                content: "";
+            }
+
+            40% {
+                content: ".";
+            }
+
+            60% {
+                content: "..";
+            }
+
+            80% {
+                content: "...";
+            }
+        }
+
+        .prompt-section {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .prompt-section::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .prompt-section::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .prompt-section::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .prompt-section::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Chatbot Debug Interface</h1>
+            <p class="text-gray-600">Monitor and test the chatbot API processing flow</p>
+        </div>
+
+        <!-- Conversation History Section -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-gray-800">Conversation History</h2>
+                <div class="flex gap-2">
+                    <button onclick="saveConversation()"
+                        class="px-4 py-2 text-sm text-blue-600 border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors">
+                        Save History
+                    </button>
+                    <button onclick="clearHistory()"
+                        class="px-4 py-2 text-sm text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors">
+                        Clear History
+                    </button>
+                </div>
+            </div>
+            <div id="conversationHistory" class="space-y-3 max-h-60 overflow-y-auto p-4 bg-gray-50 rounded-lg">
+                <!-- Conversation messages will appear here -->
+            </div>
+        </div>
+
+        <!-- Input Section -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Test Input</h2>
+            <div class="flex gap-4">
+                <textarea id="userInput"
+                    class="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" rows="3"
+                    placeholder="Enter your message here..."
+                    onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }"></textarea>
+                <button id="sendButton" onclick="sendMessage()"
+                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors h-fit">
+                    Send
+                </button>
+            </div>
+        </div>
+
+        <!-- Debug Output -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Request Processing -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Request Processing</h2>
+
+                <!-- Language Detection -->
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-sm font-semibold text-gray-600">
+                            1. Language Detection
+                        </h3>
+                        <div id="languageStatus" class="text-xs px-2 py-1 rounded-full bg-gray-100">
+                            Waiting
+                        </div>
+                    </div>
+                    <div id="languageInfo" class="p-3 bg-gray-50 rounded-lg debug-font text-sm">
+                        Waiting for input...
+                    </div>
+                </div>
+
+                <!-- Travel Info Extraction -->
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-sm font-semibold text-gray-600">
+                            2. Travel Info Extraction
+                        </h3>
+                        <div id="extractionStatus" class="text-xs px-2 py-1 rounded-full bg-gray-100">
+                            Waiting
+                        </div>
+                    </div>
+                    <div id="extractionInfo" class="p-3 bg-gray-50 rounded-lg debug-font text-sm">
+                        Waiting for input...
+                    </div>
+                </div>
+
+                <!-- Prompts Used -->
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-sm font-semibold text-gray-600">
+                            3. GPT Prompts
+                        </h3>
+                        <div id="promptsStatus" class="text-xs px-2 py-1 rounded-full bg-gray-100">
+                            Waiting
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <!-- System Prompts -->
+                        <div>
+                            <h4 class="text-xs font-medium text-gray-500 mb-1">System Prompt:</h4>
+                            <div id="systemPrompt" class="p-3 bg-gray-50 rounded-lg debug-font text-sm prompt-section">
+                                Waiting for input...
+                            </div>
+                        </div>
+                        <!-- User Message -->
+                        <div>
+                            <h4 class="text-xs font-medium text-gray-500 mb-1">User Message:</h4>
+                            <div id="userMessage" class="p-3 bg-gray-50 rounded-lg debug-font text-sm">
+                                Waiting for input...
+                            </div>
+                        </div>
+                        <!-- Assistant Response -->
+                        <div>
+                            <h4 class="text-xs font-medium text-gray-500 mb-1">Assistant Response:</h4>
+                            <div id="assistantResponse"
+                                class="p-3 bg-gray-50 rounded-lg debug-font text-sm prompt-section">
+                                Waiting for input...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Response Processing -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Response Processing</h2>
+                <!-- Search Results -->
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-sm font-semibold text-gray-600">
+                            4. Database Search Results
+                        </h3>
+                        <div id="searchStatus" class="text-xs px-2 py-1 rounded-full bg-gray-100">
+                            Waiting
+                        </div>
+                    </div>
+                    <div id="searchResults" class="p-3 bg-gray-50 rounded-lg debug-font text-sm prompt-section">
+                        Waiting for input...
+                    </div>
+                </div>
+
+                <!-- Final Response -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-sm font-semibold text-gray-600">
+                            5. Final Response
+                        </h3>
+                        <div id="responseStatus" class="text-xs px-2 py-1 rounded-full bg-gray-100">
+                            Waiting
+                        </div>
+                    </div>
+                    <div id="finalResponse"
+                        class="p-3 bg-gray-50 rounded-lg debug-font text-sm whitespace-pre-wrap prompt-section">
+                        Waiting for input...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Logs -->
+        <div class="mt-6 bg-gray-900 rounded-lg shadow-sm p-6">
+            <h2 class="text-xl font-semibold text-white mb-4">API Logs</h2>
+            <div id="apiLogs" class="debug-font text-sm text-green-400 whitespace-pre-wrap prompt-section"></div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize variables
+        let conversationHistory = [];
+        let logCount = 1;
+
+        // Load conversation history from localStorage on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedHistory = localStorage.getItem('conversationHistory');
+            if (savedHistory) {
+                conversationHistory = JSON.parse(savedHistory);
+                updateHistoryDisplay();
+            }
+        });
+
+        function addToHistory(message, isUser = true) {
+            const role = isUser ? 'user' : 'assistant';
+            const newMessage = {
+                role: role,
+                content: message,
+                timestamp: new Date().toISOString()
+            };
+
+            conversationHistory.push(newMessage);
+            updateHistoryDisplay();
+            saveConversation();
+        }
+
+        function updateHistoryDisplay() {
+            const historyDiv = document.getElementById('conversationHistory');
+            historyDiv.innerHTML = conversationHistory.map((msg, index) => `
+<div class="max-w-[80%] ${msg.role === 'user' ? 'ml-auto' : 'mr-auto'}">
+                    <div class="${msg.role === 'user'
+                    ? 'bg-blue-100 text-blue-900'
+                    : 'bg-gray-100 text-gray-900'
+                } p-3 rounded-lg shadow-sm">
+                        <div class="text-xs font-medium mb-1">
+                            ${msg.role === 'user' ? 'User' : 'Assistant'}
+                            <span class="text-gray-500 text-xs ml-2">
+                                ${new Date(msg.timestamp).toLocaleTimeString()}
+                            </span>
+                        </div>
+                        <div class="text-sm whitespace-pre-wrap">${msg.content}</div>
+                    </div>
+                </div>
+            `).join('');
+            historyDiv.scrollTop = historyDiv.scrollHeight;
+        }
+
+        function saveConversation() {
+            localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory));
+            addLog('Conversation history saved');
+        }
+
+        function clearHistory() {
+            conversationHistory = [];
+            localStorage.removeItem('conversationHistory');
+            updateHistoryDisplay();
+            addLog('Conversation history cleared');
+
+            // Reset all status displays
+            ['languageStatus', 'extractionStatus', 'promptsStatus', 'searchStatus', 'responseStatus']
+                .forEach(id => setStatus(id, 'waiting'));
+
+            // Reset all info displays
+            ['languageInfo', 'extractionInfo', 'systemPrompt', 'userMessage',
+                'assistantResponse', 'searchResults', 'finalResponse']
+                .forEach(id => updateSection(id, 'Waiting for input...'));
+        }
+
+        function setStatus(id, status) {
+            const element = document.getElementById(id);
+            const statusMap = {
+                'waiting': { text: 'Waiting', class: 'bg-gray-100 text-gray-600' },
+                'processing': { text: 'Processing', class: 'bg-blue-100 text-blue-600' },
+                'complete': { text: 'Complete', class: 'bg-green-100 text-green-600' },
+                'error': { text: 'Error', class: 'bg-red-100 text-red-600' }
+            };
+            const statusInfo = statusMap[status] || statusMap.waiting;
+            element.textContent = statusInfo.text;
+            element.className = `text-xs px-2 py-1 rounded-full ${statusInfo.class}`;
+        }
+
+        function addLog(message) {
+            const logs = document.getElementById('apiLogs');
+            const timestamp = new Date().toLocaleTimeString();
+            logs.innerHTML = `[${timestamp}] #${logCount++} ${message}\n` + logs.innerHTML;
+        }
+
+        function updateSection(id, content, isJson = false) {
+            const element = document.getElementById(id);
+            if (!content) {
+                element.textContent = 'No data available';
+                return;
+            }
+            if (isJson && typeof content === 'object') {
+                element.textContent = JSON.stringify(content, null, 2);
+            } else {
+                element.textContent = content;
+            }
+        }
+
+        function updatePromptSections(data) {
+            // Update system prompt
+            if (data.processDetails?.prompts) {
+                const systemPromptElement = document.getElementById('systemPrompt');
+                systemPromptElement.textContent = typeof data.processDetails.prompts === 'string'
+                    ? data.processDetails.prompts
+                    : JSON.stringify(data.processDetails.prompts, null, 2);
+            }
+
+            // Update user message
+            const userMessageElement = document.getElementById('userMessage');
+            userMessageElement.textContent = document.getElementById('userInput').value;
+
+            // Update assistant response
+            if (data.output) {
+                const assistantResponseElement = document.getElementById('assistantResponse');
+                assistantResponseElement.textContent = data.output;
+            }
+        }
+
+        async function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function sendMessage() {
+            const userInput = document.getElementById('userInput').value.trim();
+            if (!userInput) return;
+
+            // Disable send button and input
+            const sendButton = document.getElementById('sendButton');
+            const inputField = document.getElementById('userInput');
+            sendButton.disabled = true;
+            inputField.disabled = true;
+
+            // Add user message to history immediately
+            addToHistory(userInput, true);
+
+            // Reset everything
+            logCount = 1;
+            ['languageStatus', 'extractionStatus', 'promptsStatus', 'searchStatus', 'responseStatus']
+                .forEach(id => setStatus(id, 'waiting'));
+
+            ['languageInfo', 'extractionInfo', 'systemPrompt', 'userMessage',
+                'assistantResponse', 'searchResults', 'finalResponse']
+                .forEach(id => updateSection(id, 'Processing...'));
+
+            document.getElementById('apiLogs').innerHTML = '';
+            addLog(`Starting new request with message: "${userInput}"`);
+
+            try {
+                // Language Detection
+                setStatus('languageStatus', 'processing');
+                addLog('Detecting language...');
+                await sleep(500);
+
+                const isArabic = /[\u0600-\u06FF]/.test(userInput);
+                updateSection('languageInfo', `Detected Language: ${isArabic ? 'Arabic' : 'English'}`);
+                setStatus('languageStatus', 'complete');
+                addLog(`Language detected: ${isArabic ? 'Arabic' : 'English'}`);
+
+                // Start API call
+                setStatus('extractionStatus', 'processing');
+                addLog('Sending request to API...');
+
+                const response = await fetch('http://localhost:5000/api/chatbot/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: userInput,
+                        conversationHistory: conversationHistory
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                addLog('Received response from server');
+
+                // Update Travel Info Extraction
+                if (data.processDetails?.extractedInfo) {
+                    await sleep(300);
+                    updateSection('extractionInfo', data.processDetails.extractedInfo, true);
+                    setStatus('extractionStatus', 'complete');
+                    addLog('Travel info extraction complete');
+                }
+
+                // Update Prompts
+                if (data.processDetails?.prompts) {
+                    await sleep(300);
+                    updatePromptSections(data);
+                    setStatus('promptsStatus', 'complete');
+                    addLog('Prompts updated');
+                }
+
+                // Update Search Results
+                if (data.searchResults) {
+                    await sleep(300);
+                    setStatus('searchStatus', 'processing');
+                    updateSection('searchResults', data.searchResults, true);
+                    setStatus('searchStatus', 'complete');
+                    addLog(`Found ${data.searchResults.length} matching results`);
+                }
+
+                // Update Final Response
+                if (data.output) {
+                    await sleep(300);
+                    setStatus('responseStatus', 'processing');
+                    updateSection('finalResponse', data.output);
+                    setStatus('responseStatus', 'complete');
+                    addLog('Final response generated');
+
+                    // Add assistant's response to history
+                    addToHistory(data.output, false);
+                }
+
+            } catch (error) {
+                addLog(`Error: ${error.message}`);
+                ['languageStatus', 'extractionStatus', 'promptsStatus', 'searchStatus', 'responseStatus']
+                    .forEach(id => setStatus(id, 'error'));
+                updateSection('finalResponse', `Error: ${error.message}`);
+            } finally {
+                // Clear input and re-enable controls
+                inputField.value = '';
+                inputField.disabled = false;
+                sendButton.disabled = false;
+                inputField.focus();
+            }
+        }
+    </script>
+</body>
+
+</html>
