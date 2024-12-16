@@ -68,7 +68,7 @@ function ContactUs() {
 
   return (
     <>
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
+      <div className="min-h-screen flex items-center justify-center p-6">
         <div className="w-full max-w-lg bg-white p-10 rounded-lg shadow-lg border border-gray-300">
           {/* Header */}
           <div className="text-center mb-8">
@@ -154,4 +154,3 @@ function ContactUs() {
 }
 
 export default ContactUs;
-
