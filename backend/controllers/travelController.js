@@ -32,12 +32,11 @@ exports.getTravelById = async (req, res) => {
 
 exports.getAllTravels = async (req, res) => {
   try {
-    const { departure, destination, date } = req.query;
+    const { departure, destination, date, page = 1, limit = 12 } = req.query;
 
     // Build query filters based on search parameters
     const filters = {};
 
-    // Implement case-insensitive partial matching for departure and destination
     if (departure) {
       filters.from = { $regex: departure, $options: 'i' };
     }
@@ -46,36 +45,39 @@ exports.getAllTravels = async (req, res) => {
       filters.destination = { $regex: destination, $options: 'i' };
     }
 
-    // Improve date filtering
+    // Filter for a specific date if provided
     if (date) {
       const inputDate = new Date(date);
-      
-      // Set the date range to cover the entire day
-      const startOfDay = new Date(inputDate);
-      startOfDay.setHours(0, 0, 0, 0);
-      
-      const endOfDay = new Date(inputDate);
-      endOfDay.setHours(23, 59, 59, 999);
-
-      filters['dates'] = { 
-        $elemMatch: { 
-          departure: { 
-            $gte: startOfDay, 
-            $lte: endOfDay 
-          } 
-        } 
+      const startOfDay = new Date(inputDate.setHours(0, 0, 0, 0));
+      const endOfDay = new Date(inputDate.setHours(23, 59, 59, 999));
+      filters['dates'] = {
+        $elemMatch: { departure: { $gte: startOfDay, $lte: endOfDay } },
+      };
+    } else {
+      // Default filter to only include travels with a departure date >= today
+      const today = new Date();
+      const startOfToday = new Date(today.setHours(0, 0, 0, 0));
+      filters['dates'] = {
+        $elemMatch: { departure: { $gte: startOfToday } },
       };
     }
 
-    // Find travels matching the filters and populate the agency data
-    const travels = await Travel.find(filters).populate('agency');
-    
-    res.json(travels);
+    // Pagination logic
+    const skip = (page - 1) * limit;
+    const travels = await Travel.find(filters)
+      .populate('agency')
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const total = await Travel.countDocuments(filters); // Total count for pagination
+    res.json({ travels, total });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+
 
 // Create a new travel and add it to the agency's travels array
 exports.createTravel = async (req, res) => {
