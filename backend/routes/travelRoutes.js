@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const travelController = require('../controllers/travelController');
+const { verifyToken, checkAgency } = require('../middleware/authMiddleware');
 
 // Get a single travel by ID
 router.get('/:id', travelController.getTravelById);
@@ -9,12 +10,12 @@ router.get('/:id', travelController.getTravelById);
 router.get('/', travelController.getAllTravels);
 
 // Create a new travel
-router.post('/', travelController.createTravel);
+router.post('/', verifyToken, checkAgency, travelController.createTravel);
 
 // Update a travel by ID
-router.put('/:id', travelController.updateTravel);
+router.put('/:id', verifyToken, checkAgency, travelController.updateTravel);
 
 // Delete a travel by ID
-router.delete('/:id', travelController.deleteTravel);
+router.delete('/:id', verifyToken, checkAgency, travelController.deleteTravel);
 
 module.exports = router;
