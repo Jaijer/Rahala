@@ -11,9 +11,6 @@ router.get('/', agencyController.getAllAgencies);
 // Create a new agency
 router.post('/', agencyController.createAgency);
 
-// Delete an agency by email
-router.delete('/:email', agencyController.deleteAgency);
-
 // Get a single agency by email
 router.get('/email/:email', agencyController.getAgencyByEmail);
 

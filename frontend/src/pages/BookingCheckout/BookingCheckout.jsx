@@ -4,6 +4,7 @@ import useTravelStore from "../../stores/travelStore";
 import api from "../../api/axios";
 import useUserStore from "../../stores/userDataStore";
 import { toast } from "react-toastify";
+import { getAuth } from 'firebase/auth';
 
 const BookingCheckout = () => {
   const navigate = useNavigate();
@@ -41,15 +42,31 @@ const BookingCheckout = () => {
     }
 
     try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+    
+      if (!user) {
+        console.error('User not authenticated');
+        return;
+      }
+    
+      const token = await user.getIdToken();
+
       // Send the travel data to the backend
       const response = await api.post(
         `/api/users/${userData._id}/add-travel`, 
         {
-          travelId: travel._id,
-          package: selectedPackage.title,
-          date: selectedDate,
+            travelId: travel._id,
+            package: selectedPackage.title,
+            date: selectedDate,
+        },
+        {
+            headers: {
+                Authorization: `Bearer ${token}`, 
+            },
         }
-      );
+    );
+    
 
       // After successful registration, navigate to the payment page or another page
       console.log("Travel added to user:", response.data);

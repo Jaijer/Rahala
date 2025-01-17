@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Switch } from '@nextui-org/react';
 import useUserStore from '../../../stores/userDataStore';
 import api from '../../../api/axios';
+import { getAuth } from 'firebase/auth';
 
 function NotificationForm() {
   const { userData } = useUserStore();
@@ -42,10 +43,25 @@ function NotificationForm() {
 
   const updateNotificationSettings = async (advNotificationsValue, tripNotificationsValue) => {
     try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+    
+      if (!user) {
+        console.error('User not authenticated');
+        return;
+      }
+    
+      const token = await user.getIdToken();
+
       console.log("Sending data:", { advNotifications: advNotificationsValue, tripNotifications: tripNotificationsValue });
       await api.put(`/api/users/user-settings/notifications/${userId}`, {
         advNotifications: advNotificationsValue,
         tripNotifications: tripNotificationsValue
+      },
+      {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       });
       console.log("Notification settings updated successfully");
     } catch (error) {
