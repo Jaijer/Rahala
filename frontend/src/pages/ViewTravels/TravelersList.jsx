@@ -13,6 +13,7 @@ import {
 import { MdCancel } from "react-icons/md";
 import api from "../../api/axios";
 import { toast } from "react-toastify";
+import { getAuth } from 'firebase/auth';
 
 const TravelersList = ({ travellers: initialTravellers }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -32,8 +33,24 @@ const TravelersList = ({ travellers: initialTravellers }) => {
   const handleDelete = async () => {
     setLoading(true); // Set loading state to true
     try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+    
+      if (!user) {
+        console.error('User not authenticated');
+        return;
+      }
+    
+      const token = await user.getIdToken();
+
       // Send delete request to backend
-      await api.delete(`/api/users/travelers/${selectedTravellerId}`);
+      await api.delete(`/api/users/travelers/${selectedTravellerId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        }
+      );
       // Update local state to remove the deleted traveler
       setTravellers((prevTravellers) =>
         prevTravellers.filter((traveller) => traveller._id !== selectedTravellerId)

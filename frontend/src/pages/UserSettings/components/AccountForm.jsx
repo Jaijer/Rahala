@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import api from '../../../api/axios';
 import { ToastContainer, toast } from 'react-toastify';
 import useUserStore from '../../../stores/userDataStore';
+import { getAuth } from 'firebase/auth';
 
 function AccountForm() {
   const { userData } = useUserStore();
@@ -18,9 +19,24 @@ function AccountForm() {
     e.preventDefault();
     const updateUserInfo = async () => {
       try {
+        const auth = getAuth();
+        const user = auth.currentUser;
+      
+        if (!user) {
+          console.error('User not authenticated');
+          return;
+        }
+      
+        const token = await user.getIdToken();
+
         await api.put(`/api/users/user-settings/${userId}`, {
           name,
           phoneNumber
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
         toast.success("User info updated successfully");
       } catch (error) {

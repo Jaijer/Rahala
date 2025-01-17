@@ -12,6 +12,7 @@ Textarea
 import axios from 'axios';
 import useUserStore from "../../../stores/userDataStore";
 import api from "../../../api/axios";
+import { getAuth } from 'firebase/auth';
 
 const AddTravelModal = ({ isOpen, onClose, travel }) => {
     const {userData} = useUserStore();
@@ -358,14 +359,41 @@ const AddTravelModal = ({ isOpen, onClose, travel }) => {
                     agency: userData._id,
                     image: imageUrl // Add image URL to travel data
                 };
+
+                const auth = getAuth();
+                const user = auth.currentUser;
+              
+                if (!user) {
+                  console.error('User not authenticated');
+                  return;
+                }
+              
+                const token = await user.getIdToken();
+        
     
                 if (isEdit) {
                   // Update travel
-                  const response = await api.put(`/api/travels/${travel._id}`, travelData);
-                  console.log("Travel updated successfully:", response.data);
+                    const response = await api.put(
+                    `/api/travels/${travel._id}`,
+                    travelData, 
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`, 
+                        },
+                    }
+                );
+                console.log("Travel updated successfully:", response.data);
                 } else {
                     // Create new travel
-                    const response = await api.post('/api/travels', travelData);
+                    const response = await api.post(
+                        `/api/travels`,
+                        travelData, 
+                        {
+                            headers: {
+                                Authorization: `Bearer ${token}`, 
+                            },
+                        }    
+                    );
                     console.log("Travel added successfully:", response.data);
                 }
                 window.location.reload();

@@ -4,6 +4,7 @@ import RequestItem from './components/RequestItem';
 import { Accordion, AccordionItem } from "@nextui-org/accordion";
 import { Divider } from "@nextui-org/divider";
 import api from '../../api/axios';
+import { getAuth } from 'firebase/auth';
 
 function AdminDashboard() {
   const [pendingRequests, setPendingRequests] = useState([]);
@@ -13,7 +14,21 @@ function AdminDashboard() {
   useEffect(() => {
     const fetchAgencies = async () => {
       try {
-        const response = await api.get('/api/admin/agencies');
+        const auth = getAuth();
+        const user = auth.currentUser;
+      
+        if (!user) {
+          console.error('User not authenticated');
+          return;
+        }
+      
+        const token = await user.getIdToken();
+
+        const response = await api.get('/api/admin/agencies', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         setRegisteredAgencies(response.data.agencies);
         console.log('✅ Agencies fetched:', response.data.agencies); // Log the fetched agencies
       } catch (error) {
@@ -31,8 +46,22 @@ function AdminDashboard() {
     }
     
     try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+    
+      if (!user) {
+        console.error('User not authenticated');
+        return;
+      }
+    
+      const token = await user.getIdToken();
+
       console.log('🗑️ Deleting agency with ID:', agencyId);
-      const response = await api.delete(`/api/admin/agencies/${agencyId}`);
+      const response = await api.delete(`/api/admin/agencies/${agencyId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.data.success) {
         setRegisteredAgencies(prev => prev.filter(agency => agency._id !== agencyId));
         console.log('✅ Agency deleted successfully:', agencyId);

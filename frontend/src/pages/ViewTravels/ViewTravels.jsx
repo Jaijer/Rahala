@@ -15,6 +15,7 @@ import useTravelStore from "../../stores/travelStore";
 import useUserStore from "../../stores/userDataStore";
 import AddTravelModal from "../AgencyDashboard/components/AddTravelModal";
 import TravelersList from "./TravelersList";
+import { getAuth } from 'firebase/auth';
 
 const ViewTravels = () => {
   const { id } = useParams();
@@ -51,7 +52,23 @@ const ViewTravels = () => {
   const handleDeleteTravel = async () => {
     setDeleteLoading(true); // Start loading
     try {
-      await api.delete(`/api/travels/${id}`);
+      const auth = getAuth();
+      const user = auth.currentUser;
+    
+      if (!user) {
+        console.error('User not authenticated');
+        return;
+      }
+    
+      const token = await user.getIdToken();
+
+      await api.delete(`/api/travels/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        }
+      );
       window.history.back(); // Navigate back after successful deletion
     } catch (error) {
       console.error("Error deleting travel:", error);
