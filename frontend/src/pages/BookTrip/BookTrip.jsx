@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Input, RadioGroup, useRadio, VisuallyHidden, cn } from "@nextui-org/react";
+import { Button, RadioGroup, useRadio, VisuallyHidden, cn } from "@nextui-org/react";
 import { useNavigate } from 'react-router-dom';
+import { 
+  FaRoute, 
+  FaBuilding, 
+  FaChevronLeft, 
+  FaBoxOpen,
+  FaCalendarAlt,
+  FaChevronRight,
+  FaExclamationCircle
+} from "react-icons/fa";
 import useTravelStore from '../../stores/travelStore';
 
 const CustomRadio = (props) => {
@@ -21,11 +30,12 @@ const CustomRadio = (props) => {
       {...getBaseProps()}
       className={cn(
         "group inline-flex items-center hover:opacity-70 active:opacity-50 justify-between flex-row-reverse tap-highlight-transparent",
-        "max-w-[300px] cursor-pointer border-2 border-default rounded-lg gap-4 p-4",
+        "w-full cursor-pointer border-2 border-default rounded-lg gap-4 p-4",
         "bg-white",
-        "data-[selected=true]:border-primary",
+        "data-[selected=true]:border-[#1b4348]",
         props.disabled && "opacity-50 cursor-not-allowed"
       )}
+      dir="rtl"
     >
       <VisuallyHidden>
         <input {...getInputProps()} disabled={props.disabled} />
@@ -33,29 +43,42 @@ const CustomRadio = (props) => {
       <span {...getWrapperProps()}>
         <span {...getControlProps()} />
       </span>
-      <div {...getLabelWrapperProps()}>
-        {children && <span {...getLabelProps()}>{children}</span>}
+      <div {...getLabelWrapperProps()} className="w-full">
+        {children && <span {...getLabelProps()} className="block text-lg">{children}</span>}
         {description && (
-          <span className="text-small text-foreground opacity-70">{description}</span>
+          <span className="text-[#6c757d] block mt-1">{description}</span>
         )}
       </div>
     </Component>
   );
 };
 
+const ErrorMessage = ({ message }) => (
+  <div className="flex items-center gap-2 text-red-500 bg-red-50 p-2 rounded-lg" dir="rtl">
+    <FaExclamationCircle size={16} />
+    <span className="text-sm">{message}</span>
+  </div>
+);
+
 const BookTrip = () => {
   const navigate = useNavigate();
   const { travel, selectedPackage, selectedDate, setSelectedPackage, setSelectedDate } = useTravelStore();
   const [isRadioGroupValid, setIsRadioGroupValid] = useState(true);
   const [isDateValid, setIsDateValid] = useState(true);
+  const [selectedPackageId, setSelectedPackageId] = useState("");
+  const [selectedDateId, setSelectedDateId] = useState("");
 
-  const handlePackageChange = (pkg) => {
+  const handlePackageChange = (value) => {
+    const pkg = travel.packages.find(p => p._id === value);
     setSelectedPackage(pkg);
+    setSelectedPackageId(value);
     setIsRadioGroupValid(true);
   };
 
-  const handleDateChange = (date) => {
+  const handleDateChange = (value) => {
+    const date = travel.dates.find(d => d._id === value);
     setSelectedDate(date);
+    setSelectedDateId(value);
     setIsDateValid(true);
   };
 
@@ -89,70 +112,93 @@ const BookTrip = () => {
   const currentDate = new Date();
 
   return (
-    <div className="py-8 px-12 font-inter">
-      <div className="text-right space-y-6">
-        <div className="space-y-4">
-              <h2 className="text-2xl lg:text-3xl font-bold text-[#1B4348]">
-                {travel.travelName}
-              </h2>
-              <h2 className="text-xl lg:text-2xl font-bold text-[#757575]">
-                {travel.agency?.name}
-              </h2>
-            </div>
+    <div className="font-inter" dir="rtl">
+      <div className="container mx-auto px-8 lg:px-16 py-8">
+        {/* Agency Info */}
+        <div className="mb-8">
+          <h2 className="text-2xl lg:text-3xl font-bold text-[#1B4348] flex items-center gap-4 mb-4">
+            <FaRoute size={24} className="text-[#1B4348]" />
+            {travel.travelName}
+          </h2>
+          <h2 className="text-xl lg:text-2xl font-bold text-[#757575] flex items-center gap-4">
+            <FaBuilding size={20} className="text-[#757575]" />
+            {travel.agency?.name}
+          </h2>
+        </div>
 
-        <div className="flex items-center gap-4 text-2xl lg:text-3xl font-bold text-[#1B4348] py-2">
-              <span>{travel.from}</span>
-              <span className="text-[#757575]">←</span>
-              <span>{travel.destination}</span>
-            </div>
-
-        <div className="space-y-4">
-          <p className="text-2xl font-semibold text-black">
-            باقات السفر
-            {!isRadioGroupValid && <span className="text-red-500"> - هذه الخانة مطلوبة</span>}
-          </p>
-          <p className="text-lg text-[#757575]">اختر البطاقة التي تناسب احتياجك</p>
-          <RadioGroup orientation="horizontal" onValueChange={(value) => handlePackageChange(value)}>
-            {travel.packages.map((pkg) => (
-              <CustomRadio
-                key={pkg.title}
-                value={pkg}
-                description={`السعر: ${pkg.price} ريال`}
+        {/* Packages and Dates Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Packages Section */}
+          <div className="bg-white/80 p-5 sm:p-8 rounded-lg shadow-lg border">
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 mb-6">
+                <FaBoxOpen size={24} className="text-[#1b4348]" />
+                <h2 className="text-2xl font-bold text-[#1b4348]">باقات السفر</h2>
+              </div>
+              {!isRadioGroupValid && (
+                <ErrorMessage message="يرجى اختيار باقة السفر" />
+              )}
+              <p className="text-lg text-[#6c757d] mb-4">اختر البطاقة التي تناسب احتياجك</p>
+              <RadioGroup 
+                value={selectedPackageId}
+                onValueChange={handlePackageChange}
+                className="space-y-4"
               >
-                {pkg.title}
-              </CustomRadio>
-            ))}
-          </RadioGroup>
+                {travel.packages.map((pkg) => (
+                  <CustomRadio
+                    key={pkg._id}
+                    value={pkg._id}
+                    description={`السعر: ${pkg.price} ريال`}
+                  >
+                    {pkg.title}
+                  </CustomRadio>
+                ))}
+              </RadioGroup>
+            </div>
+          </div>
+
+          {/* Dates Section */}
+          <div className="bg-white/80 p-5 sm:p-8 rounded-lg shadow-lg border">
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 mb-6">
+                <FaCalendarAlt size={24} className="text-[#1b4348]" />
+                <h2 className="text-2xl font-bold text-[#1b4348]">تواريخ الرحلة</h2>
+              </div>
+              {!isDateValid && (
+                <ErrorMessage message="يرجى اختيار تاريخ الرحلة" />
+              )}
+              <p className="text-lg text-[#6c757d] mb-4">اختر التاريخ المناسب</p>
+              <RadioGroup 
+                value={selectedDateId}
+                onValueChange={handleDateChange}
+                className="space-y-4"
+              >
+                {sortedDates.map((date) => {
+                  const isPastDate = new Date(date.departure) < currentDate;
+                  return (
+                    <CustomRadio
+                      key={date._id}
+                      value={date._id}
+                      disabled={isPastDate}
+                    >
+                      {`${new Date(date.departure).toLocaleDateString('ar-GB', { day: 'numeric', month: 'long' })} - ${new Date(date.arrival).toLocaleDateString('ar-GB', { day: 'numeric', month: 'long' })}`}
+                    </CustomRadio>
+                  );
+                })}
+              </RadioGroup>
+            </div>
+          </div>
         </div>
 
-        <div className="space-y-4">
-          <p className="text-2xl font-semibold text-black">
-            تواريخ الرحلة
-            {!isDateValid && <span className="text-red-500"> - هذه الخانة مطلوبة</span>}
-          </p>
-          <RadioGroup orientation="vertical" onValueChange={(value) => handleDateChange(value)}>
-            {sortedDates.map((date) => {
-              const isPastDate = new Date(date.departure) < currentDate;
-              return (
-                <CustomRadio
-                  key={date.departure}
-                  value={date}
-                  disabled={isPastDate}
-                >
-                  {`${new Date(date.departure).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })} - ${new Date(date.arrival).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })}`}
-                </CustomRadio>
-              );
-            })}
-          </RadioGroup>
-        </div>
-
-        <div className="flex justify-center gap-6 pt-16">
+        {/* Buttons Container */}
+        <div className="pt-12 flex justify-center items-center gap-6">
           <Button
             className="font-bold text-lg px-8 bg-greeny"
             variant="solid"
             radius="full"
             size="lg"
             onClick={handleSubmit}
+            startContent={<FaChevronRight size={18} />}
           >
             تقدم
           </Button>
@@ -163,8 +209,9 @@ const BookTrip = () => {
             radius="full"
             size="lg"
             onClick={() => window.history.back()}
+            endContent={<FaChevronLeft size={18} />}
           >
-            عودة&gt;
+            عودة
           </Button>
         </div>
       </div>

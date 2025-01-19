@@ -83,7 +83,7 @@ const BookingCheckout = () => {
       <h2 className="text-4xl text-[#1b4348] text-center mb-8">
         تأكيد الطلب والدفع
       </h2>
-      <div className="bg-white w-full max-w-4xl p-8 rounded-lg shadow-lg text-right border-2 border-black">
+      <div className="bg-white/80 w-full max-w-4xl p-8 rounded-lg shadow-lg text-right border-2 border-black">
         <div className="text-center font-bold text-[#1b4348] text-3xl mb-6">
           من {from} إلى {destination}
         </div>
