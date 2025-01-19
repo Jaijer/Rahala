@@ -10,6 +10,17 @@ import {
   ModalBody,
   ModalFooter,
 } from "@nextui-org/react";
+import { 
+  FaRoute,
+  FaCalendarAlt, 
+  FaInfoCircle, 
+  FaLongArrowAltLeft,
+  FaEdit,
+  FaTrash,
+  FaChevronLeft,
+  FaBuilding,
+  FaChevronRight
+} from "react-icons/fa";
 import api from "../../api/axios";
 import useTravelStore from "../../stores/travelStore";
 import useUserStore from "../../stores/userDataStore";
@@ -33,7 +44,7 @@ const ViewTravels = () => {
     const fetchTravel = async () => {
       try {
         const response = await api.get(`api/travels/${id}`);
-        setTravel(response.data); // Store travel data in Zustand
+        setTravel(response.data);
         setSortedDates(response.data.dates.slice().sort((a, b) => new Date(a.departure) - new Date(b.departure)));
         setIsTravelOwner(
           response.data.agency?._id === userData?._id &&
@@ -48,9 +59,8 @@ const ViewTravels = () => {
     fetchTravel();
   }, [id, setTravel, userData]);
 
-  
   const handleDeleteTravel = async () => {
-    setDeleteLoading(true); // Start loading
+    setDeleteLoading(true);
     try {
       const auth = getAuth();
       const user = auth.currentUser;
@@ -61,19 +71,16 @@ const ViewTravels = () => {
       }
     
       const token = await user.getIdToken();
-
-      await api.delete(`/api/travels/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
+      await api.delete(`/api/travels/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-        }
-      );
-      window.history.back(); // Navigate back after successful deletion
+      });
+      window.history.back();
     } catch (error) {
       console.error("Error deleting travel:", error);
     } finally {
-      setDeleteLoading(false); // Stop loading
+      setDeleteLoading(false);
       setIsDeleteModalOpen(false);
     }
   };
@@ -99,27 +106,30 @@ const ViewTravels = () => {
       <div className="container mx-auto px-8 lg:px-16 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           {/* Content Column */}
-          <div className="lg:col-span-8 space-y-6">
+          <div className="lg:col-span-8 space-y-8">
             {/* Agency Info */}
             <div className="space-y-4">
-              <h2 className="text-2xl lg:text-3xl font-bold text-[#1B4348]">
+              <h2 className="text-2xl lg:text-3xl font-bold text-[#1B4348] flex items-center gap-4">
+                <FaRoute size={24} className="text-[#1B4348] ml-2" />
                 {travel.travelName}
               </h2>
-              <h2 className="text-xl lg:text-2xl font-bold text-[#757575]">
+              <h2 className="text-xl lg:text-2xl font-bold text-[#757575] flex items-center gap-4">
+                <FaBuilding size={20} className="text-[#757575] ml-2" />
                 {travel.agency?.name}
               </h2>
             </div>
 
             {/* Route with Arrow */}
-            <div className="flex items-center gap-4 text-2xl lg:text-3xl font-bold text-[#1B4348] py-2">
+            <div className="flex items-center gap-6 text-2xl lg:text-3xl font-bold text-[#1B4348] py-2">
               <span>{travel.from}</span>
-              <span className="text-[#757575]">←</span>
+              <FaLongArrowAltLeft size={24} className="text-[#757575] mx-2" />
               <span>{travel.destination}</span>
             </div>
 
             {/* Description Section */}
-            <div className="space-y-4">
-              <h2 className="text-2xl lg:text-3xl font-bold text-[#1B4348]">
+            <div className="space-y-4 bg-white/60 border p-6 rounded-lg shadow-sm">
+              <h2 className="text-2xl lg:text-3xl font-bold text-[#1B4348] flex items-center gap-4">
+                <FaInfoCircle size={24} className="text-[#1B4348] ml-2" />
                 وصف الرحلة
               </h2>
               <p className="text-lg lg:text-xl text-[#757575] max-w-2xl">
@@ -128,20 +138,21 @@ const ViewTravels = () => {
             </div>
 
             {/* Date Section */}
-            <div className="space-y-4">
-              <h2 className="text-2xl lg:text-3xl font-bold text-[#1B4348]">
+            <div className="space-y-4 bg-white/60 border p-6 rounded-lg shadow-sm">
+              <h2 className="text-2xl lg:text-3xl font-bold text-[#1B4348] flex items-center gap-4">
+                <FaCalendarAlt size={24} className="text-[#1B4348] ml-2" />
                 تواريخ الرحلة
               </h2>
-              <ul className="text-lg lg:text-xl text-[#757575]">
+              <ul className="text-lg lg:text-xl text-[#757575] space-y-2">
                 {sortedDates.map((date) => (
-                  <li key={date._id} className="flex gap-2">
+                  <li key={date._id} className="flex gap-4 items-center">
                     <span>
                       {new Date(date.departure).toLocaleDateString("ar-GB", {
                         day: "numeric",
                         month: "short",
                       })}
                     </span>
-                    -
+                    <FaLongArrowAltLeft size={16} className="text-[#757575] mx-2" />
                     <span>
                       {new Date(date.arrival).toLocaleDateString("ar-GB", {
                         day: "numeric",
@@ -154,19 +165,19 @@ const ViewTravels = () => {
             </div>
 
             {/* Travelers Section */}
-            {isTravelOwner? <TravelersList travellers={travel.travellers} />: null}
+            {isTravelOwner && <TravelersList travellers={travel.travellers} />}
           </div>
 
           {/* Image Column */}
-          <div className="lg:col-span-4 flex items-center justify-center">
-            <div className="w-full max-w-md">
+          <div className="lg:col-span-4 flex items-start justify-center">
+            <div className="w-full max-w-md sticky top-8">
               <Image
                 isBlurred
                 src={travel.image}
                 alt="Travel Image"
                 classNames={{
                   wrapper: "flex items-center justify-center",
-                  img: "object-cover",
+                  img: "object-cover rounded-xl shadow-lg",
                 }}
                 radius="lg"
               />
@@ -183,6 +194,7 @@ const ViewTravels = () => {
               radius="full"
               size="lg"
               onClick={() => navigate("/book-trip")}
+              startContent={<FaChevronRight size={18} />}
             >
               حجز
             </Button>
@@ -197,6 +209,7 @@ const ViewTravels = () => {
                 radius="full"
                 size="lg"
                 onClick={() => setIsEditModalOpen(true)}
+                startContent={<FaEdit size={18} />}
               >
                 تعديل
               </Button>
@@ -207,6 +220,7 @@ const ViewTravels = () => {
                 radius="full"
                 size="lg"
                 onClick={() => setIsDeleteModalOpen(true)}
+                startContent={<FaTrash size={18} />}
               >
                 حذف
               </Button>
@@ -220,8 +234,9 @@ const ViewTravels = () => {
             radius="full"
             size="lg"
             onClick={() => window.history.back()}
+            endContent={<FaChevronLeft size={18} />}
           >
-            عودة&gt;
+            عودة
           </Button>
         </div>
 
@@ -259,9 +274,10 @@ const ViewTravels = () => {
                   <Button
                     color="danger"
                     onPress={handleDeleteTravel}
-                    isDisabled={deleteLoading} // Disable the button while loading
+                    isDisabled={deleteLoading}
+                    startContent={deleteLoading ? <Spinner size="sm" /> : <FaTrash />}
                   >
-                    {deleteLoading ? <Spinner size="sm" /> : "حذف"} {/* Show spinner or text */}
+                    حذف
                   </Button>
                 </ModalFooter>
               </>
