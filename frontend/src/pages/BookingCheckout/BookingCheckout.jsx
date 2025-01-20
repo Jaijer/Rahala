@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useTravelStore from "../../stores/travelStore";
 import api from "../../api/axios";
@@ -10,6 +10,7 @@ const BookingCheckout = () => {
   const navigate = useNavigate();
   const { travel, selectedPackage, selectedDate } = useTravelStore();
   const { userData } = useUserStore();  // Get the authenticated user
+  const [loading, setLoading] = useState(false); // New loading state
 
   useEffect(() => {
     if (!travel) {
@@ -42,6 +43,7 @@ const BookingCheckout = () => {
     }
 
     try {
+      setLoading(true); // Set loading to true
       const auth = getAuth();
       const user = auth.currentUser;
     
@@ -75,6 +77,8 @@ const BookingCheckout = () => {
     } catch (err) {
       console.error("Error adding travel:", err);
       toast.error("فشل الحجز، حاول مرة أخرى");
+    } finally {
+      setLoading(false); // Set loading to false
     }
   };
 
@@ -128,8 +132,9 @@ const BookingCheckout = () => {
           <button
             onClick={handlePayment}
             className="bg-[#76fc8f] text-black px-8 py-2 rounded-full font-bold text-lg hover:bg-[#5ecc71] transition"
+            disabled={loading} // Disable button when loading
           >
-            دفع
+            {loading ? "جاري الدفع..." : "دفع"}
           </button>
           <button
             onClick={() => window.history.back()}
