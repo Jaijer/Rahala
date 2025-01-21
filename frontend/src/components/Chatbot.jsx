@@ -258,7 +258,7 @@ const ChatBot = () => {
   };
   
   return (
-    <div className={`${isMobile ? 'fixed inset-0 z-50' : 'fixed bottom-6 right-6 z-50'}`}>
+    <div className={'fixed bottom-6 right-6 z-50'}>
       {!isOpen && (
         <Button
           isIconOnly
@@ -266,7 +266,7 @@ const ChatBot = () => {
           size="lg"
           radius="full"
           className={`${
-            isMobile ? 'fixed bottom-6 right-4' : ''
+            isMobile ? 'fixed bottom-4 right-4' : ''
           } w-14 h-14 shadow-lg bg-emerald-600 hover:bg-emerald-700`}
           onClick={() => setIsOpen(true)}
         >
