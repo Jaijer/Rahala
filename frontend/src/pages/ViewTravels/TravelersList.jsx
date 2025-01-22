@@ -104,6 +104,10 @@ const TravelersList = ({ travellers: initialTravellers }) => {
                     {traveller.user.name}
                   </p>
                   <p>
+                    <strong>رقم الهاتف: </strong>
+                    {traveller.user.phoneNumber}
+                  </p>
+                  <p>
                     <strong>الباقة:</strong> {traveller.package}
                   </p>
                   <p>

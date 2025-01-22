@@ -57,7 +57,7 @@ exports.getUserByEmail = async (req, res) => {
 // Add a travel to a user
 exports.addTravelToUser = async (req, res) => {
   const { userId } = req.params;
-  const { travelId, package, date } = req.body;
+  const { travelId, package: packageType, date } = req.body;
 
   try {
     // Update the user's registeredTravels
@@ -67,7 +67,7 @@ exports.addTravelToUser = async (req, res) => {
         $push: {
           registeredTravels: {
             travel: travelId,
-            package,
+            package: packageType,
             date,
           },
         },
@@ -86,7 +86,7 @@ exports.addTravelToUser = async (req, res) => {
         $push: {
           travellers: {
             user: userId,
-            package,
+            package: packageType,
             date,
           },
         },
@@ -141,6 +141,92 @@ exports.deleteTraveler = async (req, res) => {
   } catch (err) {
     console.error('Error deleting traveler:', err);
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Get details of a specific booking
+exports.getBookingDetails = async (req, res) => {
+  try {
+    const { id: bookingId } = req.params;
+    const userId = req.user.uid;
+
+    // Find the user and their registered travel
+    const user = await User.findOne({ email: req.user.email })
+      .populate({
+        path: 'registeredTravels.travel',
+        populate: {
+          path: 'agency',
+          select: 'name phoneNumber'
+        }
+      });
+
+    if (!user) {
+      return res.status(404).json({ message: 'المستخدم غير موجود' });
+    }
+
+    // Find the specific booking
+    const booking = user.registeredTravels.find(
+      travel => travel._id.toString() === bookingId
+    );
+
+    if (!booking) {
+      return res.status(404).json({ message: 'الحجز غير موجود' });
+    }
+
+    res.status(200).json(booking);
+  } catch (error) {
+    console.error('Error in getBookingDetails:', error);
+    res.status(500).json({ message: 'حدث خطأ أثناء جلب تفاصيل الحجز' });
+  }
+};
+
+// Cancel a booking
+exports.cancelBooking = async (req, res) => {
+  try {
+    const { id: bookingId } = req.params;
+    const userId = req.user.uid;
+
+    // Find the user
+    const user = await User.findOne({ email: req.user.email });
+    if (!user) {
+      return res.status(404).json({ message: 'المستخدم غير موجود' });
+    }
+
+    // Find the booking index
+    const bookingIndex = user.registeredTravels.findIndex(
+      travel => travel._id.toString() === bookingId
+    );
+
+    if (bookingIndex === -1) {
+      return res.status(404).json({ message: 'الحجز غير موجود' });
+    }
+
+    // Get the travel details before removing the booking
+    const booking = user.registeredTravels[bookingIndex];
+    const travel = await Travel.findById(booking.travel);
+
+    if (!travel) {
+      return res.status(404).json({ message: 'الرحلة غير موجودة' });
+    }
+
+    // Remove the booking from registeredTravels
+    user.registeredTravels.splice(bookingIndex, 1);
+    await user.save();
+
+    // Remove the user from travel's travellers
+    const travellerIndex = travel.travellers.findIndex(
+      t => t.user.toString() === user._id.toString()
+    );
+    
+    if (travellerIndex !== -1) {
+      travel.travellers.splice(travellerIndex, 1);
+      await travel.save();
+    }
+
+    res.status(200).json({ message: 'تم إلغاء الحجز بنجاح' });
+  } catch (error) {
+    console.error('Error in cancelBooking:', error);
+    res.status(500).json({ message: 'حدث خطأ أثناء إلغاء الحجز' });
   }
 };
 

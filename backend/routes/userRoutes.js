@@ -16,6 +16,10 @@ router.post('/:userId/add-travel', verifyToken, checkUser, userController.addTra
 // A route to delete a traveler by ID
 router.delete('/travelers/:id', verifyToken, checkAgency, userController.deleteTraveler);
 
+// Routes for user's registered travels
+router.get('/bookings/:id', verifyToken, checkUser, userController.getBookingDetails);
+router.delete('/bookings/:id', verifyToken, checkUser, userController.cancelBooking);
+
 // A route to update user settings
 router.put('/user-settings/:id', verifyToken, checkUser, userController.updateSettings);
 router.put('/user-settings/notifications/:id', verifyToken, checkUser, userController.updateNotificationSettings);

@@ -29,6 +29,7 @@ import BookingCheckout from './pages/BookingCheckout/BookingCheckout';
 import ViewTravels from './pages/ViewTravels/ViewTravels';
 import BookTrip from './pages/BookTrip/BookTrip';
 import Payment from './pages/Payment/Payment';
+import BookedTravelDetails from './pages/UserDashboard/BookedTravelDetails';
 
 function App() {
     const { isLoading, setIsLoading } = useLoadingStore(); // Use loading store
@@ -64,6 +65,7 @@ function App() {
                         <Route path="/" element={<Landing />} />
                         <Route path="/search" element={<Search />} />
                         <Route path="/dashboard" element={<UserDashboard />} />
+                        <Route path="/dashboard/bookings/:id" element={<BookedTravelDetails />} />
                         <Route path="/agency-dashboard" element={<AgencyDashboard />} />
                         <Route path="/admin-dashboard" element={<AdminDashboard />} />
                         <Route path="/login" element={<UserLogin />} />

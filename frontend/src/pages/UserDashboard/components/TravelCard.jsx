@@ -1,13 +1,16 @@
 import React from 'react';
 import { Image } from '@nextui-org/image'; // Import Image component from NextUI
+import { useNavigate } from 'react-router-dom';
 
 function TravelCard({ travel }) {
+  const navigate = useNavigate();
+  
   // Log the travel object to see its structure
   console.log('Travel object:', travel);
   
   // Destructuring the props
   const { travelName, from, destination, image } = travel.travel;
-  const { package: selectedPackage, date } = travel;
+  const { _id, package: selectedPackage, date } = travel;
   
   // Log the selectedPackage to see its structure
   console.log('Selected package:', selectedPackage);
@@ -16,8 +19,15 @@ function TravelCard({ travel }) {
   const departureDate = date.departure;
   const arrivalDate = date.arrival;
 
+  const handleClick = () => {
+    navigate(`/dashboard/bookings/${_id}`);
+  };
+
   return (
-    <div className="flex flex-col md:flex-row bg-white shadow-lg rounded-3xl w-full h-full transform transition-all duration-300 hover:shadow-2xl hover:cursor-pointer">
+    <div 
+      className="flex flex-col md:flex-row bg-white shadow-lg rounded-3xl w-full h-full transform transition-all duration-300 hover:shadow-2xl hover:cursor-pointer"
+      onClick={handleClick}
+    >
       {/* Image */}
       <div className="w-full md:w-2/5 h-48 md:h-64 rounded-t-3xl md:rounded-l-3xl overflow-hidden">
         <Image 
