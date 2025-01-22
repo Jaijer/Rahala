@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   phoneNumber: { type: String, required: true },
   advNotifications: { type: Boolean, default: false },
-  tripNotifications: { type: Boolean, default: false },
+  tripNotifications: { type: Boolean, default: true },
   registeredTravels: [
     {
       travel: { type: mongoose.Schema.Types.ObjectId, ref: 'Travel', required: true },
