@@ -8,15 +8,14 @@ function TravelCard({ travel }) {
 
   return (
     <div className="flex flex-col gap-3 bg-white rounded-3xl w-full h-full shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:cursor-pointer"
-    onClick={() => navigate(`/view-travels/${travel._id}`)}
->
+      onClick={() => navigate(`/view-travels/${travel._id}`)}
+    >
       {/* Image at the top */}
       <div className="w-full h-48 rounded-t-3xl overflow-hidden">
         <Image
           alt="صورة الاعلان"
           src={travel.image}
-          objectFit="cover"
-          className="w-full h-full"
+          className="w-full h-full object-cover"
         />
       </div>
 
@@ -44,17 +43,17 @@ function TravelCard({ travel }) {
 
         {/* Dates */}
         <div className="flex flex-col gap-0.5">
-          {sortedDates.map((date) => {
-            return <div className="flex gap-1 text-grayish">
-            <span>
-              {new Date(date.departure).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })}
-            </span>
-            -
-            <span>
-              {new Date(date.arrival).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })}
-            </span>
-          </div>
-          })}
+          {sortedDates.map((date) => (
+            <div key={date.departure} className="flex gap-1 text-grayish">
+              <span>
+                {new Date(date.departure).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })}
+              </span>
+              <span>-</span>
+              <span>
+                {new Date(date.arrival).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
     </div>

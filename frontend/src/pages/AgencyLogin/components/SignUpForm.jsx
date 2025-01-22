@@ -2,14 +2,26 @@ import React, { useState } from 'react';
 import { Input, Button } from '@nextui-org/react';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 
-function AgencySignUpForm({ name, email, password, phone, address, setName, setEmail, setPassword, setPhone, setAddress, onSignUp }) {
+function AgencySignUpForm({ 
+    name, 
+    email, 
+    password, 
+    phoneNumber, 
+    address, 
+    setName, 
+    setEmail, 
+    setPassword, 
+    setPhoneNumber, 
+    setAddress, 
+    onSignUp 
+}) {
     const [showPassword, setShowPassword] = useState(false);
-    const [loading, setLoading] = useState(false); // Loading state
+    const [loading, setLoading] = useState(false); 
     const [errors, setErrors] = useState({
         name: '',
         email: '',
         password: '',
-        phone: '',
+        phoneNumber: '',
         address: ''
     });
 
@@ -38,7 +50,7 @@ function AgencySignUpForm({ name, email, password, phone, address, setName, setE
         return '';
     };
 
-    const validatePhone = (inputPhoneNumber) => {
+    const validatePhoneNumber = (inputPhoneNumber) => {
         if (!inputPhoneNumber) return 'رقم الهاتف مطلوب';
         const saudiPhoneRegex = /^05\d{8}$/;
         if (!saudiPhoneRegex.test(inputPhoneNumber)) return 'برجاء إدخال رقم هاتف سعودي صحيح بصيغة 05XXXXXXXX';
@@ -61,17 +73,17 @@ function AgencySignUpForm({ name, email, password, phone, address, setName, setE
             name: validateName(name),
             email: validateEmail(email),
             password: validatePassword(password),
-            phone: validatePhone(phone),
+            phoneNumber: validatePhoneNumber(phoneNumber),
             address: validateAddress(address)
         };
         setErrors(newErrors);
 
         if (!Object.values(newErrors).some(Boolean)) {
-            setLoading(true); // Start loading
+            setLoading(true); 
             try {
-                await onSignUp(); // Ensure onSignUp is an async function
+                await onSignUp(); 
             } finally {
-                setLoading(false); // End loading
+                setLoading(false); 
             }
         }
     };
@@ -156,13 +168,13 @@ function AgencySignUpForm({ name, email, password, phone, address, setName, setE
                         variant="bordered"
                         label="رقم الهاتف"
                         placeholder="05XXXXXXXX"
-                        value={phone}
-                        onChange={handleInputChange(setPhone, validatePhone, 'phone')}
+                        value={phoneNumber}
+                        onChange={handleInputChange(setPhoneNumber, validatePhoneNumber, 'phoneNumber')}
                         className='bg-white border-black'
-                        isInvalid={!!errors.phone}
+                        isInvalid={!!errors.phoneNumber}
                         maxLength={10}
                     />
-                    {errors.phone && <span className="text-red-500 text-sm">{errors.phone}</span>}
+                    {errors.phoneNumber && <span className="text-red-500 text-sm">{errors.phoneNumber}</span>}
                 </div>
 
                 {/* Address input */}
@@ -184,8 +196,8 @@ function AgencySignUpForm({ name, email, password, phone, address, setName, setE
                     onClick={handleSignUp}
                     radius="full"
                     className='bg-[#6961EF] text-white mt-4 text-lg py-6'
-                    disabled={loading} // Disable while loading
-                    isLoading={loading} // Show loading state if available in Next UI
+                    disabled={loading} 
+                    isLoading={loading} 
                 >
                     إنشاء حساب جديد
                 </Button>

@@ -10,7 +10,7 @@ function AgencyLogin() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [phone, setPhone] = useState("");
+    const [phoneNumber, setPhoneNumber] = useState("");
     const [address, setAddress] = useState("");
 
     const navigate = useNavigate();
@@ -26,7 +26,7 @@ function AgencyLogin() {
             await createAuthUser(userCredential.user.email, "agency");
 
             // Create Agency in MongoDB
-            await createAgency(userCredential.user.email, name, phone, address);
+            await createAgency(userCredential.user.email, name, phoneNumber, address);
 
             toast.success("تم إنشاء الحساب بنجاح");
             navigate('/');
@@ -37,7 +37,7 @@ function AgencyLogin() {
             // Rollback if there was an error
             if (userCredential) await deleteUser(userCredential.user);
             await deleteAuthUser(userCredential?.user.email);
-            await deleteAgencyInDB(email); // use the email directly
+            await deleteAgencyInDB(email);
         }
     };
 
@@ -51,9 +51,9 @@ function AgencyLogin() {
         }
     };
 
-    const createAgency = async (email, name, phone, address) => {
+    const createAgency = async (email, name, phoneNumber, address) => {
         try {
-            const response = await api.post('/api/agencies', { email, name, phone, address });
+            const response = await api.post('/api/agencies', { email, name, phoneNumber, address });
             console.log("Agency created:", response.data);
         } catch (error) {
             console.error("Error creating Agency:", error);
@@ -62,29 +62,39 @@ function AgencyLogin() {
     };
 
     const deleteAuthUser = async (email) => {
+        if (!email) return;
         try {
-            await api.delete(`/api/auth/${email}`);
-            console.log("AuthUser deleted:", email);
+            await api.delete(`/api/auth/email/${email}`);
+            console.log("AuthUser deleted");
         } catch (error) {
             console.error("Error deleting AuthUser:", error);
         }
     };
 
     const deleteAgencyInDB = async (email) => {
+        if (!email) return;
         try {
-            await api.delete(`/api/agencies/${email}`);
-            console.log("Agency deleted:", email);
+            await api.delete(`/api/agencies/email/${email}`);
+            console.log("Agency deleted from MongoDB");
         } catch (error) {
-            console.error("Error deleting Agency:", error);
+            console.error("Error deleting Agency from MongoDB:", error);
         }
     };
 
     return (
         <div className='h-full flex justify-center items-center bg-darkGreen flex-grow py-4 w-full'>
             <SignUpForm
-                name={name} email={email} password={password} phone={phone} address={address}
-                setName={setName} setEmail={setEmail} setPassword={setPassword}
-                setPhone={setPhone} setAddress={setAddress} onSignUp={onSignUp}
+                name={name}
+                setName={setName}
+                email={email}
+                setEmail={setEmail}
+                password={password}
+                setPassword={setPassword}
+                phoneNumber={phoneNumber}
+                setPhoneNumber={setPhoneNumber}
+                address={address}
+                setAddress={setAddress}
+                onSignUp={onSignUp}
             />
         </div>
     );
