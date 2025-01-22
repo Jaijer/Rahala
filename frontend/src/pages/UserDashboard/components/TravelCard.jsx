@@ -25,25 +25,27 @@ function TravelCard({ travel }) {
 
   return (
     <div 
-      className="flex flex-col md:flex-row bg-white shadow-lg rounded-3xl w-full h-full transform transition-all duration-300 hover:shadow-2xl hover:cursor-pointer"
+      className="flex flex-col md:flex-row lg:h-64 bg-white shadow-lg rounded-3xl w-full transform transition-all duration-300 hover:shadow-2xl hover:cursor-pointer"
       onClick={handleClick}
     >
       {/* Image */}
-      <div className="w-full md:w-2/5 h-48 md:h-64 rounded-t-3xl md:rounded-l-3xl overflow-hidden">
+      <div className="w-full md:w-1/3 h-48 md:h-64 rounded-b-none md:rounded-br-3xl rounded-3xl overflow-hidden">
         <Image 
           src={image} 
           alt={travelName} 
+          width={300}
+          height={300}
           className="w-full h-full object-cover"
         />
       </div>
 
       {/* Information Section */}
-      <div className="flex flex-col justify-center w-full md:w-3/5 p-4 md:p-6 gap-2 py-4">
+      <div className="flex flex-col justify-center flex-wrap w-full md:w-3/5 p-4 md:p-6 gap-1.5 py-4">
         {/* Travel Name */}
         <h3 className="text-xl font-semibold">{travelName}</h3>
         
         {/* Destination */}
-        <div className="text-lg text-darkGreen flex gap-1 flex-wrap">
+        <div className="text-lg text-darkGreen flex gap-1 flex-wrap mt-1">
           <span>{from}</span>
           <span>←</span>
           <span>{destination}</span>
@@ -52,7 +54,7 @@ function TravelCard({ travel }) {
         {/* Date Label */}
         <div className='mt-2'>
           <span className='text-lg font-medium'>التاريخ:</span>
-          <span className='flex gap-2 text-md font-medium text-gray-600 mt-2'>
+          <span className='flex gap-2 text-md font-medium text-gray-600'>
             <span>
               {new Date(departureDate).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })}
             </span>
@@ -66,7 +68,7 @@ function TravelCard({ travel }) {
         {/* Package */}
         <div className='mt-2'>
           <span className='text-lg font-medium'>الباقة:</span>
-          <div className='flex gap-2 text-md font-medium text-gray-600 mt-2'>
+          <div className='flex gap-2 text-md font-medium text-gray-600'>
             <span>{selectedPackage}</span>
           </div>
         </div>

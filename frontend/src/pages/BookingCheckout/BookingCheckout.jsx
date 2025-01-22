@@ -134,7 +134,7 @@ const BookingCheckout = () => {
             className="bg-[#76fc8f] text-black px-8 py-2 rounded-full font-bold text-lg hover:bg-[#5ecc71] transition"
             disabled={loading} // Disable button when loading
           >
-            {loading ? "جاري الدفع..." : "دفع"}
+            {loading ? "جاري الحجز..." : "حجز"}
           </button>
           <button
             onClick={() => window.history.back()}
