@@ -18,6 +18,8 @@ import UserDashboard from './pages/UserDashboard/UserDashboard';
 import AccountSettingsPage from './pages/UserSettings/UserSettings';
 import NotificationsSettingsPage from './pages/UserSettings/notifications';
 import ResetPasswordPage from './pages/UserSettings/ResetPasswordPage';
+import AgencySettingsPage from './pages/AgencySettings/AgencySettings';
+import AgencyResetPasswordPage from './pages/AgencySettings/ResetPasswordPage';
 import PrivacyPolicy from './pages/FooterPages/PrivacyPolicy';
 import TermsOfService from './pages/FooterPages/TermsOfService';
 import AboutUs from './pages/FooterPages/AboutUs';
@@ -70,6 +72,9 @@ function App() {
                         <Route path="/user-settings/" element={<AccountSettingsPage />} />
                         <Route path="/user-settings/notifications" element={<NotificationsSettingsPage />} />
                         <Route path="/user-settings/reset-password" element={<ResetPasswordPage />} />
+
+                        <Route path="/agency-settings/" element={<AgencySettingsPage />} />
+                        <Route path="/agency-settings/reset-password" element={<AgencyResetPasswordPage />} />
 
                         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                         <Route path="/terms-of-service" element={<TermsOfService />} />

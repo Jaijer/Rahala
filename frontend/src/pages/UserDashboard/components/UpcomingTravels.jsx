@@ -14,9 +14,9 @@ function UpcomingTravels({travels}) {
         {
             travels.length?
             <div className='flex flex-col gap-6'>
-                {travels.map((travel)=> {
-                    return <TravelCard travel={travel} />
-                })}
+                {travels.map((travel)=> (
+                    <TravelCard key={travel._id} travel={travel} />
+                ))}
             </div>
 
             // If there are no travels
@@ -49,4 +49,4 @@ function UpcomingTravels({travels}) {
   )
 }
 
-export default UpcomingTravels
+export default UpcomingTravels;

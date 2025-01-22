@@ -8,14 +8,14 @@ import useUserStore from '../../../stores/userDataStore';
 import { getAuth } from 'firebase/auth';
 import { Spinner } from "@nextui-org/spinner";
 
-function AccountForm() {
+function AgencyAccountForm() {
   const { userData } = useUserStore();
-  const userId = userData?._id; // Access user ID from store
-
+  const [agencyId, setAgencyId] = useState(null);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [address, setAddress] = useState("");
   const [errors, setErrors] = useState({
     phoneNumber: ''
   });
@@ -42,7 +42,7 @@ function AccountForm() {
       return;
     }
 
-    const updateUserInfo = async () => {
+    const updateAgencyInfo = async () => {
       try {
         const auth = getAuth();
         const user = auth.currentUser;
@@ -54,9 +54,15 @@ function AccountForm() {
       
         const token = await user.getIdToken();
 
-        await api.put(`/api/users/user-settings/${userId}`, {
+        if (!agencyId) {
+          console.error('Agency ID not found');
+          return;
+        }
+
+        await api.put(`/api/agencies/agency-settings/${agencyId}`, {
           name,
-          phoneNumber
+          phoneNumber,
+          address
         },
         {
           headers: {
@@ -66,11 +72,11 @@ function AccountForm() {
         toast.success("تم تحديث المعلومات بنجاح");
       } catch (error) {
         toast.error("حدث خطأ أثناء تحديث المعلومات");
-        console.error("Error updating user info:", error);
+        console.error("Error updating agency info:", error);
       }
     };
 
-    updateUserInfo();
+    updateAgencyInfo();
   }
 
   function handlePhoneChange(e) {
@@ -84,25 +90,27 @@ function AccountForm() {
   }
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userData?.email) return;
     setLoading(true);
-    const fetchUserInfo = async () => {
+    const fetchAgencyInfo = async () => {
       try {
-        const response = await api.get(`/api/users/${userId}`);
-        const userData = response.data;
-        setName(userData.name);
-        setPhoneNumber(userData.phoneNumber);
-        setEmail(userData.email);
+        const response = await api.get(`/api/agencies/email/${userData.email}`);
+        const agencyData = response.data;
+        setAgencyId(agencyData._id);
+        setName(agencyData.name);
+        setPhoneNumber(agencyData.phoneNumber);
+        setEmail(agencyData.email);
+        setAddress(agencyData.address);
       } catch (error) {
-        console.error("Error fetching user info:", error);
+        console.error("Error fetching agency info:", error);
         toast.error("حدث خطأ أثناء تحميل المعلومات");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUserInfo();
-  }, [userId]);
+    fetchAgencyInfo();
+  }, [userData?.email]);
 
   return (
     <>
@@ -115,7 +123,7 @@ function AccountForm() {
         <form onSubmit={handleSubmit} className="space-y-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <Input
-              label="الاسم"
+              label="اسم الحملة"
               value={name}
               variant="bordered"
               labelPlacement="outside"
@@ -137,7 +145,7 @@ function AccountForm() {
                 labelPlacement="outside"
                 isReadOnly
                 endContent={
-                  <Link to="/user-settings/reset-password">
+                  <Link to="/agency-settings/reset-password">
                     <EditIcon className="w-6 h-6 text-blue-500 hover:text-blue-600" />
                   </Link>
                 }
@@ -182,6 +190,18 @@ function AccountForm() {
                 <span className="text-red-500 text-sm">{errors.phoneNumber}</span>
               )}
             </div>
+            <Input
+              label="العنوان"
+              value={address}
+              variant="bordered"
+              labelPlacement="outside"
+              onChange={(e) => setAddress(e.target.value)}
+              classNames={{
+                label: "text-lg mb-3",
+                input: "text-lg py-2",
+                base: "mb-6",
+              }}
+            />
           </div>
           <div className="flex justify-center pt-6">
             <Button 
@@ -198,4 +218,4 @@ function AccountForm() {
   );
 }
 
-export default AccountForm;
+export default AgencyAccountForm;

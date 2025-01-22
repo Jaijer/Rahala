@@ -2,9 +2,15 @@ import React from 'react';
 import { Image } from '@nextui-org/image'; // Import Image component from NextUI
 
 function TravelCard({ travel }) {
+  // Log the travel object to see its structure
+  console.log('Travel object:', travel);
+  
   // Destructuring the props
   const { travelName, from, destination, image } = travel.travel;
   const { package: selectedPackage, date } = travel;
+  
+  // Log the selectedPackage to see its structure
+  console.log('Selected package:', selectedPackage);
   
   // Extracting departure and arrival dates
   const departureDate = date.departure;
@@ -17,8 +23,7 @@ function TravelCard({ travel }) {
         <Image 
           src={image} 
           alt={travelName} 
-          objectFit="cover" 
-          className="w-full h-full"
+          className="w-full h-full object-cover"
         />
       </div>
 
@@ -39,19 +44,21 @@ function TravelCard({ travel }) {
           <span className='text-lg font-medium'>التاريخ:</span>
           <span className='flex gap-2 text-md font-medium text-gray-600 mt-2'>
             <span>
-                {new Date(departureDate).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })}
+              {new Date(departureDate).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })}
             </span>
             -
             <span>
-                {new Date(arrivalDate).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })}
+              {new Date(arrivalDate).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })}
             </span>
           </span>
         </div>
 
         {/* Package */}
-        <div>
-          <div className="text-lg font-medium">الباقة:</div>
-          <div className="text-md text-gray-600">{selectedPackage}</div>
+        <div className='mt-2'>
+          <span className='text-lg font-medium'>الباقة:</span>
+          <div className='flex gap-2 text-md font-medium text-gray-600 mt-2'>
+            <span>{selectedPackage}</span>
+          </div>
         </div>
       </div>
     </div>

@@ -12,6 +12,7 @@ function Navbar() {
     const isDark = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/login-agency' || location.pathname === '/payment';
     const navigate = useNavigate();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const userType = useUserStore((state) => state.userType);
 
     // Check if the user is logged in
     useEffect(() => {
@@ -72,7 +73,7 @@ function Navbar() {
                         />
                     </DropdownTrigger>
                     <DropdownMenu aria-label="User Actions" color="secondary">
-                        <DropdownItem key="settings" onClick={() => navigate('/user-settings')}>
+                        <DropdownItem key="settings" onClick={() => navigate(userType === 'agency' ? '/agency-settings' : '/user-settings')}>
                             اعدادات الحساب
                         </DropdownItem>
                         <DropdownItem key="logout" color="error" onClick={handleLogout}>
