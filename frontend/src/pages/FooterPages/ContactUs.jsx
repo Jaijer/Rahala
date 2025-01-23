@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Input, Textarea, Button, Spacer } from '@nextui-org/react';
 import Footer from '../../components/Footer';
-import emailjs from 'emailjs-com';
+import emailjs from '@emailjs/browser';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -37,14 +37,24 @@ function ContactUs() {
 
     setIsSending(true);
 
-    // Replace 'YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', 'YOUR_USER_ID' with your actual EmailJS credentials
-    emailjs.send('service_m31o8dl', 'template_e9cgcx5', {
+    const templateParams = {
       from_name: name,
       from_email: email,
       subject: subject,
       message: message,
-    }, 'mPy4eeYFqGZDoH5bl')
+    };
+
+    // Initialize EmailJS with public key before sending
+    emailjs.init(process.env.REACT_APP_EMAILJS_PUBLIC_KEY);
+    
+    emailjs.send(
+      process.env.REACT_APP_EMAILJS_SERVICE_ID,
+      process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+      templateParams,
+      process.env.REACT_APP_EMAILJS_PUBLIC_KEY  
+    )
       .then((response) => {
+        console.log('SUCCESS!', response);
         toast.success('تم إرسال رسالتك بنجاح!', {
           position: 'top-center',
           autoClose: 3000,
@@ -58,6 +68,7 @@ function ContactUs() {
         setMessage('');
       })
       .catch((error) => {
+        console.error('Error:', error);
         toast.error('حدث خطأ أثناء إرسال الرسالة. حاول مرة أخرى.', {
           position: 'top-center',
           autoClose: 3000,
