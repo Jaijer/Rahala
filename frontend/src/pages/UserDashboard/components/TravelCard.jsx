@@ -25,17 +25,17 @@ function TravelCard({ travel }) {
 
   return (
     <div 
-      className="flex flex-col md:flex-row lg:h-64 bg-white shadow-lg rounded-3xl w-full transform transition-all duration-300 hover:shadow-2xl hover:cursor-pointer"
+      className="flex flex-row lg:h-64 bg-white/80 shadow-lg rounded-3xl w-full transform transition-all duration-300 hover:shadow-2xl hover:cursor-pointer"
       onClick={handleClick}
     >
       {/* Image */}
-      <div className="w-full md:w-1/3 h-48 md:h-64 rounded-b-none md:rounded-br-3xl rounded-3xl overflow-hidden">
+      <div className="w-full md:w-1/4 h-64 md:rounded-bl-none rounded-r-3xl overflow-hidden">
         <Image 
           src={image} 
           alt={travelName} 
           width={300}
           height={300}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover rounded-none"
         />
       </div>
 
