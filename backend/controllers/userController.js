@@ -60,6 +60,25 @@ exports.addTravelToUser = async (req, res) => {
   const { travelId, package: packageType, date } = req.body;
 
   try {
+    // First check if user exists and if they already registered for this travel
+    const existingUser = await User.findById(userId);
+    
+    if (!existingUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if user has already registered for this travel
+    const hasRegistered = existingUser.registeredTravels.some(
+      registration => registration.travel.toString() === travelId
+    );
+
+    if (hasRegistered) {
+      return res.status(400).json({ 
+        message: 'You have already registered for this travel',
+        success: false
+      });
+    }
+
     // Update the user's registeredTravels
     const user = await User.findByIdAndUpdate(
       userId,
@@ -75,9 +94,6 @@ exports.addTravelToUser = async (req, res) => {
       { new: true } // Return the updated document
     );
 
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
 
     // Update the travel's travellers list
     const travel = await Travel.findByIdAndUpdate(

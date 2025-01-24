@@ -16,48 +16,25 @@ const LoginForm = ({ email, password, setEmail, setPassword, onGoogleClick, onLo
         setShowPassword(!showPassword);
     };
 
-    // Validation functions
-    const validateEmail = (inputEmail) => {
-        if (!inputEmail) return 'البريد الإلكتروني مطلوب';
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(inputEmail)) return 'برجاء إدخال بريد إلكتروني صحيح';
-        return '';
-    };
-
-    const validatePassword = (inputPassword) => {
-        if (!inputPassword) return 'كلمة المرور مطلوبة';
-        if (inputPassword.length < 8) return 'يجب أن تكون كلمة المرور 8 أحرف على الأقل';
-        return '';
-    };
-
     const handleEmailChange = (e) => {
-        const inputEmail = e.target.value;
-        setEmail(inputEmail);
-        setErrors((prev) => ({
-            ...prev,
-            email: validateEmail(inputEmail)
-        }));
+        setEmail(e.target.value);
+        setErrors(prev => ({ ...prev, email: '' }));
     };
 
     const handlePasswordChange = (e) => {
-        const inputPassword = e.target.value;
-        setPassword(inputPassword);
-        setErrors((prev) => ({
-            ...prev,
-            password: validatePassword(inputPassword)
-        }));
+        setPassword(e.target.value);
+        setErrors(prev => ({ ...prev, password: '' }));
     };
 
     const handleLogin = async () => {
-        const emailError = validateEmail(email);
-        const passwordError = validatePassword(password);
+        const newErrors = {
+            email: !email ? 'البريد الإلكتروني مطلوب' : '',
+            password: !password ? 'كلمة المرور مطلوبة' : ''
+        };
 
-        setErrors({
-            email: emailError,
-            password: passwordError
-        });
+        setErrors(newErrors);
 
-        if (!emailError && !passwordError) {
+        if (!newErrors.email && !newErrors.password) {
             setLoading(true); // Start loading
             try {
                 await onLogin(); // Ensure onLogin is an async function if you have network calls
@@ -66,7 +43,6 @@ const LoginForm = ({ email, password, setEmail, setPassword, onGoogleClick, onLo
             }
         }
     };
-
 
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {

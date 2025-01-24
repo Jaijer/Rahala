@@ -76,7 +76,19 @@ const BookingCheckout = () => {
       navigate("/");
     } catch (err) {
       console.error("Error adding travel:", err);
-      toast.error("فشل الحجز، حاول مرة أخرى");
+      
+      // Handle already registered case
+      if (err.response?.status === 400 && err.response?.data?.message?.includes('already registered')) {
+        toast.error("لقد قمت بحجز هذه الرحلة مسبقاً");
+      } 
+      // Handle other specific error cases (e.g., 404, 500)
+      else if (err.response?.status === 404) {
+        toast.error("لم يتم العثور على المستخدم أو الرحلة");
+      }
+      // Handle all other errors
+      else {
+        toast.error("فشل الحجز، حاول مرة أخرى");
+      }
     } finally {
       setLoading(false); // Set loading to false
     }
