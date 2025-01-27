@@ -1,86 +1,117 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import useTravelStore from "../../stores/travelStore";
-import api from "../../api/axios";
-import useUserStore from "../../stores/userDataStore";
-import { toast } from "react-toastify";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@nextui-org/react';
+import useTravelStore from '../../stores/travelStore';
+import useUserStore from '../../stores/userDataStore';
+import api from '../../api/axios';
+import { toast } from 'react-toastify';
 import { getAuth } from 'firebase/auth';
 
 const BookingCheckout = () => {
   const navigate = useNavigate();
   const { travel, selectedPackage, selectedDate } = useTravelStore();
-  const { userData } = useUserStore();  // Get the authenticated user
-  const [loading, setLoading] = useState(false); // New loading state
+  const { userData } = useUserStore();
+  const [loading, setLoading] = useState(false);
+  const [remainingCapacity, setRemainingCapacity] = useState(0);
 
   useEffect(() => {
-    if (!travel) {
-      // Delay before going back
+    if (!travel || !selectedDate) {
       const timeout = setTimeout(() => {
-        window.history.back();
-      }, 500); // 500ms delay
-
-      return () => clearTimeout(timeout); // Cleanup the timeout on component unmount
+        navigate(-1);
+      }, 500);
+      return () => clearTimeout(timeout);
     }
-  }, [travel, navigate]);
 
-  if (!travel) {
-    return (
-      <div className="text-center flex justify-center items-center h-full flex-grow">
-        يتم تحميل البيانات أو لم يتم العثور على الرحلة.
-      </div>
+    // Calculate remaining capacity for the selected date
+    const dateInfo = travel.dates.find(d => 
+      new Date(d.departure).getTime() === new Date(selectedDate.departure).getTime() &&
+      new Date(d.arrival).getTime() === new Date(selectedDate.arrival).getTime()
     );
-  }
-  console.log(userData)
 
-  const { from, destination } = travel;
+    if (dateInfo) {
+      setRemainingCapacity(dateInfo.capacity - (dateInfo.bookedCount || 0));
+    }
+  }, [travel, selectedDate, navigate]);
 
-  // Handle the "دفع" button click
   const handlePayment = async () => {
     if (!userData) {
-      // Show an error or handle the case where user, package, or date are not selected
-      toast.error("يجب أن تسجل الدخول");
+      toast.error("يجب تسجيل الدخول للحجز", {
+        position: "top-center",
+        autoClose: 3000,
+      });
+      return;
+    }
+
+    if (remainingCapacity <= 0) {
+      toast.error("عذراً، لا توجد مقاعد متاحة لهذا التاريخ", {
+        position: "top-center",
+        autoClose: 3000,
+      });
       return;
     }
 
     try {
-      setLoading(true); // Set loading to true
+      setLoading(true);
       const auth = getAuth();
-      const user = auth.currentUser;
-    
-      if (!user) {
-        console.error('User not authenticated');
-        return;
-      }
-    
-      const token = await user.getIdToken();
+      const token = await auth.currentUser?.getIdToken();
 
-      // Send the travel data to the backend
+      // Format the dates to match the backend's expected format
+      const formattedDate = {
+        departure: new Date(selectedDate.departure).toISOString(),
+        arrival: new Date(selectedDate.arrival).toISOString()
+      };
+
       const response = await api.post(
-        `/api/users/${userData._id}/add-travel`, 
+        `/api/users/${userData._id}/add-travel`,
         {
-            travelId: travel._id,
-            package: selectedPackage.title,
-            date: selectedDate,
+          travelId: travel._id,
+          package: selectedPackage.title,
+          date: formattedDate
         },
         {
-            headers: {
-                Authorization: `Bearer ${token}`, 
-            },
+          headers: { Authorization: `Bearer ${token}` }
         }
-    );
-    
+      );
 
-      // After successful registration, navigate to the payment page or another page
-      console.log("Travel added to user:", response.data);
-      toast.success("تم حجز الرحلة بنجاح");
-      navigate("/");
-    } catch (err) {
-      console.error("Error adding travel:", err);
-      toast.error("فشل الحجز، حاول مرة أخرى");
+      if (response.status === 201 || response.status === 200) {
+        toast.success("تم الحجز بنجاح!", {
+          position: "top-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        
+        // Clear any previous timeouts
+        if (window.navigationTimeout) {
+          clearTimeout(window.navigationTimeout);
+        }
+        
+        // Set a new timeout for navigation
+        window.navigationTimeout = setTimeout(() => {
+          navigate('/dashboard', { replace: true });
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      const errorMessage = error.response?.data?.message || "حدث خطأ أثناء الحجز";
+      toast.error(errorMessage, {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } finally {
-      setLoading(false); // Set loading to false
+      setLoading(false);
     }
   };
+
+  if (!travel || !selectedPackage || !selectedDate) {
+    return null;
+  }
 
   return (
     <div className="p-4 lg:p-8 flex flex-col items-center">
@@ -89,7 +120,7 @@ const BookingCheckout = () => {
       </h2>
       <div className="bg-white/80 w-full max-w-4xl p-8 rounded-lg shadow-lg text-right border-2 border-black">
         <div className="text-center font-bold text-[#1b4348] text-3xl mb-6">
-          من {from} إلى {destination}
+          من {travel.from} إلى {travel.destination}
         </div>
 
         <div className="mb-6">
@@ -124,23 +155,28 @@ const BookingCheckout = () => {
         </div>
 
         <div className="flex flex-col text-lg text-[#6c757d] mb-6">
+          <h3 className="text-2xl font-bold text-black mb-2">المقاعد المتبقية:</h3>
+          <p>{remainingCapacity}</p>
+        </div>
+
+        <div className="flex flex-col text-lg text-[#6c757d] mb-6">
           <h3 className="text-2xl font-bold text-black mb-2">قيمة الدفع</h3>
           <p>{selectedPackage?.price || "0"} ريال</p>
         </div>
 
         <div className="flex justify-center items-center gap-4 mt-8 lg:mt-4">
           <button
-            onClick={handlePayment}
-            className="bg-[#76fc8f] text-black px-8 py-2 rounded-full font-bold text-lg hover:bg-[#5ecc71] transition"
-            disabled={loading} // Disable button when loading
-          >
-            {loading ? "جاري الحجز..." : "حجز"}
-          </button>
-          <button
-            onClick={() => window.history.back()}
+            onClick={() => navigate(-1)}
             className="bg-gray-300 text-black px-8 py-2 rounded-full font-bold text-lg hover:bg-gray-400 transition"
           >
             عودة
+          </button>
+          <button
+            onClick={handlePayment}
+            className="bg-[#76fc8f] text-black px-8 py-2 rounded-full font-bold text-lg hover:bg-[#5ecc71] transition"
+            disabled={loading}
+          >
+            {loading ? "جاري الحجز..." : "حجز"}
           </button>
         </div>
 
