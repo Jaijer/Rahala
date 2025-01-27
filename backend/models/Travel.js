@@ -3,12 +3,13 @@ const mongoose = require('mongoose');
 
 const travelSchema = new mongoose.Schema({
   travelName: { type: String, required: true },
-  capacity: { type: Number, required: true },
   from: { type: String, required: true },
   destination: { type: String, required: true },
   dates: [{
     departure: { type: Date, required: true },
     arrival: { type: Date, required: true },
+    capacity: { type: Number, required: true },
+    bookedCount: { type: Number, default: 0 }
   },],
   description: { type: String },
   image: { type: String },

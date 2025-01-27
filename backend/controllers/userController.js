@@ -60,100 +60,153 @@ exports.addTravelToUser = async (req, res) => {
   const { travelId, package: packageType, date } = req.body;
 
   try {
-    // First check if user exists and if they already registered for this travel
-    const existingUser = await User.findById(userId);
-    
-    if (!existingUser) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+    // Start a session for the transaction
+    const session = await Travel.startSession();
+    session.startTransaction();
 
-    // Check if user has already registered for this travel
-    const hasRegistered = existingUser.registeredTravels.some(
-      registration => registration.travel.toString() === travelId
-    );
+    try {
+      // Find travel and check capacity
+      const travel = await Travel.findById(travelId);
+      if (!travel) {
+        return res.status(404).json({ message: 'Travel not found' });
+      }
 
-    if (hasRegistered) {
-      return res.status(400).json({ 
-        message: 'You have already registered for this travel',
-        success: false
+      // Find the specific date in travel's dates
+      const selectedDate = travel.dates.find(d => 
+        new Date(d.departure).getTime() === new Date(date.departure).getTime() &&
+        new Date(d.arrival).getTime() === new Date(date.arrival).getTime()
+      );
+
+      if (!selectedDate) {
+        return res.status(400).json({ message: 'التاريخ المحدد غير متوفر' });
+      }
+
+      // Check if there's available capacity
+      if (selectedDate.bookedCount >= selectedDate.capacity) {
+        return res.status(400).json({ message: 'عذراً، لا توجد مقاعد متاحة لهذا التاريخ' });
+      }
+
+      // Check if user exists and if they already registered for this travel
+      const existingUser = await User.findById(userId);
+      if (!existingUser) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Check if user has already registered for this travel
+      const hasRegistered = existingUser.registeredTravels.some(
+        registration => registration.travel.toString() === travelId
+      );
+
+      if (hasRegistered) {
+        return res.status(400).json({ 
+          message: 'لقد قمت بالتسجيل مسبقاً في هذه الرحلة',
+          success: false
+        });
+      }
+
+      // Update the bookedCount for the specific date
+      const dateIndex = travel.dates.findIndex(d => 
+        new Date(d.departure).getTime() === new Date(date.departure).getTime() &&
+        new Date(d.arrival).getTime() === new Date(date.arrival).getTime()
+      );
+      
+      travel.dates[dateIndex].bookedCount += 1;
+      await travel.save({ session });
+
+      // Update the user's registeredTravels
+      const user = await User.findByIdAndUpdate(
+        userId,
+        {
+          $push: {
+            registeredTravels: {
+              travel: travelId,
+              package: packageType,
+              date,
+            },
+          },
+        },
+        { new: true, session }
+      );
+
+      // Update the travel's travellers list
+      travel.travellers.push({
+        user: userId,
+        package: packageType,
+        date,
       });
+      await travel.save({ session });
+
+      await session.commitTransaction();
+      res.json({ user, travel });
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
     }
-
-    // Update the user's registeredTravels
-    const user = await User.findByIdAndUpdate(
-      userId,
-      {
-        $push: {
-          registeredTravels: {
-            travel: travelId,
-            package: packageType,
-            date,
-          },
-        },
-      },
-      { new: true } // Return the updated document
-    );
-
-
-    // Update the travel's travellers list
-    const travel = await Travel.findByIdAndUpdate(
-      travelId,
-      {
-        $push: {
-          travellers: {
-            user: userId,
-            package: packageType,
-            date,
-          },
-        },
-      },
-      { new: true } // Return the updated document
-    );
-
-    if (!travel) {
-      return res.status(404).json({ message: 'Travel not found' });
-    }
-
-    res.json({ user, travel });
   } catch (err) {
     console.error('Error adding travel:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
-
+// Delete a traveler
 exports.deleteTraveler = async (req, res) => {
   const travelerId = req.params.id;
 
   try {
-    // Find the traveler first to get the associated user and travel details
-    const traveler = await Travel.findOne({ 'travellers._id': travelerId });
-    if (!traveler) {
-      return res.status(404).json({ message: 'Traveler not found' });
+    // Start a session for the transaction
+    const session = await Travel.startSession();
+    session.startTransaction();
+
+    try {
+      // Find the traveler first to get the associated user and travel details
+      const travel = await Travel.findOne({ 'travellers._id': travelerId });
+      if (!travel) {
+        return res.status(404).json({ message: 'Traveler not found' });
+      }
+
+      // Find the specific traveler object within the travellers array
+      const travelerToRemove = travel.travellers.find(t => t._id.toString() === travelerId);
+
+      if (!travelerToRemove) {
+        return res.status(404).json({ message: 'Traveler details not found' });
+      }
+
+      // Find the specific date in travel's dates array
+      const dateIndex = travel.dates.findIndex(d => 
+        new Date(d.departure).getTime() === new Date(travelerToRemove.date.departure).getTime() &&
+        new Date(d.arrival).getTime() === new Date(travelerToRemove.date.arrival).getTime()
+      );
+
+      if (dateIndex === -1) {
+        return res.status(404).json({ message: 'Travel date not found' });
+      }
+
+      // Decrement the bookedCount for this date
+      if (travel.dates[dateIndex].bookedCount > 0) {
+        travel.dates[dateIndex].bookedCount -= 1;
+      }
+
+      // Remove the traveler from the travel's travellers list
+      travel.travellers = travel.travellers.filter(t => t._id.toString() !== travelerId);
+      await travel.save({ session });
+
+      // Remove the travel from the user's registered travels
+      await User.findByIdAndUpdate(
+        travelerToRemove.user,
+        { $pull: { registeredTravels: { travel: travel._id } } },
+        { new: true, session }
+      );
+
+      await session.commitTransaction();
+      res.json({ message: 'Traveler deleted successfully' });
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
     }
-
-    // Find the specific traveler object within the travellers array
-    const travelerToRemove = traveler.travellers.find(t => t._id.toString() === travelerId);
-
-    if (!travelerToRemove) {
-      return res.status(404).json({ message: 'Traveler details not found' });
-    }
-
-    // Remove the traveler from the travel's travellers list
-    await Travel.findByIdAndUpdate(
-      traveler._id,
-      { $pull: { travellers: { _id: travelerId } } },
-      { new: true }
-    );
-
-    // Remove the travel from the user's registered travels
-    await User.findByIdAndUpdate(
-      travelerToRemove.user,
-      { $pull: { registeredTravels: { travel: traveler._id } } },
-      { new: true }
-    );
-
-    res.json({ message: 'Traveler deleted successfully' });
   } catch (err) {
     console.error('Error deleting traveler:', err);
     res.status(500).json({ message: 'Server error' });
@@ -225,21 +278,44 @@ exports.cancelBooking = async (req, res) => {
       return res.status(404).json({ message: 'الرحلة غير موجودة' });
     }
 
-    // Remove the booking from registeredTravels
-    user.registeredTravels.splice(bookingIndex, 1);
-    await user.save();
+    // Start a session for the transaction
+    const session = await Travel.startSession();
+    session.startTransaction();
 
-    // Remove the user from travel's travellers
-    const travellerIndex = travel.travellers.findIndex(
-      t => t.user.toString() === user._id.toString()
-    );
-    
-    if (travellerIndex !== -1) {
-      travel.travellers.splice(travellerIndex, 1);
-      await travel.save();
+    try {
+      // Update the bookedCount for the specific date
+      const dateIndex = travel.dates.findIndex(d => 
+        new Date(d.departure).getTime() === new Date(booking.date.departure).getTime() &&
+        new Date(d.arrival).getTime() === new Date(booking.date.arrival).getTime()
+      );
+
+      if (dateIndex !== -1) {
+        travel.dates[dateIndex].bookedCount = Math.max(0, travel.dates[dateIndex].bookedCount - 1);
+        await travel.save({ session });
+      }
+
+      // Remove the booking from registeredTravels
+      user.registeredTravels.splice(bookingIndex, 1);
+      await user.save({ session });
+
+      // Remove the user from travel's travellers
+      const travellerIndex = travel.travellers.findIndex(
+        t => t.user.toString() === user._id.toString()
+      );
+      
+      if (travellerIndex !== -1) {
+        travel.travellers.splice(travellerIndex, 1);
+        await travel.save({ session });
+      }
+
+      await session.commitTransaction();
+      res.status(200).json({ message: 'تم إلغاء الحجز بنجاح' });
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
     }
-
-    res.status(200).json({ message: 'تم إلغاء الحجز بنجاح' });
   } catch (error) {
     console.error('Error in cancelBooking:', error);
     res.status(500).json({ message: 'حدث خطأ أثناء إلغاء الحجز' });

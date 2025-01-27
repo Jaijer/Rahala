@@ -17,11 +17,10 @@ import { getAuth } from 'firebase/auth';
 const AddTravelModal = ({ isOpen, onClose, travel }) => {
     const {userData} = useUserStore();
     const [travelName, setTravelName] = useState("");
-    const [capacity, setCapacity] = useState("");
     const [from, setFrom] = useState("");
     const [destination, setDestination] = useState("");
     const [description, setDescription] = useState("");
-    const [dates, setDates] = useState([{ departure: "", arrival: "" }]);
+    const [dates, setDates] = useState([{ departure: "", arrival: "", capacity: "" }]);
     const [packages, setPackages] = useState([{ title: "", price: "" }]);
     const [image, setImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
@@ -31,7 +30,6 @@ const AddTravelModal = ({ isOpen, onClose, travel }) => {
     // Validation states (same as previous code)
     const [validations, setValidations] = useState({
         travelName: { isValid: true, message: "" },
-        capacity: { isValid: true, message: "" },
         from: { isValid: true, message: "" },
         destination: { isValid: true, message: "" },
         description: { isValid: true, message: "" },
@@ -46,15 +44,6 @@ const AddTravelModal = ({ isOpen, onClose, travel }) => {
       return {
           isValid,
           message: isValid ? "" : "يرجى إدخال اسم الرحلة"
-      };
-    };
-
-    const validateCapacity = (value) => {
-      const parsedValue = parseInt(value);
-      const isValid = !isNaN(parsedValue) && parsedValue > 0;
-      return {
-          isValid,
-          message: isValid ? "" : "يرجى إدخال عدد الركاب الصحيح"
       };
     };
 
@@ -85,11 +74,12 @@ const AddTravelModal = ({ isOpen, onClose, travel }) => {
     const validateDates = (currentDates) => {
       const isValid = currentDates.every(date => 
           date.departure && date.arrival && 
-          new Date(date.departure) <= new Date(date.arrival)
+          new Date(date.departure) <= new Date(date.arrival) &&
+          parseInt(date.capacity) > 0
       );
       return {
           isValid,
-          message: isValid ? "" : "يرجى التأكد من صحة التواريخ"
+          message: isValid ? "" : "يرجى التأكد من صحة التواريخ والسعة"
       };
     };
 
@@ -111,15 +101,6 @@ const AddTravelModal = ({ isOpen, onClose, travel }) => {
       setValidations(prev => ({
           ...prev,
           travelName: validateTravelName(value)
-      }));
-    };
-
-    const handleCapacityChange = (e) => {
-      const value = e.target.value;
-      setCapacity(value);
-      setValidations(prev => ({
-          ...prev,
-          capacity: validateCapacity(value)
       }));
     };
 
@@ -151,7 +132,7 @@ const AddTravelModal = ({ isOpen, onClose, travel }) => {
     };
 
     const handleAddDate = () => {
-      const newDates = [...dates, { departure: "", arrival: "" }];
+      const newDates = [...dates, { departure: "", arrival: "", capacity: "" }];
       setDates(newDates);
       setValidations(prev => ({
           ...prev,
@@ -181,7 +162,6 @@ const AddTravelModal = ({ isOpen, onClose, travel }) => {
           i === index ? { ...date, [field]: value } : date
       );
       setDates(updatedDates);
-      console.log(updatedDates)
       setValidations(prev => ({
           ...prev,
           dates: validateDates(updatedDates)
@@ -287,7 +267,6 @@ const AddTravelModal = ({ isOpen, onClose, travel }) => {
     useEffect(() => {
       if (isEdit && travel) {
           setTravelName(travel.travelName || "");
-          setCapacity(travel.capacity?.toString() || "");
           setFrom(travel.from || "");
           setDestination(travel.destination || "");
           setDescription(travel.description || "");
@@ -295,9 +274,10 @@ const AddTravelModal = ({ isOpen, onClose, travel }) => {
             travel.dates
               ? travel.dates.map(date => ({
                   departure: isoToDateFormat(date.departure),
-                  arrival: isoToDateFormat(date.arrival)
+                  arrival: isoToDateFormat(date.arrival),
+                  capacity: date.capacity.toString()
                 }))
-              : [{ departure: "", arrival: "" }]
+              : [{ departure: "", arrival: "", capacity: "" }]
           );
           setPackages(travel.packages || [{ title: "", price: "" }]);
           setImage(travel.image || null);
@@ -305,11 +285,10 @@ const AddTravelModal = ({ isOpen, onClose, travel }) => {
       } else {
           // Reset fields when modal closes or for a new travel
           setTravelName("");
-          setCapacity("");
           setFrom("");
           setDestination("");
           setDescription("");
-          setDates([{ departure: "", arrival: "" }]);
+          setDates([{ departure: "", arrival: "", capacity: "" }]);
           setPackages([{ title: "", price: "" }]);
           setImage(null);
           setImagePreview(null);
@@ -321,7 +300,6 @@ const AddTravelModal = ({ isOpen, onClose, travel }) => {
         // Validate all fields including image
         const newValidations = {
             travelName: validateTravelName(travelName),
-            capacity: validateCapacity(capacity),
             from: validateFrom(from),
             destination: validateDestination(destination),
             description: validateDescription(description),
@@ -350,11 +328,15 @@ const AddTravelModal = ({ isOpen, onClose, travel }) => {
 
                 const travelData = {
                     travelName,
-                    capacity: parseInt(capacity),
                     from,
                     destination,
                     description,
-                    dates,
+                    dates: dates.map(date => ({
+                        departure: date.departure,
+                        arrival: date.arrival,
+                        capacity: parseInt(date.capacity),
+                        bookedCount: 0
+                    })),
                     packages,
                     agency: userData._id,
                     image: imageUrl // Add image URL to travel data
@@ -412,7 +394,7 @@ const AddTravelModal = ({ isOpen, onClose, travel }) => {
             <ModalHeader className="flex flex-col gap-1">إضافة رحلة جديدة</ModalHeader>
             <ModalBody>
                 <form className="flex flex-col gap-6">
-                  {/* Travel Name and Capacity (Row 1) */}
+                  {/* Travel Name (Row 1) */}
                   <div className="grid grid-cols-2 gap-4">
                     <Input
                     label="اسم الرحلة"
@@ -421,15 +403,6 @@ const AddTravelModal = ({ isOpen, onClose, travel }) => {
                     isInvalid={!validations.travelName.isValid}
                     errorMessage={validations.travelName.message}
                     onChange={handleTravelNameChange}
-                    />
-                    <Input
-                    label="عدد الركاب"
-                    type="number"
-                    placeholder="عدد الركاب"
-                    value={capacity}
-                    isInvalid={!validations.capacity.isValid}
-                    errorMessage={validations.capacity.message}
-                    onChange={handleCapacityChange}
                     />
                 </div>
 
@@ -467,38 +440,55 @@ const AddTravelModal = ({ isOpen, onClose, travel }) => {
                 <div className="flex flex-col gap-4">
                     <div className="text-lg font-bold">التواريخ</div>
                     {dates.map((date, index) => (
-                    <div key={index} className="grid grid-cols-7 gap-4 items-center">
-                        <Input
-                        className="col-span-3"
-                        label="تاريخ المغادرة"
-                        type="date"
-                        isInvalid={!validations.dates.isValid}
-                        errorMessage={validations.dates.message}
-                        value={date.departure}
-                        onChange={(e) => {
-                            handleDateChange(index, "departure", e.target.value);
-                        }}
-                        />
-                        <Input
-                        className="col-span-3"
-                        label="تاريخ الوصول"
-                        type="date"
-                        isInvalid={!validations.dates.isValid}
-                        errorMessage={validations.dates.message}
-                        value={date.arrival}
-                        onChange={(e) => {
-                            handleDateChange(index, "arrival", e.target.value);
-                        }}
-                        />
-                        <Button
-                        color="danger"
-                        onPress={() => handleRemoveDate(index)}
-                        isIconOnly
-                        size="sm"
-                        className="rounded-full"
-                        >
-                        X
-                        </Button>
+                    <div key={index} className="flex flex-col gap-4">
+                        <div className="flex flex-wrap gap-4">
+                            <div className="flex-1 min-w-[140px]">
+                                <Input
+                                label="تاريخ المغادرة"
+                                type="date"
+                                isInvalid={!validations.dates.isValid}
+                                value={date.departure}
+                                onChange={(e) => {
+                                    handleDateChange(index, "departure", e.target.value);
+                                }}
+                                />
+                            </div>
+                            <div className="flex-1 min-w-[140px]">
+                                <Input
+                                label="تاريخ الوصول"
+                                type="date"
+                                isInvalid={!validations.dates.isValid}
+                                value={date.arrival}
+                                onChange={(e) => {
+                                    handleDateChange(index, "arrival", e.target.value);
+                                }}
+                                />
+                            </div>
+                            <div className="flex items-start pt-1">
+                                <Button
+                                    color="danger"
+                                    onPress={() => handleRemoveDate(index)}
+                                    isIconOnly
+                                    size="sm"
+                                    className="rounded-full"
+                                >
+                                    X
+                                </Button>
+                            </div>
+                        </div>
+                        <div className="w-full">
+                            <Input
+                            label="عدد المقاعد"
+                            type="number"
+                            min="1"
+                            placeholder="عدد المقاعد"
+                            isInvalid={!validations.dates.isValid}
+                            value={date.capacity}
+                            onChange={(e) => {
+                                handleDateChange(index, "capacity", e.target.value);
+                            }}
+                            />
+                        </div>
                     </div>
                     ))}
                     <Button color="primary" onPress={handleAddDate}>
