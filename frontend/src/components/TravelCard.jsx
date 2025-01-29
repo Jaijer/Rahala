@@ -11,13 +11,16 @@ function TravelCard({ travel }) {
       onClick={() => navigate(`/view-travels/${travel._id}`)}
     >
       {/* Image at the top */}
-      <div className="w-full h-48 rounded-t-3xl overflow-hidden">
-        <Image
-          alt="صورة الاعلان"
-          src={travel.image}
+      <div className="w-full h-48 rounded-t-3xl overflow-hidden flex items-center justify-center"> 
+        <Image 
+          alt="صورة الاعلان" 
+          src={travel.image} 
           className="w-full h-full object-cover"
-        />
+          sizes="100vw"
+          priority
+        /> 
       </div>
+
 
       {/* Information at the bottom */}
       <div className="flex flex-col gap-2 px-4 pb-3">

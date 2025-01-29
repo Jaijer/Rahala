@@ -13,7 +13,8 @@ const userSchema = new mongoose.Schema({
       date: {
         departure: { type: Date, required: true },
         arrival: { type: Date, required: true }
-      }
+      },
+      numberOfTravelers: { type: Number, required: true},
     }
   ]
 });

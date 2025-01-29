@@ -9,10 +9,11 @@ import { getAuth } from 'firebase/auth';
 
 const BookingCheckout = () => {
   const navigate = useNavigate();
-  const { travel, selectedPackage, selectedDate } = useTravelStore();
+  const { travel, selectedPackage, selectedDate, numberOfTravelers } = useTravelStore();
   const { userData } = useUserStore();
   const [loading, setLoading] = useState(false);
   const [remainingCapacity, setRemainingCapacity] = useState(0);
+  const [clickable, setClickable] = useState(true);
 
   useEffect(() => {
     if (!travel || !selectedDate) {
@@ -33,7 +34,7 @@ const BookingCheckout = () => {
     }
   }, [travel, selectedDate, navigate]);
 
-  const handlePayment = async () => {
+  const handleBooking = async () => {
     if (!userData) {
       toast.error("يجب تسجيل الدخول للحجز", {
         position: "top-center",
@@ -66,7 +67,8 @@ const BookingCheckout = () => {
         {
           travelId: travel._id,
           package: selectedPackage.title,
-          date: formattedDate
+          date: formattedDate,
+          numberOfTravelers: numberOfTravelers
         },
         {
           headers: { Authorization: `Bearer ${token}` }
@@ -74,6 +76,7 @@ const BookingCheckout = () => {
       );
 
       if (response.status === 201 || response.status === 200) {
+        setClickable(false);
         toast.success("تم الحجز بنجاح!", {
           position: "top-center",
           autoClose: 2000,
@@ -155,29 +158,29 @@ const BookingCheckout = () => {
         </div>
 
         <div className="flex flex-col text-lg text-[#6c757d] mb-6">
-          <h3 className="text-2xl font-bold text-black mb-2">المقاعد المتبقية:</h3>
-          <p>{remainingCapacity}</p>
+          <h3 className="text-2xl font-bold text-black mb-2">عدد المسافرين:</h3>
+          <p>{numberOfTravelers}</p>
         </div>
 
         <div className="flex flex-col text-lg text-[#6c757d] mb-6">
           <h3 className="text-2xl font-bold text-black mb-2">قيمة الدفع</h3>
-          <p>{selectedPackage?.price || "0"} ريال</p>
+          <p>{(selectedPackage?.price * numberOfTravelers) || "0"} ريال</p>
         </div>
 
         <div className="flex justify-center items-center gap-4 mt-8 lg:mt-4">
-          <button
+          <Button
+            onClick={handleBooking}
+            className="bg-[#76fc8f] text-black px-8 py-2 rounded-full font-bold text-lg hover:bg-[#5ecc71] transition"
+            disabled={loading | !clickable}
+          >
+            {loading ? "جاري الحجز..." : "حجز"}
+          </Button>
+          <Button
             onClick={() => navigate(-1)}
             className="bg-gray-300 text-black px-8 py-2 rounded-full font-bold text-lg hover:bg-gray-400 transition"
           >
             عودة
-          </button>
-          <button
-            onClick={handlePayment}
-            className="bg-[#76fc8f] text-black px-8 py-2 rounded-full font-bold text-lg hover:bg-[#5ecc71] transition"
-            disabled={loading}
-          >
-            {loading ? "جاري الحجز..." : "حجز"}
-          </button>
+          </Button>
         </div>
 
         <p className="text-sm text-[#6c757d] text-center mt-6">

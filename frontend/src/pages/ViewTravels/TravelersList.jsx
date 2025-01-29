@@ -115,6 +115,9 @@ const TravelersList = ({ travellers: initialTravellers }) => {
                     {formatDate(traveller.date.departure)} -{" "}
                     {formatDate(traveller.date.arrival)}
                   </p>
+                  <p>
+                    <strong>عدد المسافرين:</strong> {traveller.numberOfTravelers}
+                  </p>
                 </div>
                 <MdCancel
                   className="text-4xl text-[#E33629] hover:cursor-pointer hover:opacity-85"

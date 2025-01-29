@@ -57,7 +57,7 @@ exports.getUserByEmail = async (req, res) => {
 // Add a travel to a user
 exports.addTravelToUser = async (req, res) => {
   const { userId } = req.params;
-  const { travelId, package: packageType, date } = req.body;
+  const { travelId, package: packageType, date, numberOfTravelers } = req.body;
 
   try {
     // Start a session for the transaction
@@ -82,7 +82,7 @@ exports.addTravelToUser = async (req, res) => {
       }
 
       // Check if there's available capacity
-      if (selectedDate.bookedCount >= selectedDate.capacity) {
+      if (numberOfTravelers > selectedDate.capacity) {
         return res.status(400).json({ message: 'عذراً، لا توجد مقاعد متاحة لهذا التاريخ' });
       }
 
@@ -110,7 +110,7 @@ exports.addTravelToUser = async (req, res) => {
         new Date(d.arrival).getTime() === new Date(date.arrival).getTime()
       );
       
-      travel.dates[dateIndex].bookedCount += 1;
+      travel.dates[dateIndex].bookedCount += numberOfTravelers;
       await travel.save({ session });
 
       // Update the user's registeredTravels
@@ -122,6 +122,7 @@ exports.addTravelToUser = async (req, res) => {
               travel: travelId,
               package: packageType,
               date,
+              numberOfTravelers
             },
           },
         },
@@ -133,6 +134,7 @@ exports.addTravelToUser = async (req, res) => {
         user: userId,
         package: packageType,
         date,
+        numberOfTravelers
       });
       await travel.save({ session });
 

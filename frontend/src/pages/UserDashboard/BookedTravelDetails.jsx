@@ -46,6 +46,7 @@ function BookedTravelDetails() {
           }
         });
         setBooking(response.data);
+        console.log(response.data)
       } catch (err) {
         setError(err.message);
       } finally {
@@ -98,7 +99,7 @@ function BookedTravelDetails() {
     );
   }
 
-  const { travel, date, package: selectedPackage } = booking;
+  const { travel, date, package: selectedPackage, numberOfTravelers } = booking;
 
   return (
     <div className="font-inter">
@@ -169,6 +170,17 @@ function BookedTravelDetails() {
               </h2>
               <p className="text-lg lg:text-xl text-[#757575]">
                 {selectedPackage}
+              </p>
+            </div>
+
+            {/* Number Of Travelers Section */}
+            <div className="space-y-4 bg-white/60 border p-6 rounded-lg shadow-sm">
+              <h2 className="text-2xl lg:text-3xl font-bold text-[#1B4348] flex items-center gap-4">
+                <FaBox size={24} className="text-[#1B4348] ml-2" />
+                عدد المسافرين
+              </h2>
+              <p className="text-lg lg:text-xl text-[#757575]">
+                {numberOfTravelers}
               </p>
             </div>
 

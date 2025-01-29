@@ -8,15 +8,20 @@ import {
   FaBoxOpen,
   FaCalendarAlt,
   FaChevronRight,
-  FaExclamationCircle
+  FaExclamationCircle,
+  FaPlus,
+  FaMinus,
+  FaUsers
 } from "react-icons/fa";
 import useTravelStore from '../../stores/travelStore';
+
 
 const CustomRadio = (props) => {
   const {
     Component,
     children,
     description,
+    extraInfo,
     getBaseProps,
     getWrapperProps,
     getInputProps,
@@ -44,7 +49,17 @@ const CustomRadio = (props) => {
         <span {...getControlProps()} />
       </span>
       <div {...getLabelWrapperProps()} className="w-full">
-        {children && <span {...getLabelProps()} className="block text-lg">{children}</span>}
+        <div className="flex justify-between items-center">
+          <span {...getLabelProps()} className="block text-lg">{children}</span>
+          {extraInfo && (
+            <span className={cn(
+              "text-sm",
+              props.disabled && props.noSeats ? "text-red-500" : "text-[#6c757d]"
+            )}>
+              {props.disabled && props.noSeats ? "لا توجد مقاعد متاحة" : extraInfo}
+            </span>
+          )}
+        </div>
         {description && (
           <span className="text-[#6c757d] block mt-1">{description}</span>
         )}
@@ -60,9 +75,59 @@ const ErrorMessage = ({ message }) => (
   </div>
 );
 
+const TravelersCounter = ({ availableSeats, numberOfTravelers, setNumberOfTravelers }) => (
+  <div className="bg-white/80 p-4 rounded-lg shadow-lg border mt-6 max-w-md mx-auto">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <FaUsers size={20} className="text-[#1b4348]" />
+        <h2 className="text-lg font-bold text-[#1b4348]">عدد المسافرين</h2>
+      </div>
+      
+      <div className="flex items-center gap-3">
+        <Button
+          isIconOnly
+          size="sm"
+          variant="flat"
+          className="rounded-full w-8 h-8 min-w-0"
+          onClick={() => setNumberOfTravelers(Math.min(numberOfTravelers + 1, availableSeats))}
+          disabled={numberOfTravelers >= availableSeats}
+        >
+          <FaPlus size={12} />
+        </Button>
+        
+        <span className="text-lg font-bold w-8 text-center">{numberOfTravelers}</span>
+        
+        <Button
+          isIconOnly
+          size="sm"
+          variant="flat"
+          className="rounded-full w-8 h-8 min-w-0"
+          onClick={() => setNumberOfTravelers(Math.max(numberOfTravelers - 1, 1))}
+          disabled={numberOfTravelers <= 1}
+        >
+          <FaMinus size={12} />
+        </Button>
+      </div>
+    </div>
+    
+    <p className="text-sm text-[#6c757d] mt-2 text-left">
+      المقاعد المتاحة: {availableSeats??0}
+    </p>
+  </div>
+);
+
 const BookTrip = () => {
   const navigate = useNavigate();
-  const { travel, selectedPackage, selectedDate, setSelectedPackage, setSelectedDate } = useTravelStore();
+  const { 
+    travel, 
+    selectedPackage, 
+    selectedDate, 
+    numberOfTravelers,
+    setSelectedPackage, 
+    setSelectedDate,
+    setNumberOfTravelers 
+  } = useTravelStore();
+  
   const [isRadioGroupValid, setIsRadioGroupValid] = useState(true);
   const [isDateValid, setIsDateValid] = useState(true);
   const [selectedPackageId, setSelectedPackageId] = useState("");
@@ -80,6 +145,8 @@ const BookTrip = () => {
     setSelectedDate(date);
     setSelectedDateId(value);
     setIsDateValid(true);
+    // Reset number of travelers when date changes
+    setNumberOfTravelers(1);
   };
 
   const handleSubmit = (event) => {
@@ -110,6 +177,13 @@ const BookTrip = () => {
   // Sort dates and disable past dates
   const sortedDates = travel.dates.slice().sort((a, b) => new Date(a.departure) - new Date(b.departure));
   const currentDate = new Date();
+
+  const getAvailableSeats = (date) => {
+    if(!date) {
+      return null
+    }
+    return date.capacity - date.bookedCount;
+  };
 
   return (
     <div className="font-inter" dir="rtl">
@@ -175,11 +249,15 @@ const BookTrip = () => {
               >
                 {sortedDates.map((date) => {
                   const isPastDate = new Date(date.departure) < currentDate;
+                  const availableSeats = getAvailableSeats(date);
+                  const isFullyBooked = availableSeats === 0;
+                  
                   return (
                     <CustomRadio
                       key={date._id}
                       value={date._id}
-                      disabled={isPastDate}
+                      disabled={isPastDate || isFullyBooked}
+                      extraInfo={`${availableSeats} مقعد متاح`}
                     >
                       {`${new Date(date.departure).toLocaleDateString('ar-GB', { day: 'numeric', month: 'long' })} - ${new Date(date.arrival).toLocaleDateString('ar-GB', { day: 'numeric', month: 'long' })}`}
                     </CustomRadio>
@@ -189,6 +267,13 @@ const BookTrip = () => {
             </div>
           </div>
         </div>
+
+        {/* Travelers Counter Section - Only show when both package and date are selected */}
+        <TravelersCounter
+          availableSeats={getAvailableSeats(selectedDate)}
+          numberOfTravelers={numberOfTravelers}
+          setNumberOfTravelers={setNumberOfTravelers}
+        />
 
         {/* Buttons Container */}
         <div className="pt-12 flex justify-center items-center gap-6">

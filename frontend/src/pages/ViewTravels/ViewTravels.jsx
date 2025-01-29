@@ -9,6 +9,7 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Progress,
 } from "@nextui-org/react";
 import { 
   FaRoute,
@@ -19,7 +20,8 @@ import {
   FaTrash,
   FaChevronLeft,
   FaBuilding,
-  FaChevronRight
+  FaChevronRight,
+  FaUsers
 } from "react-icons/fa";
 import api from "../../api/axios";
 import useTravelStore from "../../stores/travelStore";
@@ -43,7 +45,7 @@ const ViewTravels = () => {
   useEffect(() => {
     const fetchTravel = async () => {
       try {
-        const response = await api.get(`api/travels/${id}`);
+        const response = await api.get(`/api/travels/${id}`);
         setTravel(response.data);
         setSortedDates(response.data.dates.slice().sort((a, b) => new Date(a.departure) - new Date(b.departure)));
         setIsTravelOwner(
@@ -83,6 +85,13 @@ const ViewTravels = () => {
       setDeleteLoading(false);
       setIsDeleteModalOpen(false);
     }
+  };
+
+  const getCapacityColor = (bookedCount, capacity) => {
+    const percentage = (bookedCount / capacity) * 100;
+    if (percentage < 50) return "success";
+    if (percentage < 75) return "warning";
+    return "danger";
   };
 
   if (loading) {
@@ -137,31 +146,53 @@ const ViewTravels = () => {
               </p>
             </div>
 
-            {/* Date Section */}
+            {/* Dates and Capacity Section */}
             <div className="space-y-4 bg-white/60 border p-6 rounded-lg shadow-sm">
               <h2 className="text-2xl lg:text-3xl font-bold text-[#1B4348] flex items-center gap-4">
                 <FaCalendarAlt size={24} className="text-[#1B4348] ml-2" />
-                تواريخ الرحلة
+                تواريخ الرحلة والسعة
               </h2>
-              <ul className="text-lg lg:text-xl text-[#757575] space-y-2">
+              <div className="space-y-6">
                 {sortedDates.map((date) => (
-                  <li key={date._id} className="flex gap-4 items-center">
-                    <span>
-                      {new Date(date.departure).toLocaleDateString("ar-GB", {
-                        day: "numeric",
-                        month: "short",
-                      })}
-                    </span>
-                    <FaLongArrowAltLeft size={16} className="text-[#757575] mx-2" />
-                    <span>
-                      {new Date(date.arrival).toLocaleDateString("ar-GB", {
-                        day: "numeric",
-                        month: "short",
-                      })}
-                    </span>
-                  </li>
+                  <div key={date._id} className="space-y-2">
+                    <div className="flex gap-4 items-center text-lg lg:text-xl text-[#757575]">
+                      <span>
+                        {new Date(date.departure).toLocaleDateString("ar-GB", {
+                          day: "numeric",
+                          month: "short",
+                        })}
+                      </span>
+                      <FaLongArrowAltLeft size={16} className="text-[#757575] mx-2" />
+                      <span>
+                        {new Date(date.arrival).toLocaleDateString("ar-GB", {
+                          day: "numeric",
+                          month: "short",
+                        })}
+                      </span>
+                    </div>
+                    
+                    {/* Capacity Information */}
+                    <div className="bg-white/80 p-4 rounded-lg space-y-2">
+                      <div className="flex items-center gap-2 text-[#757575]">
+                        <FaUsers size={16} />
+                        <span>السعة المتاحة:</span>
+                        <span className="font-semibold">
+                          {date.bookedCount} / {date.capacity}
+                        </span>
+                      </div>
+                      <Progress 
+                        value={(date.bookedCount / date.capacity) * 100}
+                        color={getCapacityColor(date.bookedCount, date.capacity)}
+                        className="w-full"
+                        size="sm"
+                      />
+                      <div className="text-sm text-[#757575]">
+                        {date.capacity - date.bookedCount} مقعد متبقي
+                      </div>
+                    </div>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
 
             {/* Travelers Section */}

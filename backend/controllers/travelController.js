@@ -110,11 +110,38 @@ exports.updateTravel = async (req, res) => {
     const travelId = req.params.id;
     const updatedData = req.body;
 
-    const travel = await Travel.findByIdAndUpdate(travelId, updatedData, { new: true });
-    if (!travel) return res.status(404).json({ message: 'Travel not found' });
+    // First get the existing travel
+    const existingTravel = await Travel.findById(travelId);
+    if (!existingTravel) {
+      return res.status(404).json({ message: 'Travel not found' });
+    }
+
+    // If dates are being updated, preserve the bookedCount for each date
+    if (updatedData.dates) {
+      updatedData.dates = updatedData.dates.map(newDate => {
+        // Try to find matching existing date by departure time
+        const existingDate = existingTravel.dates.find(
+          oldDate => new Date(oldDate.departure).getTime() === new Date(newDate.departure).getTime()
+        );
+
+        // If found, preserve the bookedCount, otherwise use 0
+        return {
+          ...newDate,
+          bookedCount: existingDate ? existingDate.bookedCount : 0
+        };
+      });
+    }
+
+    // Update the travel with the modified data
+    const travel = await Travel.findByIdAndUpdate(
+      travelId, 
+      updatedData, 
+      { new: true }
+    );
 
     res.json(travel);
   } catch (err) {
+    console.error('Error updating travel:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
