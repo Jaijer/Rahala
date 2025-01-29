@@ -12,17 +12,66 @@ const securityMiddleware = (app) => {
         helmet.contentSecurityPolicy({
             directives: {
                 defaultSrc: ["'self'"],
-                scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-                styleSrc: ["'self'", "'unsafe-inline'"],
-                imgSrc: ["'self'", "data:", "https:"],
-                connectSrc: ["'self'", "http://localhost:5000", "https://rahala.onrender.com"],
-                fontSrc: ["'self'", "data:"],
+                scriptSrc: [
+                    "'self'",
+                    "'unsafe-inline'",
+                    "'unsafe-eval'",
+                    "https://www.googletagmanager.com",
+                    "https://*.firebase.google.com",
+                    "https://*.firebaseio.com",
+                    "https://*.firebaseapp.com",
+                    "https://*.emailjs.com",
+                    "https://cdn.jsdelivr.net",
+                    "https://js.stripe.com",
+                    "https://maps.googleapis.com"
+                ],
+                styleSrc: [
+                    "'self'",
+                    "'unsafe-inline'",
+                    "https://fonts.googleapis.com",
+                    "https://cdn.jsdelivr.net"
+                ],
+                imgSrc: [
+                    "'self'",
+                    "data:",
+                    "https:",
+                    "blob:",
+                    "https://*.cloudinary.com",
+                    "https://res.cloudinary.com"
+                ],
+                connectSrc: [
+                    "'self'",
+                    "http://localhost:5000",
+                    "https://rahala.onrender.com",
+                    "https://*.firebase.google.com",
+                    "https://*.firebaseio.com",
+                    "https://*.firebaseapp.com",
+                    "https://*.google-analytics.com",
+                    "https://*.googleapis.com",
+                    "wss://*.firebaseio.com",
+                    "https://api.emailjs.com",
+                    "https://api.cloudinary.com",
+                    "https://*.stripe.com",
+                    "https://maps.googleapis.com"
+                ],
+                fontSrc: [
+                    "'self'",
+                    "data:",
+                    "https://fonts.gstatic.com",
+                    "https://cdn.jsdelivr.net"
+                ],
                 objectSrc: ["'none'"],
-                mediaSrc: ["'self'"],
-                frameAncestors: ["'none'"], // Strict anti-clickjacking
+                mediaSrc: ["'self'", "https://*.cloudinary.com"],
+                frameAncestors: ["'none'"],
                 formAction: ["'self'"],
                 baseUri: ["'self'"],
-                upgradeInsecureRequests: [],
+                workerSrc: ["'self'", "blob:"],
+                frameSrc: [
+                    "'self'",
+                    "https://*.stripe.com",
+                    "https://*.google.com"
+                ],
+                upgradeInsecureRequests: []
             },
         })
     );
