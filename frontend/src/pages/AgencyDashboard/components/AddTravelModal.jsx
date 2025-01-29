@@ -395,7 +395,7 @@ const AddTravelModal = ({ isOpen, onClose, travel }) => {
             <ModalBody>
                 <form className="flex flex-col gap-6">
                   {/* Travel Name (Row 1) */}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="">
                     <Input
                     label="اسم الرحلة"
                     placeholder="اسم الرحلة"

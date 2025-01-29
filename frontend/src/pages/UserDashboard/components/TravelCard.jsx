@@ -1,21 +1,13 @@
 import React from 'react';
-import { Image } from '@nextui-org/image'; // Import Image component from NextUI
+import { Image } from '@nextui-org/image';
 import { useNavigate } from 'react-router-dom';
 
 function TravelCard({ travel }) {
   const navigate = useNavigate();
   
-  // Log the travel object to see its structure
-  console.log('Travel object:', travel);
-  
-  // Destructuring the props
   const { travelName, from, destination, image } = travel.travel;
-  const { _id, package: selectedPackage, date } = travel;
+  const { _id, package: selectedPackage, date, numberOfTravelers } = travel;
   
-  // Log the selectedPackage to see its structure
-  console.log('Selected package:', selectedPackage);
-  
-  // Extracting departure and arrival dates
   const departureDate = date.departure;
   const arrivalDate = date.arrival;
 
@@ -40,36 +32,39 @@ function TravelCard({ travel }) {
       </div>
 
       {/* Information Section */}
-      <div className="flex flex-col justify-center flex-wrap w-full md:w-3/5 p-4 md:p-6 gap-1.5 py-4">
+      <div className="flex flex-col justify-center flex-wrap w-full md:w-3/5 p-4 md:p-6 gap-4 py-4">
         {/* Travel Name */}
         <h3 className="text-xl font-semibold">{travelName}</h3>
         
         {/* Destination */}
-        <div className="text-lg text-darkGreen flex gap-1 flex-wrap mt-1">
+        <div className="text-lg text-darkGreen flex gap-1 flex-wrap">
           <span>{from}</span>
           <span>←</span>
           <span>{destination}</span>
         </div>
 
-        {/* Date Label */}
-        <div className='mt-2'>
-          <span className='text-lg font-medium'>التاريخ:</span>
-          <span className='flex gap-2 text-md font-medium text-gray-600'>
-            <span>
+        {/* Info Grid */}
+        <div className="flex flex-col gap-3">
+          {/* Date */}
+          <div className="flex items-center gap-3">
+            <span className="text-lg font-medium">التاريخ:</span>
+            <span className="text-md text-gray-600">
               {new Date(departureDate).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })}
-            </span>
-            -
-            <span>
+              {' - '}
               {new Date(arrivalDate).toLocaleDateString('ar-GB', { day: 'numeric', month: 'short' })}
             </span>
-          </span>
-        </div>
+          </div>
 
-        {/* Package */}
-        <div className='mt-2'>
-          <span className='text-lg font-medium'>الباقة:</span>
-          <div className='flex gap-2 text-md font-medium text-gray-600'>
-            <span>{selectedPackage}</span>
+          {/* Package */}
+          <div className="flex items-center gap-3">
+            <span className="text-lg font-medium">الباقة:</span>
+            <span className="text-md text-gray-600">{selectedPackage}</span>
+          </div>
+
+          {/* Number of Travelers */}
+          <div className="flex items-center gap-3">
+            <span className="text-lg font-medium">عدد المسافرين:</span>
+            <span className="text-md text-gray-600">{numberOfTravelers}</span>
           </div>
         </div>
       </div>
