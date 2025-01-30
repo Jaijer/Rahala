@@ -12,21 +12,38 @@ function ResultsSection() {
     const [page, setPage] = useState(1);
     const [total, setTotal] = useState(0);
     const loaderRef = useRef(null); // Ref for the scroll trigger
-
     const fetchTravels = async (reset = false) => {
         setIsLoading(true);
+        let formattedDate;
+        // Add validation to check if date is valid
+        if (!date) {
+            formattedDate = null;            
+        } else {
+            // convert the date to be GMT+0 but keep the same day
+            const rawDate = new Date(date);
+        
+            const year = rawDate.getFullYear();
+            const month = String(rawDate.getMonth() + 1).padStart(2, '0');
+            const day = String(rawDate.getDate()).padStart(2, '0');
+            const hours = String(rawDate.getHours()).padStart(2, '0');
+            const minutes = String(rawDate.getMinutes()).padStart(2, '0');
+            const seconds = String(rawDate.getSeconds()).padStart(2, '0');
+        
+            formattedDate = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.000+00:00`;
+        }   
+                 
         try {
             const params = {
                 departure,
                 destination,
-                date,
+                date: formattedDate,
                 page,
                 limit: 12,
             };
-
+    
             const response = await api.get('/api/travels', { params });
             const { travels, total } = response.data;
-
+    
             setResults((prev) => (reset ? travels : [...prev, ...travels]));
             setTotal(total);
         } catch (error) {
@@ -34,7 +51,6 @@ function ResultsSection() {
         }
         setIsLoading(false);
     };
-
     useEffect(() => {
         setPage(1); // Reset page when search changes
         fetchTravels(true);
