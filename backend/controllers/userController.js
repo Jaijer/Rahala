@@ -152,7 +152,6 @@ exports.addTravelToUser = async (req, res) => {
   }
 };
 
-// Delete a traveler
 exports.deleteTraveler = async (req, res) => {
   const travelerId = req.params.id;
 
@@ -185,9 +184,12 @@ exports.deleteTraveler = async (req, res) => {
         return res.status(404).json({ message: 'Travel date not found' });
       }
 
-      // Decrement the bookedCount for this date
-      if (travel.dates[dateIndex].bookedCount > 0) {
-        travel.dates[dateIndex].bookedCount -= 1;
+      // Decrement the bookedCount by the number of travelers that were registered
+      if (travel.dates[dateIndex].bookedCount >= travelerToRemove.numberOfTravelers) {
+        travel.dates[dateIndex].bookedCount -= travelerToRemove.numberOfTravelers;
+      } else {
+        // If somehow bookedCount is less than numberOfTravelers, set it to 0 to avoid negative values
+        travel.dates[dateIndex].bookedCount = 0;
       }
 
       // Remove the traveler from the travel's travellers list
