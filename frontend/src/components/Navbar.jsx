@@ -76,7 +76,7 @@ function Navbar() {
                         <DropdownItem key="settings" onClick={() => navigate(userType === 'agency' ? '/agency-settings' : '/user-settings')}>
                             اعدادات الحساب
                         </DropdownItem>
-                        <DropdownItem key="logout" color="error" onClick={handleLogout}>
+                        <DropdownItem key="logout" onClick={handleLogout}>
                             تسجيل خروج
                         </DropdownItem>
                     </DropdownMenu>
