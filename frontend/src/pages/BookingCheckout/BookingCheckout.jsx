@@ -188,7 +188,7 @@ const BookingCheckout = () => {
           <a href="/terms-of-service" className="text-[#2a9d8f] hover:underline">
             الشروط والأحكام
           </a>{" "}
-          الخاصة بمنصة رحلة
+          الخاصة بمنصة رحالة
         </p>
       </div>
     </div>

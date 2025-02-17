@@ -455,7 +455,7 @@ const AddTravelModal = ({ isOpen, onClose, travel }) => {
                             </div>
                             <div className="flex-1 min-w-[140px]">
                                 <Input
-                                label="تاريخ الوصول"
+                                label="تاريخ العودة"
                                 type="date"
                                 isInvalid={!validations.dates.isValid}
                                 value={date.arrival}
